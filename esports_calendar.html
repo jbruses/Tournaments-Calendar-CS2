@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Esports (CS2)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <style>
+        /* Estilos personalizados para FullCalendar en modo oscuro */
+        .fc {
+            color: #d1d5db;
+        }
+        .fc .fc-daygrid-day {
+            background: #1f2937;
+            border-color: #4b5563;
+        }
+        .fc .fc-daygrid-day:hover {
+            background: #374151;
+        }
+        .fc .fc-daygrid-day.fc-day-today {
+            background: #1e3a8a;
+        }
+        .fc .fc-col-header-cell {
+            background: #374151;
+            color: #d1d5db;
+            border-color: #4b5563;
+        }
+        .fc .fc-event {
+            color: #ffffff;
+            font-size: 0.9em;
+        }
+        .fc .fc-event:hover {
+            filter: brightness(0.8);
+        }
+        .fc .fc-button {
+            background: #2563eb;
+            border-color: #1e40af;
+            color: #ffffff;
+        }
+        .fc .fc-button:hover {
+            background: #1e40af;
+        }
+        .fc .fc-button.fc-button-active {
+            background: #1e3a8a;
+        }
+        /* Colores personalizados para eventos */
+        .event-blue { background: #2563eb; border-color: #1e40af; }
+        .event-orange { background: #f97316; border-color: #ea580c; }
+        .event-green { background: #16a34a; border-color: #15803d; }
+        .event-red { background: #dc2626; border-color: #b91c1c; }
+        .event-purple { background: #9333ea; border-color: #7e22ce; }
+        .event-yellow { background: #eab308; border-color: #ca8a04; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold text-center mb-6 text-white">Calendario de Esports (CS2)</h1>
+        <p class="text-center text-gray-400 mb-4">Los datos se guardan localmente en tu navegador. Exporta tu calendario para respaldarlo o compartirlo. No compartas el archivo JSON si contiene información sensible.</p>
+
+        <!-- Calendario -->
+        <div id="calendar" class="mb-6 bg-gray-800 p-4 rounded-lg shadow-md"></div>
+
+        <!-- Formulario para agregar/editar torneos -->
+        <div class="mb-6 bg-gray-800 p-4 rounded-lg shadow-md">
+            <h2 id="formTitle" class="text-xl font-semibold mb-4 text-white">Agregar Nuevo Torneo</h2>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <input id="tournamentName" type="text" placeholder="Nombre del Torneo" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select id="tournamentTier" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="S">S (Máxima Relevancia)</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                </select>
+                <div class="flex flex-col">
+                    <label for="startDate" class="text-sm text-gray-300">Fecha de Inicio</label>
+                    <input id="startDate" type="date" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex flex-col">
+                    <label for="endDate" class="text-sm text-gray-300">Fecha de Fin</label>
+                    <input id="endDate" type="date" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <input id="tournamentTeams" type="text" placeholder="Equipos (separados por coma)" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input id="tournamentLocation" type="text" placeholder="Ubicación (ej. Londres, Online)" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select id="tournamentModality" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="Online">Online</option>
+                    <option value="Offline">Offline</option>
+                    <option value="Online/Offline">Online/Offline</option>
+                </select>
+                <select id="tournamentColor" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="blue">Azul</option>
+                    <option value="orange">Naranja</option>
+                    <option value="green">Verde</option>
+                    <option value="red">Rojo</option>
+                    <option value="purple">Violeta</option>
+                    <option value="yellow">Amarillo</option>
+                </select>
+                <div class="flex items-center">
+                    <input id="tournamentVRS" type="checkbox" class="mr-2 text-blue-500 focus:ring-blue-500">
+                    <label for="tournamentVRS" class="text-gray-300">Cuenta para el VRS</label>
+                </div>
+            </div>
+            <div class="mt-4 flex gap-4">
+                <button id="saveButton" onclick="saveTournament()" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Agregar Torneo</button>
+                <button id="cancelEditButton" onclick="cancelEdit()" class="hidden bg-gray-600 text-white p-2 rounded hover:bg-gray-700">Cancelar</button>
+                <button id="exportButton" onclick="exportTournaments()" class="bg-green-600 text-white p-2 rounded hover:bg-green-700">Exportar</button>
+                <input type="file" id="importFile" accept=".json" class="hidden" onchange="importTournaments(event)">
+                <button id="importButton" onclick="document.getElementById('importFile').click()" class="bg-purple-600 text-white p-2 rounded hover:bg-purple-700">Importar</button>
+                <button id="helpButton" onclick="showHelp()" class="bg-yellow-600 text-white p-2 rounded hover:bg-yellow-700">Ayuda</button>
+            </div>
+        </div>
+
+        <!-- Tabla de torneos -->
+        <div class="overflow-x-auto">
+            <table id="tournamentTable" class="min-w-full bg-gray-800 rounded-lg shadow-md">
+                <thead>
+                    <tr class="bg-gray-700 text-gray-300 uppercase text-sm leading-normal">
+                        <th class="py-3 px-6 text-left">Torneo</th>
+                        <th class="py-3 px-6 text-left">Tier</th>
+                        <th class="py-3 px-6 text-left cursor-pointer" onclick="sortByDate()">Fechas</th>
+                        <th class="py-3 px-6 text-left">Equipos</th>
+                        <th class="py-3 px-6 text-left">Ubicación</th>
+                        <th class="py-3 px-6 text-left">Modalidad</th>
+                        <th class="py-3 px-6 text-left">Color</th>
+                        <th class="py-3 px-6 text-left cursor-pointer" onclick="sortByVRS()">VRS</th>
+                        <th class="py-3 px-6 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tournamentBody" class="text-gray-300 text-sm font-light">
+                    <!-- Los torneos se agregarán aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Modal de ayuda -->
+        <div id="helpModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden flex items-center justify-center">
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
+                <h3 class="text-xl font-semibold mb-4 text-white">Ayuda</h3>
+                <p class="text-gray-300 mb-4">Bienvenido al Calendario de Esports (CS2). Aquí tienes las instrucciones básicas:</p>
+                <ul class="list-disc list-inside text-gray-300 mb-4">
+                    <li><strong>Agregar Torneo:</strong> Completa el formulario y haz clic en "Agregar Torneo".</li>
+                    <li><strong>Editar Torneo:</strong> Haz clic en "Editar" en la tabla o en un evento del calendario.</li>
+                    <li><strong>Eliminar Torneo:</strong> Haz clic en "Eliminar" y confirma.</li>
+                    <li><strong>Exportar:</strong> Descarga un archivo JSON con tus torneos para respaldarlos o compartirlos.</li>
+                    <li><strong>Importar:</strong> Selecciona un archivo JSON para cargar torneos previos.</li>
+                    <li><strong>Nota:</strong> Los datos se guardan localmente. No compartas el JSON si contiene información sensible.</li>
+                </ul>
+                <button onclick="hideHelp()" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Array para almacenar los torneos
+        let tournaments = [];
+        let sortDirectionDate = 1; // 1 para ascendente, -1 para descendente
+        let sortDirectionVRS = 1; // 1 para Sí primero, -1 para No primero
+        let editingTournamentId = null; // ID del torneo en edición
+        let calendar; // Instancia de FullCalendar
+
+        // Función para formatear fechas a DD/MM/YYYY
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // Cargar torneos desde localStorage al iniciar
+        function loadTournaments() {
+            const savedTournaments = localStorage.getItem('tournaments');
+            if (savedTournaments) {
+                tournaments = JSON.parse(savedTournaments);
+                renderTournaments();
+                renderCalendar();
+            }
+        }
+
+        // Guardar torneos en localStorage
+        function saveTournaments() {
+            localStorage.setItem('tournaments', JSON.stringify(tournaments));
+        }
+
+        // Función para inicializar el calendario
+        function initCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                events: [],
+                eventClick: function(info) {
+                    editTournament(parseInt(info.event.id));
+                },
+                eventDisplay: 'block',
+                eventTimeFormat: { hour: 'numeric', minute: '2-digit', hour12: false },
+                firstDay: 1, // Lunes como primer día
+            });
+            calendar.render();
+        }
+
+        // Función para renderizar el calendario
+        function renderCalendar() {
+            calendar.removeAllEvents();
+            tournaments.forEach(tournament => {
+                const start = new Date(tournament.startDate);
+                const end = new Date(tournament.endDate);
+                end.setDate(end.getDate() + 1); // Ajuste explícito para incluir el día final
+                calendar.addEvent({
+                    id: tournament.id,
+                    title: `${tournament.name} (${tournament.teams}, ${tournament.location}, ${tournament.modality}, ${formatDate(tournament.startDate)} - ${formatDate(tournament.endDate)})`,
+                    start: start.toISOString().split('T')[0],
+                    end: end.toISOString().split('T')[0],
+                    classNames: [`event-${tournament.color}`],
+                    extendedProps: { tier: tournament.tier, vrs: tournament.vrs, location: tournament.location, modality: tournament.modality }
+                });
+            });
+        }
+
+        // Función para guardar un torneo (agregar o editar)
+        function saveTournament() {
+            const name = document.getElementById('tournamentName').value;
+            const tier = document.getElementById('tournamentTier').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const teams = document.getElementById('tournamentTeams').value;
+            const location = document.getElementById('tournamentLocation').value;
+            const modality = document.getElementById('tournamentModality').value;
+            const color = document.getElementById('tournamentColor').value;
+            const vrs = document.getElementById('tournamentVRS').checked;
+
+            if (name && tier && startDate && endDate && teams && location && modality && color) {
+                // Validar que la fecha de fin no sea anterior a la de inicio
+                if (new Date(endDate) < new Date(startDate)) {
+                    alert('La fecha de fin no puede ser anterior a la fecha de inicio.');
+                    return;
+                }
+
+                if (editingTournamentId) {
+                    // Editar torneo existente
+                    tournaments = tournaments.map(tournament =>
+                        tournament.id === editingTournamentId
+                            ? { ...tournament, name, tier, startDate, endDate, teams, location, modality, color, vrs }
+                            : tournament
+                    );
+                } else {
+                    // Agregar nuevo torneo
+                    const tournament = { id: Date.now(), name, tier, startDate, endDate, teams, location, modality, color, vrs };
+                    tournaments.push(tournament);
+                }
+
+                saveTournaments();
+                renderTournaments();
+                renderCalendar();
+                cancelEdit();
+            } else {
+                alert('Por favor, completa todos los campos.');
+            }
+        }
+
+        // Función para editar un torneo
+        function editTournament(id) {
+            const tournament = tournaments.find(t => t.id === id);
+            if (tournament) {
+                document.getElementById('tournamentName').value = tournament.name;
+                document.getElementById('tournamentTier').value = tournament.tier;
+                document.getElementById('tournamentLocation').value = tournament.location;
+                document.getElementById('tournamentModality').value = tournament.modality;
+                document.getElementById('startDate').value = tournament.startDate;
+                document.getElementById('endDate').value = tournament.endDate;
+                document.getElementById('tournamentTeams').value = tournament.teams;
+                document.getElementById('tournamentColor').value = tournament.color;
+                document.getElementById('tournamentVRS').checked = tournament.vrs;
+                document.getElementById('formTitle').textContent = 'Editar Torneo';
+                document.getElementById('saveButton').textContent = 'Guardar Cambios';
+                document.getElementById('cancelEditButton').classList.remove('hidden');
+                editingTournamentId = id;
+            }
+        }
+
+        // Función para cancelar la edición
+        function cancelEdit() {
+            editingTournamentId = null;
+            document.getElementById('formTitle').textContent = 'Agregar Nuevo Torneo';
+            document.getElementById('saveButton').textContent = 'Agregar Torneo';
+            document.getElementById('cancelEditButton').classList.add('hidden');
+            clearForm();
+        }
+
+        // Función para ordenar por fecha de inicio
+        function sortByDate() {
+            tournaments.sort((a, b) => {
+                return sortDirectionDate * (new Date(a.startDate) - new Date(b.startDate));
+            });
+            sortDirectionDate = -sortDirectionDate;
+            renderTournaments();
+        }
+
+        // Función para ordenar por VRS
+        function sortByVRS() {
+            tournaments.sort((a, b) => {
+                return sortDirectionVRS * (b.vrs - a.vrs);
+            });
+            sortDirectionVRS = -sortDirectionVRS;
+            renderTournaments();
+        }
+
+        // Función para renderizar la tabla de torneos
+        function renderTournaments() {
+            const tbody = document.getElementById('tournamentBody');
+            tbody.innerHTML = '';
+
+            tournaments.forEach(tournament => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-600 hover:bg-gray-700';
+                row.innerHTML = `
+                    <td class="py-3 px-6 text-left">${tournament.name}</td>
+                    <td class="py-3 px-6 text-left">${tournament.tier}</td>
+                    <td class="py-3 px-6 text-left">${formatDate(tournament.startDate)} - ${formatDate(tournament.endDate)}</td>
+                    <td class="py-3 px-6 text-left">${tournament.teams}</td>
+                    <td class="py-3 px-6 text-left">${tournament.location}</td>
+                    <td class="py-3 px-6 text-left">${tournament.modality}</td>
+                    <td class="py-3 px-6 text-left">
+                        <span class="inline-block w-4 h-4 rounded-full event-${tournament.color}"></span>
+                        ${tournament.color.charAt(0).toUpperCase() + tournament.color.slice(1)}
+                    </td>
+                    <td class="py-3 px-6 text-left">${tournament.vrs ? 'Sí' : 'No'}</td>
+                    <td class="py-3 px-6 text-center flex gap-2 justify-center">
+                        <button onclick="editTournament(${tournament.id})" class="bg-yellow-600 text-white px-2 py-1 rounded hover:bg-yellow-700">Editar</button>
+                        <button onclick="confirmDelete(${tournament.id})" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">Eliminar</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Función para confirmar eliminación
+        function confirmDelete(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este torneo?')) {
+                deleteTournament(id);
+            }
+        }
+
+        // Función para eliminar un torneo
+        function deleteTournament(id) {
+            tournaments = tournaments.filter(tournament => tournament.id !== id);
+            saveTournaments();
+            renderTournaments();
+            renderCalendar();
+        }
+
+        // Función para limpiar el formulario
+        function clearForm() {
+            document.getElementById('tournamentName').value = '';
+            document.getElementById('tournamentTier').value = 'S';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('tournamentTeams').value = '';
+            document.getElementById('tournamentLocation').value = '';
+            document.getElementById('tournamentModality').value = 'Online';
+            document.getElementById('tournamentColor').value = 'blue';
+            document.getElementById('tournamentVRS').checked = false;
+        }
+
+        // Función para exportar los torneos
+        function exportTournaments() {
+            const data = localStorage.getItem('tournaments');
+            if (data) {
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'tournaments_backup.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            } else {
+                alert('No hay torneos para exportar.');
+            }
+        }
+
+        // Función para importar los torneos
+        function importTournaments(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = e.target.result;
+                        localStorage.setItem('tournaments', importedData);
+                        tournaments = JSON.parse(importedData);
+                        renderTournaments();
+                        renderCalendar();
+                        alert('Torneos importados correctamente.');
+                    } catch (error) {
+                        alert('Error al importar los torneos. Asegúrate de que el archivo sea un JSON válido.');
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = ''; // Limpiar el input para permitir re-importar el mismo archivo
+            }
+        }
+
+        // Función para mostrar la ayuda
+        function showHelp() {
+            document.getElementById('helpModal').classList.remove('hidden');
+        }
+
+        // Función para ocultar la ayuda
+        function hideHelp() {
+            document.getElementById('helpModal').classList.add('hidden');
+        }
+
+        // Inicializar el calendario y cargar los torneos al iniciar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            initCalendar();
+            loadTournaments();
+        });
+    </script>
+</body>
+</html>
