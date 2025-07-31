@@ -107,6 +107,7 @@
                 <input type="file" id="importFile" accept=".json" class="hidden" onchange="importTournaments(event)">
                 <button id="importButton" onclick="document.getElementById('importFile').click()" class="bg-purple-600 text-white p-2 rounded hover:bg-purple-700">Importar</button>
                 <button id="helpButton" onclick="showHelp()" class="bg-yellow-600 text-white p-2 rounded hover:bg-yellow-700">Ayuda</button>
+                <button id="clearAllButton" onclick="confirmClearAll()" class="bg-red-600 text-white p-2 rounded hover:bg-red-700">Borrar todo</button>
             </div>
         </div>
 
@@ -143,6 +144,7 @@
                     <li><strong>Eliminar Torneo:</strong> Haz clic en "Eliminar" y confirma.</li>
                     <li><strong>Exportar:</strong> Descarga un archivo JSON con tus torneos para respaldarlos o compartirlos.</li>
                     <li><strong>Importar:</strong> Selecciona un archivo JSON para cargar torneos previos.</li>
+                    <li><strong>Borrar todo:</strong> Usa "Borrar todo" para eliminar todos los torneos (con confirmación).</li>
                     <li><strong>Nota:</strong> Los datos se guardan localmente. No compartas el JSON si contiene información sensible.</li>
                 </ul>
                 <button onclick="hideHelp()" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Cerrar</button>
@@ -402,6 +404,22 @@
                 reader.readAsText(file);
                 event.target.value = ''; // Limpiar el input para permitir re-importar el mismo archivo
             }
+        }
+
+        // Función para confirmar y borrar todos los torneos
+        function confirmClearAll() {
+            if (confirm('¿Estás seguro de que deseas borrar todos los torneos? Esta acción no se puede deshacer. Te recomendamos exportar tus datos primero.')) {
+                clearAllTournaments();
+            }
+        }
+
+        // Función para borrar todos los torneos
+        function clearAllTournaments() {
+            tournaments = [];
+            localStorage.removeItem('tournaments');
+            renderTournaments();
+            renderCalendar();
+            alert('Todos los torneos han sido borrados.');
         }
 
         // Función para mostrar la ayuda
