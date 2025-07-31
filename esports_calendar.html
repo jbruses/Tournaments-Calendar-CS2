@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendario de Esports (CS2)</title>
+    <title>Esports Calendar (CS2)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <style>
@@ -51,12 +51,25 @@
         .event-red { background: #dc2626; border-color: #b91c1c; }
         .event-purple { background: #9333ea; border-color: #7e22ce; }
         .event-yellow { background: #eab308; border-color: #ca8a04; }
+        /* Estilos para el modal de ayuda */
+        #helpModal {
+            z-index: 1000; /* Asegura que esté por encima del calendario */
+            overflow-y: auto; /* Permite deslizar dentro del modal si es necesario */
+        }
+        #helpModal .bg-gray-800 {
+            max-height: 80vh; /* Limita la altura para evitar que cubra toda la pantalla */
+            overflow-y: auto; /* Deslizamiento interno si el contenido es largo */
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans">
     <div class="container mx-auto p-4">
-        <h1 class="text-3xl font-bold text-center mb-6 text-white">Calendario de Esports (CS2)</h1>
-        <p class="text-center text-gray-400 mb-4">Los datos se guardan localmente en tu navegador. Exporta tu calendario para respaldarlo o compartirlo. No compartas el archivo JSON si contiene información sensible.</p>
+        <h1 id="pageTitle" class="text-3xl font-bold text-center mb-6 text-white">Calendario de Esports (CS2)</h1>
+        <p id="storageNote" class="text-center text-gray-400 mb-4">Los datos se guardan localmente en tu navegador. Exporta tu calendario para respaldarlo o compartirlo. No compartas el archivo JSON si contiene información sensible.</p>
+        <div class="text-center mb-4">
+            <button id="langES" class="bg-blue-600 text-white p-2 rounded mr-2 hover:bg-blue-700">ES</button>
+            <button id="langEN" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">EN</button>
+        </div>
 
         <!-- Calendario -->
         <div id="calendar" class="mb-6 bg-gray-800 p-4 rounded-lg shadow-md"></div>
@@ -66,18 +79,13 @@
             <h2 id="formTitle" class="text-xl font-semibold mb-4 text-white">Agregar Nuevo Torneo</h2>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <input id="tournamentName" type="text" placeholder="Nombre del Torneo" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <select id="tournamentTier" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="S">S (Máxima Relevancia)</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                </select>
+                <select id="tournamentTier" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
                 <div class="flex flex-col">
-                    <label for="startDate" class="text-sm text-gray-300">Fecha de Inicio</label>
+                    <label id="startDateLabel" for="startDate" class="text-sm text-gray-300">Fecha de Inicio</label>
                     <input id="startDate" type="date" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div class="flex flex-col">
-                    <label for="endDate" class="text-sm text-gray-300">Fecha de Fin</label>
+                    <label id="endDateLabel" for="endDate" class="text-sm text-gray-300">Fecha de Fin</label>
                     <input id="endDate" type="date" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <input id="tournamentTeams" type="text" placeholder="Equipos (separados por coma)" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -87,17 +95,10 @@
                     <option value="Offline">Offline</option>
                     <option value="Online/Offline">Online/Offline</option>
                 </select>
-                <select id="tournamentColor" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="blue">Azul</option>
-                    <option value="orange">Naranja</option>
-                    <option value="green">Verde</option>
-                    <option value="red">Rojo</option>
-                    <option value="purple">Violeta</option>
-                    <option value="yellow">Amarillo</option>
-                </select>
+                <select id="tournamentColor" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
                 <div class="flex items-center">
                     <input id="tournamentVRS" type="checkbox" class="mr-2 text-blue-500 focus:ring-blue-500">
-                    <label for="tournamentVRS" class="text-gray-300">Cuenta para el VRS</label>
+                    <label id="vrsLabel" for="tournamentVRS" class="text-gray-300">Cuenta para el VRS</label>
                 </div>
             </div>
             <div class="mt-4 flex gap-4">
@@ -116,15 +117,15 @@
             <table id="tournamentTable" class="min-w-full bg-gray-800 rounded-lg shadow-md">
                 <thead>
                     <tr class="bg-gray-700 text-gray-300 uppercase text-sm leading-normal">
-                        <th class="py-3 px-6 text-left">Torneo</th>
-                        <th class="py-3 px-6 text-left">Tier</th>
-                        <th class="py-3 px-6 text-left cursor-pointer" onclick="sortByDate()">Fechas</th>
-                        <th class="py-3 px-6 text-left">Equipos</th>
-                        <th class="py-3 px-6 text-left">Ubicación</th>
-                        <th class="py-3 px-6 text-left">Modalidad</th>
-                        <th class="py-3 px-6 text-left">Color</th>
-                        <th class="py-3 px-6 text-left cursor-pointer" onclick="sortByVRS()">VRS</th>
-                        <th class="py-3 px-6 text-center">Acciones</th>
+                        <th id="thTournament" class="py-3 px-6 text-left">Torneo</th>
+                        <th id="thTier" class="py-3 px-6 text-left">Tier</th>
+                        <th id="thDates" class="py-3 px-6 text-left cursor-pointer" onclick="sortByDate()">Fechas</th>
+                        <th id="thTeams" class="py-3 px-6 text-left">Equipos</th>
+                        <th id="thLocation" class="py-3 px-6 text-left">Ubicación</th>
+                        <th id="thModality" class="py-3 px-6 text-left">Modalidad</th>
+                        <th id="thColor" class="py-3 px-6 text-left">Color</th>
+                        <th id="thVRS" class="py-3 px-6 text-left cursor-pointer" onclick="sortByVRS()">VRS</th>
+                        <th id="thActions" class="py-3 px-6 text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tournamentBody" class="text-gray-300 text-sm font-light">
@@ -136,23 +137,180 @@
         <!-- Modal de ayuda -->
         <div id="helpModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden flex items-center justify-center">
             <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
-                <h3 class="text-xl font-semibold mb-4 text-white">Ayuda</h3>
-                <p class="text-gray-300 mb-4">Bienvenido al Calendario de Esports (CS2). Aquí tienes las instrucciones básicas:</p>
-                <ul class="list-disc list-inside text-gray-300 mb-4">
-                    <li><strong>Agregar Torneo:</strong> Completa el formulario y haz clic en "Agregar Torneo".</li>
-                    <li><strong>Editar Torneo:</strong> Haz clic en "Editar" en la tabla o en un evento del calendario.</li>
-                    <li><strong>Eliminar Torneo:</strong> Haz clic en "Eliminar" y confirma.</li>
-                    <li><strong>Exportar:</strong> Descarga un archivo JSON con tus torneos para respaldarlos o compartirlos.</li>
-                    <li><strong>Importar:</strong> Selecciona un archivo JSON para cargar torneos previos.</li>
-                    <li><strong>Borrar todo:</strong> Usa "Borrar todo" para eliminar todos los torneos (con confirmación).</li>
-                    <li><strong>Nota:</strong> Los datos se guardan localmente. No compartas el JSON si contiene información sensible.</li>
+                <h3 id="helpTitle" class="text-xl font-semibold mb-4 text-white">Ayuda</h3>
+                <p id="helpIntro" class="text-gray-300 mb-4">Bienvenido al Calendario de Esports (CS2). Aquí tienes las instrucciones básicas:</p>
+                <ul id="helpList" class="list-disc list-inside text-gray-300 mb-4">
+                    <li><strong id="helpAdd">Agregar Torneo:</strong> Completa el formulario y haz clic en "Agregar Torneo".</li>
+                    <li><strong id="helpEdit">Editar Torneo:</strong> Haz clic en "Editar" en la tabla o en un evento del calendario.</li>
+                    <li><strong id="helpDelete">Eliminar Torneo:</strong> Haz clic en "Eliminar" y confirma.</li>
+                    <li><strong id="helpExport">Exportar:</strong> Descarga un archivo JSON con tus torneos para respaldarlos o compartirlos.</li>
+                    <li><strong id="helpImport">Importar:</strong> Selecciona un archivo JSON para cargar torneos previos.</li>
+                    <li><strong id="helpClear">Borrar todo:</strong> Usa "Borrar todo" para eliminar todos los torneos (con confirmación).</li>
+                    <li><strong id="helpNote">Nota:</strong> Los datos se guardan localmente. No compartas el JSON si contiene información sensible.</li>
                 </ul>
-                <button onclick="hideHelp()" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Cerrar</button>
+                <button id="closeHelp" onclick="hideHelp()" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Cerrar</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Objeto con traducciones
+        const translations = {
+            es: {
+                pageTitle: "Calendario de Esports (CS2)",
+                storageNote: "Los datos se guardan localmente en tu navegador. Exporta tu calendario para respaldarlo o compartirlo. No compartas el archivo JSON si contiene información sensible.",
+                formTitle: "Agregar Nuevo Torneo",
+                startDateLabel: "Fecha de Inicio",
+                endDateLabel: "Fecha de Fin",
+                vrsLabel: "Cuenta para el VRS",
+                saveButton: "Agregar Torneo",
+                cancelEditButton: "Cancelar",
+                exportButton: "Exportar",
+                importButton: "Importar",
+                helpButton: "Ayuda",
+                clearAllButton: "Borrar todo",
+                thTournament: "Torneo",
+                thTier: "Tier",
+                thDates: "Fechas",
+                thTeams: "Equipos",
+                thLocation: "Ubicación",
+                thModality: "Modalidad",
+                thColor: "Color",
+                thVRS: "VRS",
+                thActions: "Acciones",
+                helpTitle: "Ayuda",
+                helpIntro: "Bienvenido al Calendario de Esports (CS2). Aquí tienes las instrucciones básicas:",
+                helpAdd: "Agregar Torneo:",
+                helpEdit: "Editar Torneo:",
+                helpDelete: "Eliminar Torneo:",
+                helpExport: "Exportar:",
+                helpImport: "Importar:",
+                helpClear: "Borrar todo:",
+                helpNote: "Nota:",
+                closeHelp: "Cerrar",
+                confirmClear: "¿Estás seguro de que deseas borrar todos los torneos? Esta acción no se puede deshacer. Te recomendamos exportar tus datos primero.",
+                clearSuccess: "Todos los torneos han sido borrados.",
+                incompleteFields: "Por favor, completa todos los campos.",
+                invalidDate: "La fecha de fin no puede ser anterior a la fecha de inicio.",
+                noTournaments: "No hay torneos para exportar.",
+                placeholderName: "Nombre del Torneo",
+                placeholderTeams: "Equipos (separados por coma)",
+                placeholderLocation: "Ubicación (ej. Londres, Online)",
+                tierOptions: ["S (Máxima Relevancia)", "A", "B", "C"],
+                colorOptions: ["Azul", "Naranja", "Verde", "Rojo", "Violeta", "Amarillo"]
+            },
+            en: {
+                pageTitle: "Esports Calendar (CS2)",
+                storageNote: "Data is saved locally in your browser. Export your calendar for backup or sharing. Do not share the JSON file if it contains sensitive information.",
+                formTitle: "Add New Tournament",
+                startDateLabel: "Start Date",
+                endDateLabel: "End Date",
+                vrsLabel: "Count for VRS",
+                saveButton: "Add Tournament",
+                cancelEditButton: "Cancel",
+                exportButton: "Export",
+                importButton: "Import",
+                helpButton: "Help",
+                clearAllButton: "Clear All",
+                thTournament: "Tournament",
+                thTier: "Tier",
+                thDates: "Dates",
+                thTeams: "Teams",
+                thLocation: "Location",
+                thModality: "Modality",
+                thColor: "Color",
+                thVRS: "VRS",
+                thActions: "Actions",
+                helpTitle: "Help",
+                helpIntro: "Welcome to the Esports Calendar (CS2). Here are the basic instructions:",
+                helpAdd: "Add Tournament:",
+                helpEdit: "Edit Tournament:",
+                helpDelete: "Delete Tournament:",
+                helpExport: "Export:",
+                helpImport: "Import:",
+                helpClear: "Clear All:",
+                helpNote: "Note:",
+                closeHelp: "Close",
+                confirmClear: "Are you sure you want to clear all tournaments? This action cannot be undone. We recommend exporting your data first.",
+                clearSuccess: "All tournaments have been cleared.",
+                incompleteFields: "Please fill in all fields.",
+                invalidDate: "The end date cannot be earlier than the start date.",
+                noTournaments: "There are no tournaments to export.",
+                placeholderName: "Tournament Name",
+                placeholderTeams: "Teams (comma separated)",
+                placeholderLocation: "Location (e.g. London, Online)",
+                tierOptions: ["S (Highest Relevance)", "A", "B", "C"],
+                colorOptions: ["Blue", "Orange", "Green", "Red", "Purple", "Yellow"]
+            }
+        };
+
+        let currentLang = 'es';
+
+        // Función para cambiar idioma
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('pageTitle').textContent = translations[lang].pageTitle;
+            document.getElementById('storageNote').textContent = translations[lang].storageNote;
+            document.getElementById('formTitle').textContent = translations[lang].formTitle;
+            document.getElementById('startDateLabel').textContent = translations[lang].startDateLabel;
+            document.getElementById('endDateLabel').textContent = translations[lang].endDateLabel;
+            document.getElementById('vrsLabel').textContent = translations[lang].vrsLabel;
+            document.getElementById('saveButton').textContent = translations[lang].saveButton;
+            document.getElementById('cancelEditButton').textContent = translations[lang].cancelEditButton;
+            document.getElementById('exportButton').textContent = translations[lang].exportButton;
+            document.getElementById('importButton').textContent = translations[lang].importButton;
+            document.getElementById('helpButton').textContent = translations[lang].helpButton;
+            document.getElementById('clearAllButton').textContent = translations[lang].clearAllButton;
+            document.getElementById('thTournament').textContent = translations[lang].thTournament;
+            document.getElementById('thTier').textContent = translations[lang].thTier;
+            document.getElementById('thDates').textContent = translations[lang].thDates;
+            document.getElementById('thTeams').textContent = translations[lang].thTeams;
+            document.getElementById('thLocation').textContent = translations[lang].thLocation;
+            document.getElementById('thModality').textContent = translations[lang].thModality;
+            document.getElementById('thColor').textContent = translations[lang].thColor;
+            document.getElementById('thVRS').textContent = translations[lang].thVRS;
+            document.getElementById('thActions').textContent = translations[lang].thActions;
+            document.getElementById('helpTitle').textContent = translations[lang].helpTitle;
+            document.getElementById('helpIntro').textContent = translations[lang].helpIntro;
+            document.getElementById('helpAdd').textContent = translations[lang].helpAdd;
+            document.getElementById('helpEdit').textContent = translations[lang].helpEdit;
+            document.getElementById('helpDelete').textContent = translations[lang].helpDelete;
+            document.getElementById('helpExport').textContent = translations[lang].helpExport;
+            document.getElementById('helpImport').textContent = translations[lang].helpImport;
+            document.getElementById('helpClear').textContent = translations[lang].helpClear;
+            document.getElementById('helpNote').textContent = translations[lang].helpNote;
+            document.getElementById('closeHelp').textContent = translations[lang].closeHelp;
+            document.getElementById('tournamentName').placeholder = translations[lang].placeholderName;
+            document.getElementById('tournamentTeams').placeholder = translations[lang].placeholderTeams;
+            document.getElementById('tournamentLocation').placeholder = translations[lang].placeholderLocation;
+
+            // Actualizar opciones de tournamentTier
+            const tierSelect = document.getElementById('tournamentTier');
+            tierSelect.innerHTML = '';
+            translations[lang].tierOptions.forEach((optionText, index) => {
+                const option = document.createElement('option');
+                option.value = ['S', 'A', 'B', 'C'][index];
+                option.text = optionText;
+                tierSelect.appendChild(option);
+            });
+
+            // Actualizar opciones de tournamentColor
+            const colorSelect = document.getElementById('tournamentColor');
+            colorSelect.innerHTML = '';
+            translations[lang].colorOptions.forEach((colorName, index) => {
+                const option = document.createElement('option');
+                option.value = ['blue', 'orange', 'green', 'red', 'purple', 'yellow'][index];
+                option.text = colorName;
+                colorSelect.appendChild(option);
+            });
+
+            // Restaurar la selección actual si existe
+            const currentTier = tierSelect.value;
+            const currentColor = colorSelect.value;
+            if (currentTier) tierSelect.value = currentTier;
+            if (currentColor) colorSelect.value = currentColor;
+        }
+
         // Array para almacenar los torneos
         let tournaments = [];
         let sortDirectionDate = 1; // 1 para ascendente, -1 para descendente
@@ -236,21 +394,18 @@
             const vrs = document.getElementById('tournamentVRS').checked;
 
             if (name && tier && startDate && endDate && teams && location && modality && color) {
-                // Validar que la fecha de fin no sea anterior a la de inicio
                 if (new Date(endDate) < new Date(startDate)) {
-                    alert('La fecha de fin no puede ser anterior a la fecha de inicio.');
+                    alert(translations[currentLang].invalidDate);
                     return;
                 }
 
                 if (editingTournamentId) {
-                    // Editar torneo existente
                     tournaments = tournaments.map(tournament =>
                         tournament.id === editingTournamentId
                             ? { ...tournament, name, tier, startDate, endDate, teams, location, modality, color, vrs }
                             : tournament
                     );
                 } else {
-                    // Agregar nuevo torneo
                     const tournament = { id: Date.now(), name, tier, startDate, endDate, teams, location, modality, color, vrs };
                     tournaments.push(tournament);
                 }
@@ -260,7 +415,7 @@
                 renderCalendar();
                 cancelEdit();
             } else {
-                alert('Por favor, completa todos los campos.');
+                alert(translations[currentLang].incompleteFields);
             }
         }
 
@@ -277,8 +432,8 @@
                 document.getElementById('tournamentTeams').value = tournament.teams;
                 document.getElementById('tournamentColor').value = tournament.color;
                 document.getElementById('tournamentVRS').checked = tournament.vrs;
-                document.getElementById('formTitle').textContent = 'Editar Torneo';
-                document.getElementById('saveButton').textContent = 'Guardar Cambios';
+                document.getElementById('formTitle').textContent = translations[currentLang].formTitle.replace('Agregar', 'Editar');
+                document.getElementById('saveButton').textContent = translations[currentLang].saveButton.replace('Agregar', 'Guardar Cambios');
                 document.getElementById('cancelEditButton').classList.remove('hidden');
                 editingTournamentId = id;
             }
@@ -287,8 +442,8 @@
         // Función para cancelar la edición
         function cancelEdit() {
             editingTournamentId = null;
-            document.getElementById('formTitle').textContent = 'Agregar Nuevo Torneo';
-            document.getElementById('saveButton').textContent = 'Agregar Torneo';
+            document.getElementById('formTitle').textContent = translations[currentLang].formTitle;
+            document.getElementById('saveButton').textContent = translations[currentLang].saveButton;
             document.getElementById('cancelEditButton').classList.add('hidden');
             clearForm();
         }
@@ -330,10 +485,10 @@
                         <span class="inline-block w-4 h-4 rounded-full event-${tournament.color}"></span>
                         ${tournament.color.charAt(0).toUpperCase() + tournament.color.slice(1)}
                     </td>
-                    <td class="py-3 px-6 text-left">${tournament.vrs ? 'Sí' : 'No'}</td>
+                    <td class="py-3 px-6 text-left">${tournament.vrs ? translations[currentLang].thVRS === 'VRS' ? 'Yes' : 'Sí' : translations[currentLang].thVRS === 'VRS' ? 'No' : 'No'}</td>
                     <td class="py-3 px-6 text-center flex gap-2 justify-center">
-                        <button onclick="editTournament(${tournament.id})" class="bg-yellow-600 text-white px-2 py-1 rounded hover:bg-yellow-700">Editar</button>
-                        <button onclick="confirmDelete(${tournament.id})" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">Eliminar</button>
+                        <button onclick="editTournament(${tournament.id})" class="bg-yellow-600 text-white px-2 py-1 rounded hover:bg-yellow-700">${translations[currentLang].thActions.includes('Acciones') ? 'Editar' : 'Edit'}</button>
+                        <button onclick="confirmDelete(${tournament.id})" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">${translations[currentLang].thActions.includes('Acciones') ? 'Eliminar' : 'Delete'}</button>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -342,7 +497,7 @@
 
         // Función para confirmar eliminación
         function confirmDelete(id) {
-            if (confirm('¿Estás seguro de que quieres eliminar este torneo?')) {
+            if (confirm(translations[currentLang].helpDelete.replace(':', '') + ' ' + translations[currentLang].confirmClear.split('?')[0] + '?')) {
                 deleteTournament(id);
             }
         }
@@ -380,7 +535,7 @@
                 a.click();
                 URL.revokeObjectURL(url);
             } else {
-                alert('No hay torneos para exportar.');
+                alert(translations[currentLang].noTournaments);
             }
         }
 
@@ -396,9 +551,9 @@
                         tournaments = JSON.parse(importedData);
                         renderTournaments();
                         renderCalendar();
-                        alert('Torneos importados correctamente.');
+                        alert(translations[currentLang].helpImport.replace(':', '') + ' ' + translations[currentLang].clearSuccess.toLowerCase().replace('cleared', 'imported'));
                     } catch (error) {
-                        alert('Error al importar los torneos. Asegúrate de que el archivo sea un JSON válido.');
+                        alert(translations[currentLang].helpImport.replace(':', '') + ' ' + 'error. Ensure the file is a valid JSON.');
                     }
                 };
                 reader.readAsText(file);
@@ -408,7 +563,7 @@
 
         // Función para confirmar y borrar todos los torneos
         function confirmClearAll() {
-            if (confirm('¿Estás seguro de que deseas borrar todos los torneos? Esta acción no se puede deshacer. Te recomendamos exportar tus datos primero.')) {
+            if (confirm(translations[currentLang].confirmClear)) {
                 clearAllTournaments();
             }
         }
@@ -419,7 +574,7 @@
             localStorage.removeItem('tournaments');
             renderTournaments();
             renderCalendar();
-            alert('Todos los torneos han sido borrados.');
+            alert(translations[currentLang].clearSuccess);
         }
 
         // Función para mostrar la ayuda
@@ -436,6 +591,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             initCalendar();
             loadTournaments();
+            setLanguage(currentLang); // Establece el idioma inicial
+            document.getElementById('langES').addEventListener('click', () => setLanguage('es'));
+            document.getElementById('langEN').addEventListener('click', () => setLanguage('en'));
         });
     </script>
 </body>
