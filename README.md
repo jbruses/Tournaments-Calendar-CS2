@@ -9,6 +9,7 @@ Welcome to the Esports Calendar (CS2)! This is a customizable tool for managing 
 - **Sorting**: Sort tournaments by date or whether they count toward RSV.
 - **Export/Import**: Save your data to a JSON file or load previous backups.
 - **Integrated Help**: Access instructions from the interface.
+- **Multilingual Support**: Available in English and Spanish for broader accessibility.
 
 ## Instructions for Use
 1. **Download the file**: Click on [esports_calendar.html](esports_calendar.html) and save it to your computer.
