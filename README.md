@@ -1,20 +1,19 @@
 # Esports Calendar (CS2)
 
-An interactive and customizable calendar for esports events, focused on Counter-Strike 2 (CS2). This project allows you to add, edit, and manage tournaments, with support for multiple languages and a modern design adaptable to light/dark modes.
+An interactive and customizable calendar for esports events, focused on Counter-Strike 2 (CS2). This project allows you to add, edit, and manage tournaments, with support for multiple languages and a modern design adaptable to light/dark modes. Now fully mobile-friendly for use on any device!
 
 ## Features
 - **Tournament Management**: Add, edit, and delete tournaments with details like name, date, teams, location, and more.
 - **Multilingual Support**: Switch between English (🇺🇸) and Spanish (🇪🇸) with a visual flag selector.
 - **Light/Dark Mode**: Toggle between modes with a dedicated button for a personalized visual experience.
 - **Export/Import**: Save and restore your data in JSON format.
-- **Responsive Design**: Optimized interface for desktop and mobile devices.
+- **Responsive Design**: Optimized interface for desktop and mobile devices, with a mobile-friendly layout.
 - **Dynamic Interaction**: Smooth animations and visual effects in the calendar and table.
 
 ## Installation
 
 1. Clone the repository:
-git clone https://github.com/tu-usuario/tu-repositorio.git
-
+git clone https://github.com/jbruses/Tournaments-Calendar-CS2
 2. Open the `esports_calendar.html` file in a modern browser (Chrome, Firefox, etc.).
 3. No server installation is required; data is stored locally in your browser.
 
