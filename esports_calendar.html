@@ -5,44 +5,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Esports Calendar (CS2)</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <style>
-        /* Estilos personalizados para FullCalendar en modo oscuro */
+        /* Fondo con gradiente dinámico */
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        /* Estilos para el header */
+        .header {
+            background: linear-gradient(90deg, #1e40af, #3b82f6);
+            padding: 1.5rem;
+            border-radius: 0 0 1rem 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            color: #ffffff;
+            text-align: center;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Contenedor principal con efecto card */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Estilos para FullCalendar en modo oscuro */
         .fc {
             color: #d1d5db;
+            --fc-button-bg-color: #2563eb;
+            --fc-button-border-color: #1e40af;
+            --fc-button-hover-bg-color: #1e40af;
+            --fc-button-active-bg-color: #1e3a8a;
         }
         .fc .fc-daygrid-day {
             background: #1f2937;
             border-color: #4b5563;
+            transition: background 0.2s ease;
         }
         .fc .fc-daygrid-day:hover {
             background: #374151;
         }
         .fc .fc-daygrid-day.fc-day-today {
             background: #1e3a8a;
+            font-weight: 600;
         }
         .fc .fc-col-header-cell {
             background: #374151;
             color: #d1d5db;
             border-color: #4b5563;
+            font-weight: 500;
         }
         .fc .fc-event {
             color: #ffffff;
             font-size: 0.9em;
+            border-radius: 0.375rem;
+            padding: 2px 4px;
+            transition: transform 0.2s ease;
         }
         .fc .fc-event:hover {
-            filter: brightness(0.8);
+            transform: scale(1.05);
+            filter: brightness(0.9);
         }
         .fc .fc-button {
-            background: #2563eb;
-            border-color: #1e40af;
-            color: #ffffff;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            transition: all 0.2s ease;
         }
         .fc .fc-button:hover {
-            background: #1e40af;
-        }
-        .fc .fc-button.fc-button-active {
-            background: #1e3a8a;
+            transform: translateY(-2px);
         }
         /* Colores personalizados para eventos */
         .event-blue { background: #2563eb; border-color: #1e40af; }
@@ -51,31 +105,188 @@
         .event-red { background: #dc2626; border-color: #b91c1c; }
         .event-purple { background: #9333ea; border-color: #7e22ce; }
         .event-yellow { background: #eab308; border-color: #ca8a04; }
+
         /* Estilos para el modal de ayuda */
         #helpModal {
-            z-index: 1000; /* Asegura que esté por encima del calendario */
-            overflow-y: auto; /* Permite deslizar dentro del modal si es necesario */
+            z-index: 1000;
+            overflow-y: auto;
         }
         #helpModal .bg-gray-800 {
-            max-height: 80vh; /* Limita la altura para evitar que cubra toda la pantalla */
-            overflow-y: auto; /* Deslizamiento interno si el contenido es largo */
+            max-height: 80vh;
+            overflow-y: auto;
+            border-radius: 1rem;
+        }
+
+        /* Estilos para modo claro */
+        .light-mode {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%);
+        }
+        .light-mode .fc {
+            color: #374151;
+            --fc-button-bg-color: #3b82f6;
+            --fc-button-border-color: #1d4ed8;
+            --fc-button-hover-bg-color: #1d4ed8;
+            --fc-button-active-bg-color: #1e40af;
+        }
+        .light-mode .fc .fc-daygrid-day {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+        .light-mode .fc .fc-daygrid-day:hover {
+            background: #e5e7eb;
+        }
+        .light-mode .fc .fc-daygrid-day.fc-day-today {
+            background: #bfdbfe;
+        }
+        .light-mode .fc .fc-col-header-cell {
+            background: #e5e7eb;
+            color: #374151;
+            border-color: #d1d5db;
+        }
+        .light-mode .fc .fc-event {
+            color: #1f2937;
+        }
+        .light-mode .card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e5e7eb;
+        }
+        .light-mode body {
+            color: #1f2937;
+        }
+        .light-mode .bg-gray-800 {
+            background-color: #ffffff;
+        }
+        .light-mode .bg-gray-700 {
+            background-color: #e5e7eb;
+        }
+        .light-mode .text-gray-300 {
+            color: #6b7280;
+        }
+        .light-mode .border-gray-600 {
+            border-color: #d1d5db;
+        }
+        .light-mode .hover:bg-gray-700 {
+            background-color: #d1d5db;
+        }
+        .light-mode input,
+        .light-mode select {
+            background-color: #ffffff;
+            color: #1f2937;
+            border-color: #d1d5db;
+        }
+        .light-mode input:focus,
+        .light-mode select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .light-mode table {
+            background-color: #ffffff;
+        }
+        .light-mode thead {
+            background-color: #e5e7eb;
+        }
+        .light-mode .hover:bg-gray-700:hover {
+            background-color: #d1d5db;
+        }
+        .light-mode footer {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            border-top: 1px solid #e5e7eb;
+        }
+        .light-mode footer a {
+            color: #3b82f6;
+        }
+        .light-mode footer a:hover {
+            color: #1d4ed8;
+        }
+
+        /* Estilos para inputs y selects */
+        input, select {
+            border-radius: 0.5rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        input:focus, select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        /* Estilos para botones */
+        button {
+            border-radius: 0.75rem;
+            transition: all 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilos para el footer */
+        footer {
+            background-color: #1f2937;
+            color: #d1d5db;
+            padding: 1.5rem;
+            border-top: 1px solid #4b5563;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        footer a {
+            color: #60a5fa;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        footer a:hover {
+            color: #3b82f6;
+            text-decoration: underline;
+        }
+
+        /* Estilos para el selector de idioma con banderas */
+        .language-switch {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .language-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background-color: #2563eb;
+            color: #ffffff;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .language-btn:hover {
+            background-color: #1e40af;
+            transform: scale(1.1);
+        }
+        .language-btn.active {
+            background-color: #1e3a8a;
+            transform: scale(1.1);
         }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans">
+    <header class="header">
+        <h1 id="pageTitle">Calendario de Esports (CS2)</h1>
+    </header>
     <div class="container mx-auto p-4">
-        <h1 id="pageTitle" class="text-3xl font-bold text-center mb-6 text-white">Calendario de Esports (CS2)</h1>
-        <p id="storageNote" class="text-center text-gray-400 mb-4">Los datos se guardan localmente en tu navegador. Exporta tu calendario para respaldarlo o compartirlo. No compartas el archivo JSON si contiene información sensible.</p>
-        <div class="text-center mb-4">
-            <button id="langES" class="bg-blue-600 text-white p-2 rounded mr-2 hover:bg-blue-700">ES</button>
-            <button id="langEN" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">EN</button>
+        <div class="flex justify-between items-center mb-6">
+            <div class="language-switch">
+                <button id="lang-es" class="language-btn" onclick="setLanguage('es')">🇪🇸</button>
+                <button id="lang-en" class="language-btn" onclick="setLanguage('en')">🇺🇸</button>
+            </div>
+            <button id="toggleTheme" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Modo Claro</button>
         </div>
+        <p id="storageNote" class="text-center text-gray-400 mb-6">Los datos se guardan localmente en tu navegador. Exporta tu calendario para respaldarlo o compartirlo. No compartas el archivo JSON si contiene información sensible.</p>
 
         <!-- Calendario -->
-        <div id="calendar" class="mb-6 bg-gray-800 p-4 rounded-lg shadow-md"></div>
+        <div id="calendar" class="card mb-6"></div>
 
         <!-- Formulario para agregar/editar torneos -->
-        <div class="mb-6 bg-gray-800 p-4 rounded-lg shadow-md">
+        <div class="card mb-6">
             <h2 id="formTitle" class="text-xl font-semibold mb-4 text-white">Agregar Nuevo Torneo</h2>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <input id="tournamentName" type="text" placeholder="Nombre del Torneo" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -101,7 +312,7 @@
                     <label id="vrsLabel" for="tournamentVRS" class="text-gray-300">Cuenta para el VRS</label>
                 </div>
             </div>
-            <div class="mt-4 flex gap-4">
+            <div class="mt-4 flex gap-4 justify-center">
                 <button id="saveButton" onclick="saveTournament()" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Agregar Torneo</button>
                 <button id="cancelEditButton" onclick="cancelEdit()" class="hidden bg-gray-600 text-white p-2 rounded hover:bg-gray-700">Cancelar</button>
                 <button id="exportButton" onclick="exportTournaments()" class="bg-green-600 text-white p-2 rounded hover:bg-green-700">Exportar</button>
@@ -113,8 +324,8 @@
         </div>
 
         <!-- Tabla de torneos -->
-        <div class="overflow-x-auto">
-            <table id="tournamentTable" class="min-w-full bg-gray-800 rounded-lg shadow-md">
+        <div class="card">
+            <table id="tournamentTable" class="min-w-full bg-gray-800 rounded-lg">
                 <thead>
                     <tr class="bg-gray-700 text-gray-300 uppercase text-sm leading-normal">
                         <th id="thTournament" class="py-3 px-6 text-left">Torneo</th>
@@ -143,7 +354,7 @@
                     <li><strong id="helpAdd">Agregar Torneo:</strong> Completa el formulario y haz clic en "Agregar Torneo".</li>
                     <li><strong id="helpEdit">Editar Torneo:</strong> Haz clic en "Editar" en la tabla o en un evento del calendario.</li>
                     <li><strong id="helpDelete">Eliminar Torneo:</strong> Haz clic en "Eliminar" y confirma.</li>
-                    <li><strong id="helpExport">Exportar:</strong> Descarga un archivo JSON con tus torneos para respaldarlos o compartirlos.</li>
+                    <li><strong id="helpExport">Exportar:</strong> Descarga un archivo JSON con tus torneos para respaldarlo o compartirlo.</li>
                     <li><strong id="helpImport">Importar:</strong> Selecciona un archivo JSON para cargar torneos previos.</li>
                     <li><strong id="helpClear">Borrar todo:</strong> Usa "Borrar todo" para eliminar todos los torneos (con confirmación).</li>
                     <li><strong id="helpNote">Nota:</strong> Los datos se guardan localmente. No compartas el JSON si contiene información sensible.</li>
@@ -152,6 +363,10 @@
             </div>
         </div>
     </div>
+
+    <footer class="bg-gray-800 text-gray-300 p-4 text-center w-full">
+        <p>¿Tienes alguna pregunta? Contáctame en: <a href="mailto:tujugador@email.com" class="text-blue-400 hover:underline">tujugador@email.com</a> | Sigue mis actualizaciones en <a href="https://x.com/tujugador" target="_blank" class="text-blue-400 hover:underline">X</a></p>
+    </footer>
 
     <script>
         // Objeto con traducciones
@@ -197,7 +412,13 @@
                 placeholderTeams: "Equipos (separados por coma)",
                 placeholderLocation: "Ubicación (ej. Londres, Online)",
                 tierOptions: ["S (Máxima Relevancia)", "A", "B", "C"],
-                colorOptions: ["Azul", "Naranja", "Verde", "Rojo", "Violeta", "Amarillo"]
+                colorOptions: ["Azul", "Naranja", "Verde", "Rojo", "Violeta", "Amarillo"],
+                calendarButtons: {
+                    today: "Hoy",
+                    month: "Mes",
+                    week: "Semana",
+                    day: "Día"
+                }
             },
             en: {
                 pageTitle: "Esports Calendar (CS2)",
@@ -240,11 +461,18 @@
                 placeholderTeams: "Teams (comma separated)",
                 placeholderLocation: "Location (e.g. London, Online)",
                 tierOptions: ["S (Highest Relevance)", "A", "B", "C"],
-                colorOptions: ["Blue", "Orange", "Green", "Red", "Purple", "Yellow"]
+                colorOptions: ["Blue", "Orange", "Green", "Red", "Purple", "Yellow"],
+                calendarButtons: {
+                    today: "Today",
+                    month: "Month",
+                    week: "Week",
+                    day: "Day"
+                }
             }
         };
 
         let currentLang = 'es';
+        let isDarkMode = true; // Modo inicial es oscuro
 
         // Función para cambiar idioma
         function setLanguage(lang) {
@@ -309,6 +537,24 @@
             const currentColor = colorSelect.value;
             if (currentTier) tierSelect.value = currentTier;
             if (currentColor) colorSelect.value = currentColor;
+
+            // Actualizar el locale y los botones del calendario
+            calendar.setOption('locale', lang === 'es' ? 'es' : 'en');
+            calendar.setOption('buttonText', translations[lang].calendarButtons);
+
+            // Actualizar la clase active en los botones de idioma
+            document.getElementById('lang-es').classList.toggle('active', lang === 'es');
+            document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+
+            renderCalendar();
+        }
+
+        // Función para alternar entre modo claro y oscuro
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('light-mode', !isDarkMode);
+            document.getElementById('toggleTheme').textContent = isDarkMode ? 'Modo Claro' : 'Modo Oscuro';
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
         }
 
         // Array para almacenar los torneos
@@ -327,14 +573,20 @@
             return `${day}/${month}/${year}`;
         }
 
-        // Cargar torneos desde localStorage al iniciar
-        function loadTournaments() {
+        // Cargar torneos y tema desde localStorage al iniciar
+        function loadTournamentsAndTheme() {
             const savedTournaments = localStorage.getItem('tournaments');
             if (savedTournaments) {
                 tournaments = JSON.parse(savedTournaments);
                 renderTournaments();
                 renderCalendar();
             }
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                toggleTheme(); // Aplica modo claro si fue guardado
+            }
+            // Activar el idioma inicial
+            document.getElementById('lang-es').classList.add('active');
         }
 
         // Guardar torneos en localStorage
@@ -358,7 +610,9 @@
                 },
                 eventDisplay: 'block',
                 eventTimeFormat: { hour: 'numeric', minute: '2-digit', hour12: false },
-                firstDay: 1, // Lunes como primer día
+                firstDay: 1,
+                locale: 'es',
+                buttonText: translations[currentLang].calendarButtons
             });
             calendar.render();
         }
@@ -369,7 +623,7 @@
             tournaments.forEach(tournament => {
                 const start = new Date(tournament.startDate);
                 const end = new Date(tournament.endDate);
-                end.setDate(end.getDate() + 1); // Ajuste explícito para incluir el día final
+                end.setDate(end.getDate() + 1);
                 calendar.addEvent({
                     id: tournament.id,
                     title: `${tournament.name} (${tournament.teams}, ${tournament.location}, ${tournament.modality}, ${formatDate(tournament.startDate)} - ${formatDate(tournament.endDate)})`,
@@ -473,7 +727,7 @@
 
             tournaments.forEach(tournament => {
                 const row = document.createElement('tr');
-                row.className = 'border-b border-gray-600 hover:bg-gray-700';
+                row.className = 'border-b border-gray-600 hover:bg-gray-700 transition-colors duration-200';
                 row.innerHTML = `
                     <td class="py-3 px-6 text-left">${tournament.name}</td>
                     <td class="py-3 px-6 text-left">${tournament.tier}</td>
@@ -487,8 +741,8 @@
                     </td>
                     <td class="py-3 px-6 text-left">${tournament.vrs ? translations[currentLang].thVRS === 'VRS' ? 'Yes' : 'Sí' : translations[currentLang].thVRS === 'VRS' ? 'No' : 'No'}</td>
                     <td class="py-3 px-6 text-center flex gap-2 justify-center">
-                        <button onclick="editTournament(${tournament.id})" class="bg-yellow-600 text-white px-2 py-1 rounded hover:bg-yellow-700">${translations[currentLang].thActions.includes('Acciones') ? 'Editar' : 'Edit'}</button>
-                        <button onclick="confirmDelete(${tournament.id})" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">${translations[currentLang].thActions.includes('Acciones') ? 'Eliminar' : 'Delete'}</button>
+                        <button onclick="editTournament(${tournament.id})" class="bg-yellow-600 text-white px-2 py-1 rounded hover:bg-yellow-700">Editar</button>
+                        <button onclick="confirmDelete(${tournament.id})" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">Eliminar</button>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -557,7 +811,7 @@
                     }
                 };
                 reader.readAsText(file);
-                event.target.value = ''; // Limpiar el input para permitir re-importar el mismo archivo
+                event.target.value = '';
             }
         }
 
@@ -590,10 +844,9 @@
         // Inicializar el calendario y cargar los torneos al iniciar la página
         document.addEventListener('DOMContentLoaded', () => {
             initCalendar();
-            loadTournaments();
-            setLanguage(currentLang); // Establece el idioma inicial
-            document.getElementById('langES').addEventListener('click', () => setLanguage('es'));
-            document.getElementById('langEN').addEventListener('click', () => setLanguage('en'));
+            loadTournamentsAndTheme();
+            setLanguage(currentLang);
+            document.getElementById('toggleTheme').addEventListener('click', toggleTheme);
         });
     </script>
 </body>
