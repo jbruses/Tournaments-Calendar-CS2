@@ -23,11 +23,11 @@
             padding: 1.5rem;
             border-radius: 0 0 1rem 1rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
         .header h1 {
             font-family: 'Poppins', sans-serif;
-            font-size: 2.5rem;
+            font-size: 2rem; /* Reducido para móviles */
             color: #ffffff;
             text-align: center;
             text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
@@ -37,20 +37,20 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 1rem;
+            padding: 0.5rem; /* Reducido para móviles */
         }
         .card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(5px);
             border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            margin-bottom: 1.5rem;
+            padding: 1rem; /* Reducido para móviles */
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            margin-bottom: 1rem;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
 
         /* Estilos para FullCalendar en modo oscuro */
@@ -81,7 +81,7 @@
         }
         .fc .fc-event {
             color: #ffffff;
-            font-size: 0.9em;
+            font-size: 0.8em; /* Ajustado para móviles */
             border-radius: 0.375rem;
             padding: 2px 4px;
             transition: transform 0.2s ease;
@@ -92,7 +92,8 @@
         }
         .fc .fc-button {
             border-radius: 0.5rem;
-            padding: 0.5rem 1rem;
+            padding: 0.4rem 0.8rem; /* Reducido para móviles */
+            font-size: 0.9em; /* Ajustado para móviles */
             transition: all 0.2s ease;
         }
         .fc .fc-button:hover {
@@ -204,6 +205,8 @@
         input, select {
             border-radius: 0.5rem;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            font-size: 1rem; /* Ajustado para móviles */
+            padding: 0.6rem; /* Aumentado para facilitar el toque */
         }
         input:focus, select:focus {
             border-color: #2563eb;
@@ -214,6 +217,8 @@
         button {
             border-radius: 0.75rem;
             transition: all 0.2s ease;
+            padding: 0.6rem 1rem; /* Aumentado para móviles */
+            font-size: 1rem; /* Ajustado para móviles */
         }
         button:hover {
             transform: translateY(-2px);
@@ -224,10 +229,10 @@
         footer {
             background-color: #1f2937;
             color: #d1d5db;
-            padding: 1.5rem;
+            padding: 1rem; /* Reducido para móviles */
             border-top: 1px solid #4b5563;
             text-align: center;
-            margin-top: 2rem;
+            margin-top: 1rem; /* Reducido para móviles */
         }
         footer a {
             color: #60a5fa;
@@ -266,6 +271,65 @@
             background-color: #1e3a8a;
             transform: scale(1.1);
         }
+
+        /* Media Queries para móviles */
+        @media (max-width: 640px) { /* Tailwind breakpoint 'sm' */
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .container {
+                padding: 0.25rem;
+            }
+            .card {
+                padding: 0.75rem;
+            }
+            .fc .fc-button {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.8em;
+            }
+            .fc .fc-event {
+                font-size: 0.7em;
+            }
+            #calendar {
+                font-size: 0.9em;
+            }
+            .grid {
+                grid-template-columns: 1fr; /* Formulario en una sola columna */
+            }
+            .mt-4.flex.gap-4.justify-center {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            button, input, select {
+                width: 100%; /* Elementos ocupan todo el ancho */
+                margin-bottom: 0.5rem;
+            }
+            #tournamentTable {
+                display: block;
+                overflow-x: auto; /* Tabla desplazable horizontalmente */
+            }
+            #tournamentTable thead,
+            #tournamentTable tbody,
+            #tournamentTable th,
+            #tournamentTable td {
+                display: block;
+            }
+            #tournamentTable tr {
+                display: flex;
+                flex-direction: column;
+                border-bottom: 1px solid #4b5563;
+                padding: 0.5rem 0;
+            }
+            #tournamentTable td {
+                padding: 0.5rem;
+            }
+            #tournamentTable td:last-child {
+                text-align: right;
+            }
+            footer {
+                padding: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans">
@@ -273,22 +337,22 @@
         <h1 id="pageTitle">Calendario de Esports (CS2)</h1>
     </header>
     <div class="container mx-auto p-4">
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex justify-between items-center mb-4">
             <div class="language-switch">
                 <button id="lang-es" class="language-btn" onclick="setLanguage('es')">🇪🇸</button>
                 <button id="lang-en" class="language-btn" onclick="setLanguage('en')">🇺🇸</button>
             </div>
             <button id="toggleTheme" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Modo Claro</button>
         </div>
-        <p id="storageNote" class="text-center text-gray-400 mb-6">Los datos se guardan localmente en tu navegador. Exporta tu calendario para respaldarlo o compartirlo. No compartas el archivo JSON si contiene información sensible.</p>
+        <p id="storageNote" class="text-center text-gray-400 mb-4">Los datos se guardan localmente en tu navegador. Exporta tu calendario para respaldarlo o compartirlo. No compartas el archivo JSON si contiene información sensible.</p>
 
         <!-- Calendario -->
-        <div id="calendar" class="card mb-6"></div>
+        <div id="calendar" class="card mb-4"></div>
 
         <!-- Formulario para agregar/editar torneos -->
-        <div class="card mb-6">
-            <h2 id="formTitle" class="text-xl font-semibold mb-4 text-white">Agregar Nuevo Torneo</h2>
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div class="card mb-4">
+            <h2 id="formTitle" class="text-xl font-semibold mb-2 text-white">Agregar Nuevo Torneo</h2>
+            <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
                 <input id="tournamentName" type="text" placeholder="Nombre del Torneo" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <select id="tournamentTier" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
                 <div class="flex flex-col">
@@ -312,7 +376,7 @@
                     <label id="vrsLabel" for="tournamentVRS" class="text-gray-300">Cuenta para el VRS</label>
                 </div>
             </div>
-            <div class="mt-4 flex gap-4 justify-center">
+            <div class="mt-2 flex gap-2 justify-center md:flex-row flex-col">
                 <button id="saveButton" onclick="saveTournament()" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Agregar Torneo</button>
                 <button id="cancelEditButton" onclick="cancelEdit()" class="hidden bg-gray-600 text-white p-2 rounded hover:bg-gray-700">Cancelar</button>
                 <button id="exportButton" onclick="exportTournaments()" class="bg-green-600 text-white p-2 rounded hover:bg-green-700">Exportar</button>
@@ -328,15 +392,15 @@
             <table id="tournamentTable" class="min-w-full bg-gray-800 rounded-lg">
                 <thead>
                     <tr class="bg-gray-700 text-gray-300 uppercase text-sm leading-normal">
-                        <th id="thTournament" class="py-3 px-6 text-left">Torneo</th>
-                        <th id="thTier" class="py-3 px-6 text-left">Tier</th>
-                        <th id="thDates" class="py-3 px-6 text-left cursor-pointer" onclick="sortByDate()">Fechas</th>
-                        <th id="thTeams" class="py-3 px-6 text-left">Equipos</th>
-                        <th id="thLocation" class="py-3 px-6 text-left">Ubicación</th>
-                        <th id="thModality" class="py-3 px-6 text-left">Modalidad</th>
-                        <th id="thColor" class="py-3 px-6 text-left">Color</th>
-                        <th id="thVRS" class="py-3 px-6 text-left cursor-pointer" onclick="sortByVRS()">VRS</th>
-                        <th id="thActions" class="py-3 px-6 text-center">Acciones</th>
+                        <th id="thTournament" class="py-2 px-4 text-left">Torneo</th>
+                        <th id="thTier" class="py-2 px-4 text-left">Tier</th>
+                        <th id="thDates" class="py-2 px-4 text-left cursor-pointer" onclick="sortByDate()">Fechas</th>
+                        <th id="thTeams" class="py-2 px-4 text-left">Equipos</th>
+                        <th id="thLocation" class="py-2 px-4 text-left">Ubicación</th>
+                        <th id="thModality" class="py-2 px-4 text-left">Modalidad</th>
+                        <th id="thColor" class="py-2 px-4 text-left">Color</th>
+                        <th id="thVRS" class="py-2 px-4 text-left cursor-pointer" onclick="sortByVRS()">VRS</th>
+                        <th id="thActions" class="py-2 px-4 text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tournamentBody" class="text-gray-300 text-sm font-light">
@@ -347,10 +411,10 @@
 
         <!-- Modal de ayuda -->
         <div id="helpModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden flex items-center justify-center">
-            <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
-                <h3 id="helpTitle" class="text-xl font-semibold mb-4 text-white">Ayuda</h3>
-                <p id="helpIntro" class="text-gray-300 mb-4">Bienvenido al Calendario de Esports (CS2). Aquí tienes las instrucciones básicas:</p>
-                <ul id="helpList" class="list-disc list-inside text-gray-300 mb-4">
+            <div class="bg-gray-800 p-4 rounded-lg shadow-lg max-w-md w-full">
+                <h3 id="helpTitle" class="text-lg font-semibold mb-2 text-white">Ayuda</h3>
+                <p id="helpIntro" class="text-gray-300 mb-2">Bienvenido al Calendario de Esports (CS2). Aquí tienes las instrucciones básicas:</p>
+                <ul id="helpList" class="list-disc list-inside text-gray-300 mb-2">
                     <li><strong id="helpAdd">Agregar Torneo:</strong> Completa el formulario y haz clic en "Agregar Torneo".</li>
                     <li><strong id="helpEdit">Editar Torneo:</strong> Haz clic en "Editar" en la tabla o en un evento del calendario.</li>
                     <li><strong id="helpDelete">Eliminar Torneo:</strong> Haz clic en "Eliminar" y confirma.</li>
@@ -364,8 +428,8 @@
         </div>
     </div>
 
-    <footer class="bg-gray-800 text-gray-300 p-4 text-center w-full">
-        <p>¿Tienes alguna pregunta? Contáctame en: <a href="mailto:tujugador@email.com" class="text-blue-400 hover:underline">tujugador@email.com</a> | Sigue mis actualizaciones en <a href="https://x.com/tujugador" target="_blank" class="text-blue-400 hover:underline">X</a></p>
+    <footer class="bg-gray-800 text-gray-300 p-2 text-center w-full">
+        <p>¿Tienes alguna pregunta? Contáctame en: <a href="mailto:joacobruses@gmail.com" class="text-blue-400 hover:underline">joacobruses@gmail.com</a> | Sigue mis actualizaciones en <a href="https://x.com/jbruses_" target="_blank" class="text-blue-400 hover:underline">X</a></p>
     </footer>
 
     <script>
@@ -729,20 +793,20 @@
                 const row = document.createElement('tr');
                 row.className = 'border-b border-gray-600 hover:bg-gray-700 transition-colors duration-200';
                 row.innerHTML = `
-                    <td class="py-3 px-6 text-left">${tournament.name}</td>
-                    <td class="py-3 px-6 text-left">${tournament.tier}</td>
-                    <td class="py-3 px-6 text-left">${formatDate(tournament.startDate)} - ${formatDate(tournament.endDate)}</td>
-                    <td class="py-3 px-6 text-left">${tournament.teams}</td>
-                    <td class="py-3 px-6 text-left">${tournament.location}</td>
-                    <td class="py-3 px-6 text-left">${tournament.modality}</td>
-                    <td class="py-3 px-6 text-left">
-                        <span class="inline-block w-4 h-4 rounded-full event-${tournament.color}"></span>
+                    <td class="py-2 px-4 text-left">${tournament.name}</td>
+                    <td class="py-2 px-4 text-left">${tournament.tier}</td>
+                    <td class="py-2 px-4 text-left">${formatDate(tournament.startDate)} - ${formatDate(tournament.endDate)}</td>
+                    <td class="py-2 px-4 text-left">${tournament.teams}</td>
+                    <td class="py-2 px-4 text-left">${tournament.location}</td>
+                    <td class="py-2 px-4 text-left">${tournament.modality}</td>
+                    <td class="py-2 px-4 text-left">
+                        <span class="inline-block w-3 h-3 rounded-full event-${tournament.color}"></span>
                         ${tournament.color.charAt(0).toUpperCase() + tournament.color.slice(1)}
                     </td>
-                    <td class="py-3 px-6 text-left">${tournament.vrs ? translations[currentLang].thVRS === 'VRS' ? 'Yes' : 'Sí' : translations[currentLang].thVRS === 'VRS' ? 'No' : 'No'}</td>
-                    <td class="py-3 px-6 text-center flex gap-2 justify-center">
-                        <button onclick="editTournament(${tournament.id})" class="bg-yellow-600 text-white px-2 py-1 rounded hover:bg-yellow-700">Editar</button>
-                        <button onclick="confirmDelete(${tournament.id})" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">Eliminar</button>
+                    <td class="py-2 px-4 text-left">${tournament.vrs ? translations[currentLang].thVRS === 'VRS' ? 'Yes' : 'Sí' : translations[currentLang].thVRS === 'VRS' ? 'No' : 'No'}</td>
+                    <td class="py-2 px-4 text-center flex gap-1 justify-center">
+                        <button onclick="editTournament(${tournament.id})" class="bg-yellow-600 text-white px-1 py-1 rounded hover:bg-yellow-700 text-sm">Editar</button>
+                        <button onclick="confirmDelete(${tournament.id})" class="bg-red-600 text-white px-1 py-1 rounded hover:bg-red-700 text-sm">Eliminar</button>
                     </td>
                 `;
                 tbody.appendChild(row);
