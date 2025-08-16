@@ -1,4 +1,4 @@
-// Objeto con traducciones
+// ==================== Traducciones ====================
 const translations = {
   es: {
     pageTitle: "Calendario de Esports (CS2)",
@@ -26,7 +26,8 @@ const translations = {
     thActions: "Acciones",
 
     helpTitle: "Ayuda",
-    helpIntro: "Bienvenido al Calendario de Esports (CS2). Aquí tienes las instrucciones básicas:",
+    helpIntro:
+      "Bienvenido al Calendario de Esports (CS2). Aquí tienes las instrucciones básicas:",
     helpAdd: "Agregar Torneo:",
     helpEdit: "Editar Torneo:",
     helpDelete: "Eliminar Torneo:",
@@ -57,10 +58,18 @@ const translations = {
       day: "Día",
     },
 
+    // NUEVOS
     actions: { edit: "Editar", delete: "Eliminar" },
     bool: { yes: "Sí", no: "No" },
     confirmDelete: "¿Eliminar este torneo? Esta acción no se puede deshacer.",
+    importSuccess: "Torneos importados correctamente.",
+    importError: "Error al importar. Asegúrate de que el archivo es un JSON válido.",
+    formTitles: { add: "Agregar Nuevo Torneo", edit: "Editar Torneo" },
+    saveButtons: { add: "Agregar Torneo", edit: "Guardar Cambios" },
+    toggleLight: "Modo Claro",
+    toggleDark: "Modo Oscuro",
   },
+
   en: {
     pageTitle: "Esports Calendar (CS2)",
     storageNote:
@@ -75,6 +84,7 @@ const translations = {
     importButton: "Import",
     helpButton: "Help",
     clearAllButton: "Clear All",
+
     thTournament: "Tournament",
     thTier: "Tier",
     thDates: "Dates",
@@ -84,8 +94,10 @@ const translations = {
     thColor: "Color",
     thVRS: "VRS",
     thActions: "Actions",
+
     helpTitle: "Help",
-    helpIntro: "Welcome to the Esports Calendar (CS2). Here are the basic instructions:",
+    helpIntro:
+      "Welcome to the Esports Calendar (CS2). Here are the basic instructions:",
     helpAdd: "Add Tournament:",
     helpEdit: "Edit Tournament:",
     helpDelete: "Delete Tournament:",
@@ -116,23 +128,29 @@ const translations = {
       day: "Day",
     },
 
+    // NEW
     actions: { edit: "Edit", delete: "Delete" },
     bool: { yes: "Yes", no: "No" },
     confirmDelete: "Delete this tournament? This action cannot be undone.",
+    importSuccess: "Tournaments imported successfully.",
+    importError: "Import error. Make sure the file is a valid JSON.",
+    formTitles: { add: "Add New Tournament", edit: "Edit Tournament" },
+    saveButtons: { add: "Add Tournament", edit: "Save Changes" },
+    toggleLight: "Light Mode",
+    toggleDark: "Dark Mode",
   },
 };
 
+// ==================== Estado ====================
 let currentLang = "es";
-let isDarkMode = true; // Modo inicial es oscuro
-
-// Estado
+let isDarkMode = true; // por defecto
 let tournaments = [];
-let sortDirectionDate = 1; // 1 asc, -1 desc
-let sortDirectionVRS = 1; // 1 Sí primero, -1 No primero
-let editingTournamentId = null; // ID del torneo en edición
-let calendar; // Instancia de FullCalendar
+let sortDirectionDate = 1;
+let sortDirectionVRS = 1;
+let editingTournamentId = null;
+let calendar;
 
-// Formatear fecha a DD/MM/YYYY
+// ==================== Utilidades ====================
 function formatDate(dateString) {
   const date = new Date(dateString);
   const day = String(date.getDate()).padStart(2, "0");
@@ -141,17 +159,18 @@ function formatDate(dateString) {
   return `${day}/${month}/${year}`;
 }
 
-// Tema claro/oscuro
+// ==================== Tema ====================
 function toggleTheme() {
   isDarkMode = !isDarkMode;
   document.body.classList.toggle("light-mode", !isDarkMode);
+  // texto del botón según idioma
   document.getElementById("toggleTheme").textContent = isDarkMode
-    ? "Modo Claro"
-    : "Modo Oscuro";
+    ? translations[currentLang].toggleLight
+    : translations[currentLang].toggleDark;
   localStorage.setItem("theme", isDarkMode ? "dark" : "light");
 }
 
-// Guardar/leer
+// ==================== Persistencia ====================
 function saveTournaments() {
   localStorage.setItem("tournaments", JSON.stringify(tournaments));
 }
@@ -165,13 +184,13 @@ function loadTournamentsAndTheme() {
   }
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme === "light") {
-    toggleTheme(); // aplica modo claro si fue guardado
+    // aplica modo claro si fue guardado
+    toggleTheme();
   }
-  // Idioma inicial
-  document.getElementById("lang-es").classList.add("active");
+  // NO marcamos 🇪🇸 como activo acá; lo maneja setLanguage
 }
 
-// Calendario
+// ==================== Calendario ====================
 function initCalendar() {
   const calendarEl = document.getElementById("calendar");
   calendar = new FullCalendar.Calendar(calendarEl, {
@@ -188,7 +207,8 @@ function initCalendar() {
     eventDisplay: "block",
     eventTimeFormat: { hour: "numeric", minute: "2-digit", hour12: false },
     firstDay: 1,
-    locale: "es",
+    // usar el idioma actual desde el arranque
+    locale: currentLang === "es" ? "es" : "en",
     buttonText: translations[currentLang].calendarButtons,
   });
   calendar.render();
@@ -200,7 +220,7 @@ function renderCalendar() {
   tournaments.forEach((tournament) => {
     const start = new Date(tournament.startDate);
     const end = new Date(tournament.endDate);
-    end.setDate(end.getDate() + 1);
+    end.setDate(end.getDate() + 1); // FC usa end exclusivo
     calendar.addEvent({
       id: tournament.id,
       title: `${tournament.name} (${tournament.teams}, ${tournament.location}, ${tournament.modality}, ${formatDate(
@@ -219,50 +239,56 @@ function renderCalendar() {
   });
 }
 
-// Idioma
-// Cambiar idioma y actualizar toda la UI
+// ==================== Idioma ====================
 function setLanguage(lang) {
   currentLang = lang;
+  localStorage.setItem("lang", currentLang);
+  document.documentElement.setAttribute("lang", lang === "es" ? "es" : "en");
+
+  const t = translations[lang];
 
   // Textos de cabecera / formularios / tabla / ayuda
-  document.getElementById("pageTitle").textContent = translations[lang].pageTitle;
-  document.getElementById("storageNote").textContent = translations[lang].storageNote;
-  document.getElementById("formTitle").textContent = translations[lang].formTitle;
-  document.getElementById("startDateLabel").textContent = translations[lang].startDateLabel;
-  document.getElementById("endDateLabel").textContent = translations[lang].endDateLabel;
-  document.getElementById("vrsLabel").textContent = translations[lang].vrsLabel;
-  document.getElementById("saveButton").textContent = translations[lang].saveButton;
-  document.getElementById("cancelEditButton").textContent = translations[lang].cancelEditButton;
-  document.getElementById("exportButton").textContent = translations[lang].exportButton;
-  document.getElementById("importButton").textContent = translations[lang].importButton;
-  document.getElementById("helpButton").textContent = translations[lang].helpButton;
-  document.getElementById("clearAllButton").textContent = translations[lang].clearAllButton;
+  document.getElementById("pageTitle").textContent = t.pageTitle;
+  document.getElementById("storageNote").textContent = t.storageNote;
+  document.getElementById("formTitle").textContent =
+    editingTournamentId ? t.formTitles.edit : t.formTitles.add;
+  document.getElementById("startDateLabel").textContent = t.startDateLabel;
+  document.getElementById("endDateLabel").textContent = t.endDateLabel;
+  document.getElementById("vrsLabel").textContent = t.vrsLabel;
+  document.getElementById("saveButton").textContent =
+    editingTournamentId ? t.saveButtons.edit : t.saveButtons.add;
+  document.getElementById("cancelEditButton").textContent = t.cancelEditButton;
+  document.getElementById("exportButton").textContent = t.exportButton;
+  document.getElementById("importButton").textContent = t.importButton;
+  document.getElementById("helpButton").textContent = t.helpButton;
+  document.getElementById("clearAllButton").textContent = t.clearAllButton;
 
-  document.getElementById("thTournament").textContent = translations[lang].thTournament;
-  document.getElementById("thTier").textContent = translations[lang].thTier;
-  document.getElementById("thDates").textContent = translations[lang].thDates;
-  document.getElementById("thTeams").textContent = translations[lang].thTeams;
-  document.getElementById("thLocation").textContent = translations[lang].thLocation;
-  document.getElementById("thModality").textContent = translations[lang].thModality;
-  document.getElementById("thColor").textContent = translations[lang].thColor;
-  document.getElementById("thVRS").textContent = translations[lang].thVRS;
-  document.getElementById("thActions").textContent = translations[lang].thActions;
+  document.getElementById("thTournament").textContent = t.thTournament;
+  document.getElementById("thTier").textContent = t.thTier;
+  document.getElementById("thDates").textContent = t.thDates;
+  document.getElementById("thTeams").textContent = t.thTeams;
+  document.getElementById("thLocation").textContent = t.thLocation;
+  document.getElementById("thModality").textContent = t.thModality;
+  document.getElementById("thColor").textContent = t.thColor;
+  document.getElementById("thVRS").textContent = t.thVRS;
+  document.getElementById("thActions").textContent = t.thActions;
 
-  document.getElementById("helpTitle").textContent = translations[lang].helpTitle;
-  document.getElementById("helpIntro").textContent = translations[lang].helpIntro;
-  document.getElementById("helpAdd").textContent = translations[lang].helpAdd;
-  document.getElementById("helpEdit").textContent = translations[lang].helpEdit;
-  document.getElementById("helpDelete").textContent = translations[lang].helpDelete;
-  document.getElementById("helpExport").textContent = translations[lang].helpExport;
-  document.getElementById("helpImport").textContent = translations[lang].helpImport;
-  document.getElementById("helpClear").textContent = translations[lang].helpClear;
-  document.getElementById("helpNote").textContent = translations[lang].helpNote;
-  document.getElementById("closeHelp").textContent = translations[lang].closeHelp;
+  document.getElementById("helpTitle").textContent = t.helpTitle;
+  document.getElementById("helpIntro").textContent = t.helpIntro;
+  document.getElementById("helpAdd").textContent = t.helpAdd;
+  document.getElementById("helpEdit").textContent = t.helpEdit;
+  document.getElementById("helpDelete").textContent = t.helpDelete;
+  document.getElementById("helpExport").textContent = t.helpExport;
+  document.getElementById("helpImport").textContent = t.helpImport;
+  document.getElementById("helpClear").textContent = t.helpClear;
+  document.getElementById("helpNote").textContent = t.helpNote;
+  document.getElementById("closeHelp").textContent = t.closeHelp;
 
   // Placeholders
-  document.getElementById("tournamentName").placeholder = translations[lang].placeholderName;
-  document.getElementById("tournamentTeams").placeholder = translations[lang].placeholderTeams;
-  document.getElementById("tournamentLocation").placeholder = translations[lang].placeholderLocation;
+  document.getElementById("tournamentName").placeholder = t.placeholderName;
+  document.getElementById("tournamentTeams").placeholder = t.placeholderTeams;
+  document.getElementById("tournamentLocation").placeholder =
+    t.placeholderLocation;
 
   // Re-crear opciones de selects manteniendo selección previa
   const tierSelect = document.getElementById("tournamentTier");
@@ -274,7 +300,7 @@ function setLanguage(lang) {
   ["S", "A", "B", "C"].forEach((val, i) => {
     const opt = document.createElement("option");
     opt.value = val;
-    opt.text = translations[lang].tierOptions[i];
+    opt.text = t.tierOptions[i];
     tierSelect.appendChild(opt);
   });
 
@@ -283,7 +309,7 @@ function setLanguage(lang) {
   colorVals.forEach((val, i) => {
     const opt = document.createElement("option");
     opt.value = val;
-    opt.text = translations[lang].colorOptions[i];
+    opt.text = t.colorOptions[i];
     colorSelect.appendChild(opt);
   });
 
@@ -293,29 +319,35 @@ function setLanguage(lang) {
   // Calendario (locale + labels de botones)
   if (calendar) {
     calendar.setOption("locale", lang === "es" ? "es" : "en");
-    calendar.setOption("buttonText", translations[lang].calendarButtons);
+    calendar.setOption("buttonText", t.calendarButtons);
   }
 
   // Estado visual de los toggles de idioma
-  document.getElementById("lang-es").classList.toggle("active", lang === "es");
-  document.getElementById("lang-en").classList.toggle("active", lang === "en");
+  document
+    .getElementById("lang-es")
+    .classList.toggle("active", lang === "es");
+  document
+    .getElementById("lang-en")
+    .classList.toggle("active", lang === "en");
 
-  // Re-pintar tabla y eventos por si cambia texto (Sí/No, Edit/Delete, etc.)
+  // Texto del botón de tema acorde idioma + estado
+  document.getElementById("toggleTheme").textContent = isDarkMode
+    ? t.toggleLight
+    : t.toggleDark;
+
+  // Re-pintar UI dependiente de textos
   renderTournaments();
   renderCalendar();
-
-  // Persistir preferencia
-  localStorage.setItem('lang', currentLang);
 }
 
-// CRUD Torneos
+// ==================== CRUD Torneos ====================
 function saveTournament() {
-  const name = document.getElementById("tournamentName").value;
+  const name = document.getElementById("tournamentName").value.trim();
   const tier = document.getElementById("tournamentTier").value;
   const startDate = document.getElementById("startDate").value;
   const endDate = document.getElementById("endDate").value;
-  const teams = document.getElementById("tournamentTeams").value;
-  const location = document.getElementById("tournamentLocation").value;
+  const teams = document.getElementById("tournamentTeams").value.trim();
+  const location = document.getElementById("tournamentLocation").value.trim();
   const modality = document.getElementById("tournamentModality").value;
   const color = document.getElementById("tournamentColor").value;
   const vrs = document.getElementById("tournamentVRS").checked;
@@ -369,29 +401,28 @@ function editTournament(id) {
   document.getElementById("tournamentTeams").value = t.teams;
   document.getElementById("tournamentColor").value = t.color;
   document.getElementById("tournamentVRS").checked = t.vrs;
-  document.getElementById("formTitle").textContent = translations[currentLang].formTitle.replace("Agregar", "Editar");
-  document.getElementById("saveButton").textContent = translations[currentLang].saveButton.replace("Agregar", "Guardar Cambios");
+
+  // Títulos y botones i18n para modo Edición
+  document.getElementById("formTitle").textContent = translations[currentLang].formTitles.edit;
+  document.getElementById("saveButton").textContent = translations[currentLang].saveButtons.edit;
   document.getElementById("cancelEditButton").classList.remove("hidden");
   editingTournamentId = id;
 }
 
 function cancelEdit() {
   editingTournamentId = null;
-  document.getElementById("formTitle").textContent = translations[currentLang].formTitle;
-  document.getElementById("saveButton").textContent = translations[currentLang].saveButton;
+  document.getElementById("formTitle").textContent = translations[currentLang].formTitles.add;
+  document.getElementById("saveButton").textContent = translations[currentLang].saveButtons.add;
   document.getElementById("cancelEditButton").classList.add("hidden");
   clearForm();
 }
 
 function confirmDelete(id) {
   const msg = translations[currentLang].confirmDelete;
-  const ok = window.confirm(msg); // Se muestra "¿Seguro que quieres eliminar este torneo?" o "Are you sure you want to delete this tournament?"
-  if (ok) {
+  if (window.confirm(msg)) {
     deleteTournament(id);
   }
 }
-
-
 
 function deleteTournament(id) {
   tournaments = tournaments.filter((t) => t.id !== id);
@@ -412,7 +443,7 @@ function clearForm() {
   document.getElementById("tournamentVRS").checked = false;
 }
 
-// Exportar / Importar
+// ==================== Exportar / Importar ====================
 function exportTournaments() {
   const data = localStorage.getItem("tournaments");
   if (data) {
@@ -435,30 +466,20 @@ function importTournaments(event) {
   reader.onload = function (e) {
     try {
       const importedData = e.target.result;
-      localStorage.setItem("tournaments", importedData);
       tournaments = JSON.parse(importedData);
+      localStorage.setItem("tournaments", JSON.stringify(tournaments));
       renderTournaments();
       renderCalendar();
-      alert(
-        translations[currentLang].helpImport.replace(":", "") +
-          " " +
-          translations[currentLang].clearSuccess
-            .toLowerCase()
-            .replace("cleared", "imported")
-      );
+      alert(translations[currentLang].importSuccess);
     } catch (error) {
-      alert(
-        translations[currentLang].helpImport.replace(":", "") +
-          " " +
-          "error. Ensure the file is a valid JSON."
-      );
+      alert(translations[currentLang].importError);
     }
   };
   reader.readAsText(file);
   event.target.value = ""; // limpia input
 }
 
-// Borrar todo
+// ==================== Borrar todo ====================
 function confirmClearAll() {
   if (confirm(translations[currentLang].confirmClear)) {
     clearAllTournaments();
@@ -473,15 +494,7 @@ function clearAllTournaments() {
   alert(translations[currentLang].clearSuccess);
 }
 
-// Ayuda
-function showHelp() {
-  document.getElementById("helpModal").classList.remove("hidden");
-}
-function hideHelp() {
-  document.getElementById("helpModal").classList.add("hidden");
-}
-
-// Render tabla
+// ==================== Render de tabla ====================
 function renderTournaments() {
   const tbody = document.getElementById("tournamentBody");
   tbody.innerHTML = "";
@@ -500,9 +513,9 @@ function renderTournaments() {
         <span class="inline-block w-4 h-4 rounded-full event-${t.color}"></span>
         ${t.color.charAt(0).toUpperCase() + t.color.slice(1)}
       </td>
-      <td class="py-3 px-6 text-left">${
-        t.vrs ? translations[currentLang].bool.yes : translations[currentLang].bool.no
-      }</td>
+      <td class="py-3 px-6 text-left">
+        ${t.vrs ? translations[currentLang].bool.yes : translations[currentLang].bool.no}
+      </td>
       <td class="py-3 px-6 text-center flex gap-2 justify-center">
         <button onclick="editTournament(${t.id})"
           class="bg-yellow-600 text-white px-2 py-1 rounded hover:bg-yellow-700">
@@ -517,37 +530,45 @@ function renderTournaments() {
   });
 }
 
-
-// Ordenamientos
+// ==================== Ordenamientos ====================
 function sortByDate() {
-  tournaments.sort((a, b) => {
-    return sortDirectionDate * (new Date(a.startDate) - new Date(b.startDate));
-  });
+  tournaments.sort((a, b) => sortDirectionDate * (new Date(a.startDate) - new Date(b.startDate)));
   sortDirectionDate = -sortDirectionDate;
   renderTournaments();
 }
 
 function sortByVRS() {
-  tournaments.sort((a, b) => {
-    return sortDirectionVRS * (b.vrs - a.vrs);
-  });
+  tournaments.sort((a, b) => sortDirectionVRS * (b.vrs - a.vrs));
   sortDirectionVRS = -sortDirectionVRS;
   renderTournaments();
 }
 
-// Inicialización
+// ==================== Inicio ====================
 function boot() {
-  currentLang = localStorage.getItem('lang') || 'es';
-  initCalendar();
-  loadTournamentsAndTheme();
-  setLanguage(currentLang);
-  document.getElementById("toggleTheme").addEventListener("click", toggleTheme);
-}
+  // idioma guardado (o ES por defecto)
+  currentLang = localStorage.getItem("lang") || "es";
 
+  // calendario primero, usando currentLang
+  initCalendar();
+
+  // torneos + tema
+  loadTournamentsAndTheme();
+
+  // aplicar textos del idioma
+  setLanguage(currentLang);
+
+  // listener de tema
+  document.getElementById("toggleTheme").addEventListener("click", toggleTheme);
+
+  // sincronizar texto del botón de tema
+  document.getElementById("toggleTheme").textContent = isDarkMode
+    ? translations[currentLang].toggleLight
+    : translations[currentLang].toggleDark;
+}
 
 document.addEventListener("DOMContentLoaded", boot);
 
-// Exponer funciones globales (porque las usás en atributos onclick del HTML)
+// Exponer funciones globales (por los onclick del HTML)
 window.setLanguage = setLanguage;
 window.toggleTheme = toggleTheme;
 window.saveTournament = saveTournament;
@@ -561,3 +582,11 @@ window.sortByDate = sortByDate;
 window.sortByVRS = sortByVRS;
 window.editTournament = editTournament;
 window.confirmDelete = confirmDelete;
+
+// Modal
+function showHelp() {
+  document.getElementById("helpModal").classList.remove("hidden");
+}
+function hideHelp() {
+  document.getElementById("helpModal").classList.add("hidden");
+}
