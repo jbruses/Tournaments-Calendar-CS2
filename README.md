@@ -1,9 +1,12 @@
 ---
 
-# 🗓️ Esports Tournament Calendar (CS2)
+# Esports Calendar (CS2)  
 
-An interactive and modern calendar to organize **Counter-Strike 2 (CS2)** tournaments.
-Designed for teams, coaches, and players to easily manage events with a responsive interface, multi-language support, and export to standard formats.
+[![pages-build-deployment](https://github.com/jbruses/Tournaments-Calendar-CS2/actions/workflows/pages/pages-build-deployment/badge.svg)](https://jbruses.github.io/Tournaments-Calendar-CS2/)  
+
+👉 **[Live Demo](https://jbruses.github.io/Tournaments-Calendar-CS2/)**  
+
+An interactive and customizable calendar for esports events, focused on Counter-Strike 2 (CS2). This project allows you to add, edit, and manage tournaments, with support for multiple languages and a modern design adaptable to light/dark modes. Now fully mobile-friendly for use on any device!
 
 ---
 
