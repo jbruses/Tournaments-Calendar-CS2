@@ -14,6 +14,7 @@ const translations = {
     importButton: "Importar",
     helpButton: "Ayuda",
     clearAllButton: "Borrar todo",
+
     thTournament: "Torneo",
     thTier: "Tier",
     thDates: "Fechas",
@@ -23,9 +24,9 @@ const translations = {
     thColor: "Color",
     thVRS: "VRS",
     thActions: "Acciones",
+
     helpTitle: "Ayuda",
-    helpIntro:
-      "Bienvenido al Calendario de Esports (CS2). Aquí tienes las instrucciones básicas:",
+    helpIntro: "Bienvenido al Calendario de Esports (CS2). Aquí tienes las instrucciones básicas:",
     helpAdd: "Agregar Torneo:",
     helpEdit: "Editar Torneo:",
     helpDelete: "Eliminar Torneo:",
@@ -34,18 +35,31 @@ const translations = {
     helpClear: "Borrar todo:",
     helpNote: "Nota:",
     closeHelp: "Cerrar",
+
     confirmClear:
       "¿Estás seguro de que deseas borrar todos los torneos? Esta acción no se puede deshacer. Te recomendamos exportar tus datos primero.",
     clearSuccess: "Todos los torneos han sido borrados.",
     incompleteFields: "Por favor, completa todos los campos.",
     invalidDate: "La fecha de fin no puede ser anterior a la fecha de inicio.",
     noTournaments: "No hay torneos para exportar.",
+
     placeholderName: "Nombre del Torneo",
     placeholderTeams: "Equipos (separados por coma)",
     placeholderLocation: "Ubicación (ej. Londres, Online)",
+
     tierOptions: ["S (Máxima Relevancia)", "A", "B", "C"],
     colorOptions: ["Azul", "Naranja", "Verde", "Rojo", "Violeta", "Amarillo"],
-    calendarButtons: { today: "Hoy", month: "Mes", week: "Semana", day: "Día" },
+
+    calendarButtons: {
+      today: "Hoy",
+      month: "Mes",
+      week: "Semana",
+      day: "Día",
+    },
+
+    actions: { edit: "Editar", delete: "Eliminar" },
+    bool: { yes: "Sí", no: "No" },
+    confirmDelete: "¿Eliminar este torneo? Esta acción no se puede deshacer.",
   },
   en: {
     pageTitle: "Esports Calendar (CS2)",
@@ -71,8 +85,7 @@ const translations = {
     thVRS: "VRS",
     thActions: "Actions",
     helpTitle: "Help",
-    helpIntro:
-      "Welcome to the Esports Calendar (CS2). Here are the basic instructions:",
+    helpIntro: "Welcome to the Esports Calendar (CS2). Here are the basic instructions:",
     helpAdd: "Add Tournament:",
     helpEdit: "Edit Tournament:",
     helpDelete: "Delete Tournament:",
@@ -81,18 +94,31 @@ const translations = {
     helpClear: "Clear All:",
     helpNote: "Note:",
     closeHelp: "Close",
+
     confirmClear:
       "Are you sure you want to clear all tournaments? This action cannot be undone. We recommend exporting your data first.",
     clearSuccess: "All tournaments have been cleared.",
     incompleteFields: "Please fill in all fields.",
     invalidDate: "The end date cannot be earlier than the start date.",
     noTournaments: "There are no tournaments to export.",
+
     placeholderName: "Tournament Name",
     placeholderTeams: "Teams (comma separated)",
     placeholderLocation: "Location (e.g. London, Online)",
+
     tierOptions: ["S (Highest Relevance)", "A", "B", "C"],
     colorOptions: ["Blue", "Orange", "Green", "Red", "Purple", "Yellow"],
-    calendarButtons: { today: "Today", month: "Month", week: "Week", day: "Day" },
+
+    calendarButtons: {
+      today: "Today",
+      month: "Month",
+      week: "Week",
+      day: "Day",
+    },
+
+    actions: { edit: "Edit", delete: "Delete" },
+    bool: { yes: "Yes", no: "No" },
+    confirmDelete: "Delete this tournament? This action cannot be undone.",
   },
 };
 
@@ -194,8 +220,11 @@ function renderCalendar() {
 }
 
 // Idioma
+// Cambiar idioma y actualizar toda la UI
 function setLanguage(lang) {
   currentLang = lang;
+
+  // Textos de cabecera / formularios / tabla / ayuda
   document.getElementById("pageTitle").textContent = translations[lang].pageTitle;
   document.getElementById("storageNote").textContent = translations[lang].storageNote;
   document.getElementById("formTitle").textContent = translations[lang].formTitle;
@@ -208,6 +237,7 @@ function setLanguage(lang) {
   document.getElementById("importButton").textContent = translations[lang].importButton;
   document.getElementById("helpButton").textContent = translations[lang].helpButton;
   document.getElementById("clearAllButton").textContent = translations[lang].clearAllButton;
+
   document.getElementById("thTournament").textContent = translations[lang].thTournament;
   document.getElementById("thTier").textContent = translations[lang].thTier;
   document.getElementById("thDates").textContent = translations[lang].thDates;
@@ -217,6 +247,7 @@ function setLanguage(lang) {
   document.getElementById("thColor").textContent = translations[lang].thColor;
   document.getElementById("thVRS").textContent = translations[lang].thVRS;
   document.getElementById("thActions").textContent = translations[lang].thActions;
+
   document.getElementById("helpTitle").textContent = translations[lang].helpTitle;
   document.getElementById("helpIntro").textContent = translations[lang].helpIntro;
   document.getElementById("helpAdd").textContent = translations[lang].helpAdd;
@@ -227,17 +258,18 @@ function setLanguage(lang) {
   document.getElementById("helpClear").textContent = translations[lang].helpClear;
   document.getElementById("helpNote").textContent = translations[lang].helpNote;
   document.getElementById("closeHelp").textContent = translations[lang].closeHelp;
+
+  // Placeholders
   document.getElementById("tournamentName").placeholder = translations[lang].placeholderName;
   document.getElementById("tournamentTeams").placeholder = translations[lang].placeholderTeams;
   document.getElementById("tournamentLocation").placeholder = translations[lang].placeholderLocation;
 
-  // Guardar selecciones actuales antes de reconstruir opciones
+  // Re-crear opciones de selects manteniendo selección previa
   const tierSelect = document.getElementById("tournamentTier");
   const colorSelect = document.getElementById("tournamentColor");
   const prevTier = tierSelect.value;
   const prevColor = colorSelect.value;
 
-  // Actualizar opciones de tiers
   tierSelect.innerHTML = "";
   ["S", "A", "B", "C"].forEach((val, i) => {
     const opt = document.createElement("option");
@@ -246,7 +278,6 @@ function setLanguage(lang) {
     tierSelect.appendChild(opt);
   });
 
-  // Actualizar opciones de colores
   const colorVals = ["blue", "orange", "green", "red", "purple", "yellow"];
   colorSelect.innerHTML = "";
   colorVals.forEach((val, i) => {
@@ -259,17 +290,22 @@ function setLanguage(lang) {
   if (prevTier) tierSelect.value = prevTier;
   if (prevColor) colorSelect.value = prevColor;
 
-  // Calendario
+  // Calendario (locale + labels de botones)
   if (calendar) {
     calendar.setOption("locale", lang === "es" ? "es" : "en");
     calendar.setOption("buttonText", translations[lang].calendarButtons);
   }
 
-  // Resaltar botón activo
+  // Estado visual de los toggles de idioma
   document.getElementById("lang-es").classList.toggle("active", lang === "es");
   document.getElementById("lang-en").classList.toggle("active", lang === "en");
 
+  // Re-pintar tabla y eventos por si cambia texto (Sí/No, Edit/Delete, etc.)
+  renderTournaments();
   renderCalendar();
+
+  // Persistir preferencia
+  localStorage.setItem('lang', currentLang);
 }
 
 // CRUD Torneos
@@ -348,17 +384,14 @@ function cancelEdit() {
 }
 
 function confirmDelete(id) {
-  if (
-    confirm(
-      translations[currentLang].helpDelete.replace(":", "") +
-        " " +
-        translations[currentLang].confirmClear.split("?")[0] +
-        "?"
-    )
-  ) {
+  const msg = translations[currentLang].confirmDelete;
+  const ok = window.confirm(msg); // Se muestra "¿Seguro que quieres eliminar este torneo?" o "Are you sure you want to delete this tournament?"
+  if (ok) {
     deleteTournament(id);
   }
 }
+
+
 
 function deleteTournament(id) {
   tournaments = tournaments.filter((t) => t.id !== id);
@@ -459,9 +492,7 @@ function renderTournaments() {
     row.innerHTML = `
       <td class="py-3 px-6 text-left">${t.name}</td>
       <td class="py-3 px-6 text-left">${t.tier}</td>
-      <td class="py-3 px-6 text-left">${formatDate(t.startDate)} - ${formatDate(
-        t.endDate
-      )}</td>
+      <td class="py-3 px-6 text-left">${formatDate(t.startDate)} - ${formatDate(t.endDate)}</td>
       <td class="py-3 px-6 text-left">${t.teams}</td>
       <td class="py-3 px-6 text-left">${t.location}</td>
       <td class="py-3 px-6 text-left">${t.modality}</td>
@@ -469,20 +500,23 @@ function renderTournaments() {
         <span class="inline-block w-4 h-4 rounded-full event-${t.color}"></span>
         ${t.color.charAt(0).toUpperCase() + t.color.slice(1)}
       </td>
-      <td class="py-3 px-6 text-left">${t.vrs
-        ? translations[currentLang].thVRS === "VRS"
-          ? "Yes"
-          : "Sí"
-        : translations[currentLang].thVRS === "VRS"
-        ? "No"
-        : "No"}</td>
+      <td class="py-3 px-6 text-left">${
+        t.vrs ? translations[currentLang].bool.yes : translations[currentLang].bool.no
+      }</td>
       <td class="py-3 px-6 text-center flex gap-2 justify-center">
-        <button onclick="editTournament(${t.id})" class="bg-yellow-600 text-white px-2 py-1 rounded hover:bg-yellow-700">Editar</button>
-        <button onclick="confirmDelete(${t.id})" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">Eliminar</button>
+        <button onclick="editTournament(${t.id})"
+          class="bg-yellow-600 text-white px-2 py-1 rounded hover:bg-yellow-700">
+          ${translations[currentLang].actions.edit}
+        </button>
+        <button onclick="confirmDelete(${t.id})"
+          class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">
+          ${translations[currentLang].actions.delete}
+        </button>
       </td>`;
     tbody.appendChild(row);
   });
 }
+
 
 // Ordenamientos
 function sortByDate() {
@@ -503,11 +537,13 @@ function sortByVRS() {
 
 // Inicialización
 function boot() {
+  currentLang = localStorage.getItem('lang') || 'es';
   initCalendar();
   loadTournamentsAndTheme();
   setLanguage(currentLang);
   document.getElementById("toggleTheme").addEventListener("click", toggleTheme);
 }
+
 
 document.addEventListener("DOMContentLoaded", boot);
 
