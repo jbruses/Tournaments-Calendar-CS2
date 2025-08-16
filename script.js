@@ -57,8 +57,6 @@ const translations = {
       week: "Semana",
       day: "Día",
     },
-
-    // NUEVOS
     actions: { edit: "Editar", delete: "Eliminar" },
     bool: { yes: "Sí", no: "No" },
     confirmDelete: "¿Eliminar este torneo? Esta acción no se puede deshacer.",
@@ -68,6 +66,23 @@ const translations = {
     saveButtons: { add: "Agregar Torneo", edit: "Guardar Cambios" },
     toggleLight: "Modo Claro",
     toggleDark: "Modo Oscuro",
+
+    // Filtros + ICS + Leyenda
+    filters: {
+      text: "Buscar por nombre/equipo",
+      tierAny: "Tier (todos)",
+      modalityAny: "Modalidad (todas)",
+      location: "Ubicación",
+      from: "Desde",
+      to: "Hasta",
+      vrsAny: "VRS (todos)",
+      vrsYes: "Sí",
+      vrsNo: "No",
+      clear: "Limpiar filtros"
+    },
+    icsButton: "Exportar ICS",
+    colorsLegendTitle: "Colores de torneos",
+    colorNames: { blue: "Azul", orange: "Naranja", green: "Verde", red: "Rojo", purple: "Violeta", yellow: "Amarillo" },
   },
 
   en: {
@@ -128,7 +143,6 @@ const translations = {
       day: "Day",
     },
 
-    // NEW
     actions: { edit: "Edit", delete: "Delete" },
     bool: { yes: "Yes", no: "No" },
     confirmDelete: "Delete this tournament? This action cannot be undone.",
@@ -138,6 +152,23 @@ const translations = {
     saveButtons: { add: "Add Tournament", edit: "Save Changes" },
     toggleLight: "Light Mode",
     toggleDark: "Dark Mode",
+
+    // Filters + ICS + Legend
+    filters: {
+      text: "Search by name/team",
+      tierAny: "Tier (any)",
+      modalityAny: "Modality (any)",
+      location: "Location",
+      from: "From",
+      to: "To",
+      vrsAny: "VRS (any)",
+      vrsYes: "Yes",
+      vrsNo: "No",
+      clear: "Clear filters"
+    },
+    icsButton: "Export ICS",
+    colorsLegendTitle: "Tournament colors",
+    colorNames: { blue: "Blue", orange: "Orange", green: "Green", red: "Red", purple: "Purple", yellow: "Yellow" },
   },
 };
 
@@ -159,11 +190,48 @@ function formatDate(dateString) {
   return `${day}/${month}/${year}`;
 }
 
+function getFilters() {
+  return {
+    text: (document.getElementById("fText")?.value || "").toLowerCase(),
+    tier: document.getElementById("fTier")?.value || "",
+    modality: document.getElementById("fModality")?.value || "",
+    location: (document.getElementById("fLocation")?.value || "").toLowerCase(),
+    from: document.getElementById("fFrom")?.value || "",
+    to: document.getElementById("fTo")?.value || "",
+    vrs: document.getElementById("fVRS")?.value || "", // "" | "1" | "0"
+  };
+}
+
+function filteredTournaments() {
+  const f = getFilters();
+  return tournaments.filter(t => {
+    const textOK =
+      !f.text ||
+      t.name.toLowerCase().includes(f.text) ||
+      t.teams.toLowerCase().includes(f.text);
+
+    const tierOK = !f.tier || t.tier === f.tier;
+    const modalityOK = !f.modality || t.modality === f.modality;
+    const locationOK = !f.location || t.location.toLowerCase().includes(f.location);
+
+    const start = new Date(t.startDate);
+    const end = new Date(t.endDate);
+    let rangeOK = true;
+    if (f.from) rangeOK = rangeOK && (end >= new Date(f.from));
+    if (f.to)   rangeOK = rangeOK && (start <= new Date(f.to));
+
+    let vrsOK = true;
+    if (f.vrs === "1") vrsOK = t.vrs === true;
+    if (f.vrs === "0") vrsOK = t.vrs === false;
+
+    return textOK && tierOK && modalityOK && locationOK && rangeOK && vrsOK;
+  });
+}
+
 // ==================== Tema ====================
 function toggleTheme() {
   isDarkMode = !isDarkMode;
   document.body.classList.toggle("light-mode", !isDarkMode);
-  // texto del botón según idioma
   document.getElementById("toggleTheme").textContent = isDarkMode
     ? translations[currentLang].toggleLight
     : translations[currentLang].toggleDark;
@@ -184,10 +252,8 @@ function loadTournamentsAndTheme() {
   }
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme === "light") {
-    // aplica modo claro si fue guardado
     toggleTheme();
   }
-  // NO marcamos 🇪🇸 como activo acá; lo maneja setLanguage
 }
 
 // ==================== Calendario ====================
@@ -207,7 +273,6 @@ function initCalendar() {
     eventDisplay: "block",
     eventTimeFormat: { hour: "numeric", minute: "2-digit", hour12: false },
     firstDay: 1,
-    // usar el idioma actual desde el arranque
     locale: currentLang === "es" ? "es" : "en",
     buttonText: translations[currentLang].calendarButtons,
   });
@@ -217,10 +282,10 @@ function initCalendar() {
 function renderCalendar() {
   if (!calendar) return;
   calendar.removeAllEvents();
-  tournaments.forEach((tournament) => {
+  filteredTournaments().forEach((tournament) => {
     const start = new Date(tournament.startDate);
     const end = new Date(tournament.endDate);
-    end.setDate(end.getDate() + 1); // FC usa end exclusivo
+    end.setDate(end.getDate() + 1); // FullCalendar usa end exclusivo
     calendar.addEvent({
       id: tournament.id,
       title: `${tournament.name} (${tournament.teams}, ${tournament.location}, ${tournament.modality}, ${formatDate(
@@ -237,6 +302,24 @@ function renderCalendar() {
       },
     });
   });
+}
+
+// ==================== Leyenda de colores ====================
+function renderLegend() {
+  const wrap = document.getElementById("legend");
+  if (!wrap) return;
+  const t = translations[currentLang];
+  const names = t.colorNames;
+
+  wrap.innerHTML = `
+    <span class="font-semibold">${t.colorsLegendTitle}:</span>
+    ${["blue","orange","green","red","purple","yellow"].map(c => `
+      <span class="inline-flex items-center gap-2">
+        <span class="inline-block w-4 h-4 rounded-full event-${c}"></span>
+        ${names[c]}
+      </span>
+    `).join("")}
+  `;
 }
 
 // ==================== Idioma ====================
@@ -287,8 +370,7 @@ function setLanguage(lang) {
   // Placeholders
   document.getElementById("tournamentName").placeholder = t.placeholderName;
   document.getElementById("tournamentTeams").placeholder = t.placeholderTeams;
-  document.getElementById("tournamentLocation").placeholder =
-    t.placeholderLocation;
+  document.getElementById("tournamentLocation").placeholder = t.placeholderLocation;
 
   // Re-crear opciones de selects manteniendo selección previa
   const tierSelect = document.getElementById("tournamentTier");
@@ -323,12 +405,8 @@ function setLanguage(lang) {
   }
 
   // Estado visual de los toggles de idioma
-  document
-    .getElementById("lang-es")
-    .classList.toggle("active", lang === "es");
-  document
-    .getElementById("lang-en")
-    .classList.toggle("active", lang === "en");
+  document.getElementById("lang-es").classList.toggle("active", lang === "es");
+  document.getElementById("lang-en").classList.toggle("active", lang === "en");
 
   // Texto del botón de tema acorde idioma + estado
   document.getElementById("toggleTheme").textContent = isDarkMode
@@ -338,6 +416,43 @@ function setLanguage(lang) {
   // Re-pintar UI dependiente de textos
   renderTournaments();
   renderCalendar();
+
+  // Filtros (placeholders y opciones)
+  const f = translations[lang].filters;
+
+  const fText = document.getElementById("fText");
+  if (fText) fText.placeholder = f.text;
+
+  const fTier = document.getElementById("fTier");
+  if (fTier && fTier.options.length) fTier.options[0].text = f.tierAny;
+
+  const fModality = document.getElementById("fModality");
+  if (fModality && fModality.options.length) fModality.options[0].text = f.modalityAny;
+
+  const fLocation = document.getElementById("fLocation");
+  if (fLocation) fLocation.placeholder = f.location;
+
+  const fFrom = document.getElementById("fFrom");
+  if (fFrom) fFrom.title = f.from;
+  const fTo = document.getElementById("fTo");
+  if (fTo) fTo.title = f.to;
+
+  const fVRS = document.getElementById("fVRS");
+  if (fVRS && fVRS.options.length >= 3) {
+    fVRS.options[0].text = f.vrsAny;
+    fVRS.options[1].text = f.vrsYes;
+    fVRS.options[2].text = f.vrsNo;
+  }
+
+  const btnClear = document.getElementById("btnClearFilters");
+  if (btnClear) btnClear.textContent = f.clear;
+
+  // Botón ICS
+  const btnICS = document.getElementById("exportICS");
+  if (btnICS) btnICS.textContent = translations[lang].icsButton;
+
+  // Leyenda
+  renderLegend();
 }
 
 // ==================== CRUD Torneos ====================
@@ -402,7 +517,6 @@ function editTournament(id) {
   document.getElementById("tournamentColor").value = t.color;
   document.getElementById("tournamentVRS").checked = t.vrs;
 
-  // Títulos y botones i18n para modo Edición
   document.getElementById("formTitle").textContent = translations[currentLang].formTitles.edit;
   document.getElementById("saveButton").textContent = translations[currentLang].saveButtons.edit;
   document.getElementById("cancelEditButton").classList.remove("hidden");
@@ -459,6 +573,58 @@ function exportTournaments() {
   }
 }
 
+function icsEscape(s = "") {
+  return String(s)
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\n/g, "\\n");
+}
+
+function exportICS() {
+  const list = filteredTournaments();
+  if (!list.length) {
+    alert(translations[currentLang].noTournaments);
+    return;
+  }
+
+  let ics = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//CS2 Calendar//EN\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\n";
+
+  list.forEach(t => {
+    const dtStart = t.startDate.replace(/-/g, "");
+    const endPlus1 = new Date(t.endDate);
+    endPlus1.setDate(endPlus1.getDate() + 1);
+    const dtEnd = endPlus1.toISOString().slice(0,10).replace(/-/g,"");
+
+    const uid = `${t.id}@cs2-calendar`;
+    const summary = icsEscape(`${t.name} [${t.tier}]`);
+    const description = icsEscape(
+      `Equipos: ${t.teams}\nModalidad: ${t.modality}\nVRS: ${t.vrs ? translations[currentLang].bool.yes : translations[currentLang].bool.no}`
+    );
+    const location = icsEscape(t.location || "");
+
+    ics += "BEGIN:VEVENT\r\n";
+    ics += `UID:${uid}\r\n`;
+    ics += `DTSTAMP:${new Date().toISOString().replace(/[-:]/g,"").split(".")[0]}Z\r\n`;
+    ics += `DTSTART;VALUE=DATE:${dtStart}\r\n`;
+    ics += `DTEND;VALUE=DATE:${dtEnd}\r\n`;
+    ics += `SUMMARY:${summary}\r\n`;
+    if (location) ics += `LOCATION:${location}\r\n`;
+    if (description) ics += `DESCRIPTION:${description}\r\n`;
+    ics += "END:VEVENT\r\n";
+  });
+
+  ics += "END:VCALENDAR\r\n";
+
+  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "esports_calendar.ics";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function importTournaments(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -498,7 +664,7 @@ function clearAllTournaments() {
 function renderTournaments() {
   const tbody = document.getElementById("tournamentBody");
   tbody.innerHTML = "";
-  tournaments.forEach((t) => {
+  filteredTournaments().forEach((t) => {
     const row = document.createElement("tr");
     row.className =
       "border-b border-gray-600 hover:bg-gray-700 transition-colors duration-200";
@@ -545,22 +711,37 @@ function sortByVRS() {
 
 // ==================== Inicio ====================
 function boot() {
-  // idioma guardado (o ES por defecto)
   currentLang = localStorage.getItem("lang") || "es";
 
-  // calendario primero, usando currentLang
   initCalendar();
-
-  // torneos + tema
   loadTournamentsAndTheme();
-
-  // aplicar textos del idioma
   setLanguage(currentLang);
 
-  // listener de tema
+  ["fText","fTier","fModality","fLocation","fFrom","fTo","fVRS"].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("input", () => { renderTournaments(); renderCalendar(); });
+    el.addEventListener("change", () => { renderTournaments(); renderCalendar(); });
+  });
+
+  const btnClear = document.getElementById("btnClearFilters");
+  if (btnClear) {
+    btnClear.addEventListener("click", () => {
+      ["fText","fTier","fModality","fLocation","fFrom","fTo","fVRS"].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.value = "";
+      });
+      renderTournaments();
+      renderCalendar();
+    });
+  }
+
   document.getElementById("toggleTheme").addEventListener("click", toggleTheme);
 
-  // sincronizar texto del botón de tema
+  const btnICS = document.getElementById("exportICS");
+  if (btnICS) btnICS.addEventListener("click", exportICS);
+
   document.getElementById("toggleTheme").textContent = isDarkMode
     ? translations[currentLang].toggleLight
     : translations[currentLang].toggleDark;
