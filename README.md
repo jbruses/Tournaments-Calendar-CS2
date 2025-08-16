@@ -6,8 +6,10 @@
 [![GitHub license](https://img.shields.io/github/license/jbruses/Tournaments-Calendar-CS2?style=for-the-badge)](./LICENSE)
 [![Deploy](https://img.shields.io/badge/Deploy-GitHub%20Pages-blue?style=for-the-badge&logo=github)](https://jbruses.github.io/Tournaments-Calendar-CS2/)
 
-An interactive and customizable calendar for esports events, focused on **Counter-Strike 2 (CS2)**.  
-Coaches, managers, and teams can easily organize tournaments, scrims, and events with a modern UI, light/dark mode, and multi-language support.  
+A customizable esports calendar for Counter-Strike 2.  
+Easily add, edit, and export tournaments with support for JSON and ICS formats.  
+Includes dark mode, team-themed customization, multilingual support, and a responsive design for both desktop and mobile.  
+Perfect for players, coaches, and esports communities to organize and share events.
 
 👉 **[Live Demo](https://jbruses.github.io/Tournaments-Calendar-CS2/)**  
 
