@@ -6,84 +6,111 @@
   <title>Esports Calendar (CS2)</title>
 
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Fuentes -->
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Tu CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Rajdhani', 'sans-serif'],
+          },
+          colors: {
+            dark: {
+              900: '#0a0a0a',
+              800: '#171717',
+              700: '#262626',
+            },
+            brand: {
+              500: '#3b82f6',
+              600: '#2563eb',
+              glow: 'rgba(59, 130, 246, 0.5)'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="bg-gray-900 text-gray-100 font-sans">
-  <header class="header">
-    <h1 id="pageTitle">Calendario de Esports (CS2)</h1>
+
+<body class="bg-dark-900 text-gray-100 font-sans selection:bg-brand-500 selection:text-white">
+  
+  <header class="header py-8 mb-4">
+    <h1 id="pageTitle" class="brand-font text-4xl md:text-5xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-500 text-center uppercase drop-shadow-lg">
+      Calendario de Esports (CS2)
+    </h1>
   </header>
 
-  <div class="container mx-auto p-4">
-    <div class="flex justify-between items-center mb-6">
-      <div class="language-switch">
-        <button id="lang-es" class="language-btn" onclick="setLanguage('es')">🇪🇸</button>
-        <button id="lang-en" class="language-btn" onclick="setLanguage('en')">🇺🇸</button>
+  <div class="container mx-auto p-4 max-w-7xl">
+    
+    <div class="flex flex-wrap justify-between items-center mb-8 gap-4">
+      <div class="language-switch flex gap-2">
+        <button id="lang-es" class="language-btn hover:scale-110 transition-transform text-2xl" title="Español">🇪🇸</button>
+        <button id="lang-en" class="language-btn hover:scale-110 transition-transform text-2xl" title="English">🇺🇸</button>
       </div>
-      <button id="toggleTheme" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Modo Claro</button>
+      <button id="toggleTheme" class="bg-dark-800 border border-dark-700 text-gray-300 px-4 py-2 rounded-lg hover:bg-dark-700 hover:text-white transition-all text-sm font-semibold uppercase tracking-wide">
+        Modo Claro
+      </button>
     </div>
 
-    <p id="storageNote" class="text-center text-gray-400 mb-6">
-      Los datos se guardan localmente en tu navegador. Exporta tu calendario para respaldarlo o compartirlo. No compartas el archivo JSON si contiene información sensible.
+    <p id="storageNote" class="text-center text-gray-500 text-sm mb-8 opacity-70">
+      Los datos se guardan localmente. Exporta tu calendario para respaldarlo.
     </p>
 
-    <!-- Today's Highlights -->
-    <div id="highlightsSection" class="card mb-6">
-      <h2 id="highlightsTitle" class="text-xl font-semibold mb-4 text-white flex items-center gap-2">
-        🔥 <span>Today's Highlights</span>
-      </h2>
-      <div class="flex items-center gap-3 mb-2">
-        <label for="highlightsFavOnly" class="text-sm text-gray-300">Favorites only</label>
-        <input id="highlightsFavOnly" type="checkbox" />
+    <div id="highlightsSection" class="glass-panel p-6 rounded-xl mb-8">
+      <div class="flex flex-wrap justify-between items-center mb-6 border-b border-white/10 pb-4">
+        <h2 id="highlightsTitle" class="text-2xl font-bold text-white flex items-center gap-2 brand-font">
+          🔥 <span>Today's Highlights</span>
+        </h2>
+        <div class="flex items-center gap-3">
+          <label for="highlightsFavOnly" class="text-sm text-gray-400 font-medium cursor-pointer select-none">Favorites only</label>
+          <input id="highlightsFavOnly" type="checkbox" class="w-4 h-4 accent-brand-500 cursor-pointer" />
+        </div>
       </div>
-      <div id="highlightsContent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Highlights will be dynamically added here -->
-      </div>
-      <div id="noHighlights" class="text-gray-400 text-center py-8 hidden">
+      
+      <div id="highlightsContent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </div>
+      <div id="noHighlights" class="text-gray-500 text-center py-12 hidden italic">
         No tournaments today or tomorrow
       </div>
     </div>
 
-    <!-- Calendar -->
-    <div id="calendar" class="card mb-6"></div>
+    <div id="calendar" class="glass-panel p-6 rounded-xl mb-8 shadow-2xl"></div>
 
-    <!-- Leyenda de colores -->
-    <div class="card mb-6">
-      <div id="legend" class="flex flex-wrap gap-4 items-center text-sm">
-        <!-- Se rellena por JS (renderLegend) -->
+    <div class="glass-panel p-6 rounded-xl mb-8 border-t-4 border-brand-500">
+      <div id="btnToggleForm" class="flex justify-between items-center cursor-pointer group">
+        <h2 id="formTitle" class="text-2xl font-bold text-white m-0 brand-font group-hover:text-brand-500 transition-colors">
+          Agregar Nuevo Torneo
+        </h2>
+        <span id="toggleFormIcon" class="text-xl text-gray-400 transition-transform duration-300 group-hover:text-white">▼</span>
       </div>
-    </div>
 
-    <!-- Formulario para agregar/editar torneos -->
-    <div class="card mb-6" style="border-top: 4px solid #3b82f6;">
-      <div class="flex justify-between items-center cursor-pointer" onclick="toggleAddForm()">
-        <h2 id="formTitle" class="text-xl font-semibold text-white m-0">Agregar Nuevo Torneo</h2>
-        <span id="toggleFormIcon" class="text-xl text-gray-400 transition-transform duration-200">▼</span>
-      </div>
-      <div id="addTournamentFormBody" class="hidden mt-6 grid md:grid-cols-2 gap-4">
-        <!-- Name -->
+      <div id="addTournamentFormBody" class="hidden mt-8 grid md:grid-cols-2 gap-6">
         <div class="col-span-2">
-          <label class="form-label">Tournament Name</label>
+          <label class="form-label block text-sm font-semibold text-gray-400 mb-1">Tournament Name</label>
           <input id="tournamentName" type="text" placeholder="Nombre del Torneo" class="w-full" />
         </div>
         
-        <!-- Tier & Color -->
         <div>
-          <label class="form-label">Tier</label>
+          <label class="form-label block text-sm font-semibold text-gray-400 mb-1">Tier</label>
           <select id="tournamentTier" class="w-full">
-            <option value="S">S - Maximum Relevance</option>
+            <option value="S">S</option>
             <option value="A">A</option>
             <option value="B">B</option>
             <option value="C">C</option>
           </select>
         </div>
         <div>
-          <label class="form-label">Color</label>
+          <label class="form-label block text-sm font-semibold text-gray-400 mb-1">Color</label>
           <select id="tournamentColor" class="w-full">
             <option value="blue">Blue</option>
             <option value="orange">Orange</option>
@@ -94,35 +121,31 @@
           </select>
         </div>
 
-        <!-- Dates -->
         <div>
-          <label id="startDateLabel" for="startDate" class="form-label">Start Date</label>
+          <label id="startDateLabel" for="startDate" class="form-label block text-sm font-semibold text-gray-400 mb-1">Start Date</label>
           <input id="startDate" type="date" class="w-full" />
         </div>
         <div>
-          <label id="endDateLabel" for="endDate" class="form-label">End Date</label>
+          <label id="endDateLabel" for="endDate" class="form-label block text-sm font-semibold text-gray-400 mb-1">End Date</label>
           <input id="endDate" type="date" class="w-full" />
         </div>
 
-        <!-- Teams -->
         <div class="col-span-2">
-          <label class="form-label">Teams (comma separated)</label>
+          <label class="form-label block text-sm font-semibold text-gray-400 mb-1">Equipos (separados por coma)</label>
           <div class="relative group">
-            <div id="teamTagsInput" class="tags-input-container" onclick="document.getElementById('tournamentTeams').focus()">
-              <!-- tags will be inserted here by renderInputTags -->
-              <input id="tournamentTeams" type="text" placeholder="Equipos (separados por coma)" style="background: transparent; color: #f3f4f6; border: none; outline: none; flex: 1; min-width: 100px;" autocomplete="off" />
+            <div id="teamTagsInput" class="flex flex-wrap items-center gap-2 w-full bg-dark-900 border border-gray-700 rounded-lg p-2 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20 transition-all min-h-[42px]">
+              <input id="tournamentTeams" type="text" placeholder="Escribe equipo y presiona coma..." style="background: transparent; border: none; outline: none; flex: 1; min-width: 150px; color: white;" autocomplete="off" />
             </div>
-            <div id="teamsAutocompleteDropdown" class="autocomplete-dropdown hidden"></div>
+            <div id="teamsAutocompleteDropdown" class="autocomplete-dropdown hidden absolute w-full bg-dark-800 border border-gray-700 z-50"></div>
           </div>
         </div>
 
-        <!-- Location & Modality -->
         <div>
-          <label class="form-label">Location</label>
-          <input id="tournamentLocation" type="text" placeholder="Ubicación (ej. Londres, Online)" class="w-full" />
+          <label class="form-label block text-sm font-semibold text-gray-400 mb-1">Location</label>
+          <input id="tournamentLocation" type="text" placeholder="Ubicación (ej. Londres)" class="w-full" />
         </div>
         <div>
-          <label class="form-label">Modality</label>
+          <label class="form-label block text-sm font-semibold text-gray-400 mb-1">Modality</label>
           <select id="tournamentModality" class="w-full">
             <option value="Online">Online</option>
             <option value="Offline">Offline</option>
@@ -130,175 +153,132 @@
           </select>
         </div>
 
-        <!-- VRS -->
-        <div class="col-span-2 flex items-center gap-2 mt-2">
-          <input id="tournamentVRS" type="checkbox" class="w-4 h-4" />
-          <label id="vrsLabel" for="tournamentVRS" class="text-gray-300 cursor-pointer select-none">
-            VRS (Valorant Ranking System)
+        <div class="col-span-2 flex items-center gap-3 mt-2 p-3 bg-white/5 rounded-lg border border-white/5">
+          <input id="tournamentVRS" type="checkbox" class="w-5 h-5 accent-brand-500 cursor-pointer" />
+          <label id="vrsLabel" for="tournamentVRS" class="text-gray-300 cursor-pointer select-none font-medium">
+            Cuenta para el Ranking (VRS)
           </label>
         </div>
       </div>
       
-      <!-- Buttons -->
-      <div id="addTournamentButtons" class="hidden mt-6 flex flex-wrap gap-2 justify-end">
-        <button id="saveButton" onclick="saveTournament()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold transition-colors">Agregar Torneo</button>
-        <button id="cancelEditButton" onclick="cancelEdit()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded font-bold transition-colors hidden">Cancelar</button>
+      <div id="addTournamentButtons" class="hidden mt-8 flex flex-wrap gap-3 justify-end border-t border-white/10 pt-6">
+        <button id="saveButton" class="bg-brand-600 hover:bg-brand-500 text-white px-6 py-2 rounded-lg font-bold transition-all shadow-lg hover:shadow-brand-500/30 uppercase tracking-wide text-sm">
+          Agregar Torneo
+        </button>
+        <button id="btnCancel" class="bg-dark-700 hover:bg-dark-600 text-white px-6 py-2 rounded-lg font-bold transition-colors hidden uppercase tracking-wide text-sm">
+          Cancelar
+        </button>
         
-        <div class="flex-grow"></div> <!-- Spacer -->
+        <div class="flex-grow"></div> 
         
-        <button id="exportButton" onclick="exportTournaments()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-bold transition-colors">Exportar</button>
-        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importTournaments(event)" />
-        <button id="importButton" onclick="document.getElementById('importFile').click()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded font-bold transition-colors">Importar</button>
-        <button id="exportICS" onclick="exportICS()" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded font-bold transition-colors">Exportar ICS</button>
-        <button id="helpButton" onclick="showHelp()" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded font-bold transition-colors">Ayuda</button>
-        <button id="clearAllButton" onclick="confirmClearAll()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-bold transition-colors">Borrar todo</button>
+        <div class="flex gap-2">
+            <button id="btnExport" class="bg-dark-800 border border-dark-600 hover:border-brand-500 text-gray-300 px-4 py-2 rounded-lg font-semibold text-sm transition-all">Exportar</button>
+            <input type="file" id="importFile" accept=".json" style="display: none;" />
+            <button id="importButton" class="bg-dark-800 border border-dark-600 hover:border-purple-500 text-gray-300 px-4 py-2 rounded-lg font-semibold text-sm transition-all">Importar</button>
+            <button id="exportICS" class="bg-dark-800 border border-dark-600 hover:border-teal-500 text-gray-300 px-4 py-2 rounded-lg font-semibold text-sm transition-all">Exportar ICS</button>
+            <button id="btnHelp" class="bg-dark-800 border border-dark-600 hover:border-yellow-500 text-gray-300 px-4 py-2 rounded-lg font-semibold text-sm transition-all">Ayuda</button>
+            <button id="btnClearAll" class="bg-red-900/20 border border-red-900/50 hover:bg-red-600 hover:text-white text-red-400 px-4 py-2 rounded-lg font-semibold text-sm transition-all">Borrar todo</button>
+        </div>
       </div>
     </div>
 
 
-    <!-- Tabla de torneos -->
-    <div class="card">
-      <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
-        <h3 class="text-xl font-semibold text-white">Tournaments List</h3>
-        <div class="view-toggle">
-          <button id="viewCards" onclick="setView('cards')" class="view-toggle-btn active">🎴 Cards</button>
-          <button id="viewTable" onclick="setView('table')" class="view-toggle-btn">📊 Table</button>
+    <div class="glass-panel p-6 rounded-xl">
+      <div class="flex flex-wrap justify-between items-center mb-6 gap-4 border-b border-white/10 pb-4">
+        <h3 class="text-2xl font-bold text-white brand-font tracking-wide">Tournaments List</h3>
+        <div class="view-toggle bg-dark-800 p-1 rounded-lg flex gap-1">
+          <button id="viewCards" class="view-toggle-btn px-4 py-1.5 rounded-md text-sm font-medium transition-colors active bg-brand-600 text-white shadow-lg">🎴 Cards</button>
+          <button id="viewTable" class="view-toggle-btn px-4 py-1.5 rounded-md text-sm font-medium text-gray-400 hover:text-white transition-colors">📊 Table</button>
         </div>
       </div>
 
-      <!-- Filtros integrados -->
-      <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-4">
-        <div class="grid grid-cols-1 md:grid-cols-6 gap-3">
-          <input id="fText" type="text" placeholder="" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 w-full" />
-          <select id="fTier" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 w-full">
-            <option value=""></option>
-            <option value="S">S</option><option value="A">A</option>
-            <option value="B">B</option><option value="C">C</option>
+      <div class="bg-dark-800/50 p-4 rounded-xl border border-white/5 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+          <input id="fText" type="text" placeholder="Buscar torneo o equipo..." class="w-full" />
+          
+          <select id="fTier" class="w-full">
+            <option value="">Tier (Todos)</option>
+            <option value="S">S - Max</option>
+            <option value="A">A - High</option>
+            <option value="B">B - Mid</option>
+            <option value="C">C - Low</option>
           </select>
-          <select id="fModality" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 w-full">
-            <option value=""></option>
+          
+          <select id="fModality" class="w-full">
+            <option value="">Modalidad</option>
             <option value="Online">Online</option>
             <option value="Offline">Offline</option>
             <option value="Online/Offline">Online/Offline</option>
           </select>
-          <input id="fLocation" type="text" placeholder="" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 w-full" />
-          <input id="fFrom" type="date" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600" />
-          <input id="fTo" type="date" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600" />
+          
+          <input id="fLocation" type="text" placeholder="Ubicación" class="w-full" />
+          <input id="fFrom" type="date" class="w-full" />
+          <input id="fTo" type="date" class="w-full" />
         </div>
-        <div class="mt-3 flex gap-3 items-center">
-          <select id="fVRS" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600">
-            <option value=""></option>
-            <option value="1"></option>
-            <option value="0"></option>
-          </select>
-          <input id="fFav" type="checkbox" class="w-4 h-4" />
-          <label id="fFavLabel" for="fFav" class="text-gray-300 cursor-pointer select-none">
-            Favorites
-          </label>
-          <button id="btnClearFilters" class="bg-gray-600 text-white px-3 py-2 rounded hover:bg-gray-700"></button>
+        
+        <div class="mt-4 flex gap-4 items-center justify-between border-t border-white/5 pt-4">
+          <div class="flex items-center gap-4">
+             <select id="fVRS" class="bg-dark-900 border border-dark-700 text-gray-300 rounded px-3 py-1 text-sm">
+                <option value="">VRS (Todos)</option>
+                <option value="1">Si</option>
+                <option value="0">No</option>
+              </select>
+              
+              <div class="flex items-center gap-2">
+                <input id="fFav" type="checkbox" class="w-4 h-4 accent-brand-500 cursor-pointer" />
+                <label id="fFavLabel" for="fFav" class="text-gray-300 text-sm cursor-pointer select-none hover:text-white transition-colors">
+                  Solo Favoritos
+                </label>
+              </div>
+          </div>
+          
+          <button id="btnClearFilters" class="text-xs text-gray-500 hover:text-white uppercase font-bold tracking-wider transition-colors">
+             Limpiar Filtros
+          </button>
         </div>
       </div>
 
-      <table id="tournamentTable" class="min-w-full bg-gray-800 rounded-lg">
+      <table id="tournamentTable" class="min-w-full hidden">
         <thead>
-          <tr class="bg-gray-700 text-gray-300 uppercase text-sm leading-normal">
-            <th id="thTournament" class="py-3 px-6 text-left">Torneo</th>
-            <th id="thTier" class="py-3 px-6 text-left">Tier</th>
-            <th id="thDates" class="py-3 px-6 text-left cursor-pointer" onclick="sortByDate()">Fechas</th>
-            <th id="thTeams" class="py-3 px-6 text-left">Equipos</th>
-            <th id="thLocation" class="py-3 px-6 text-left">Ubicación</th>
-            <th id="thModality" class="py-3 px-6 text-left">Modalidad</th>
-            <th id="thColor" class="py-3 px-6 text-left">Color</th>
-            <th id="thVRS" class="py-3 px-6 text-left cursor-pointer" onclick="sortByVRS()">VRS</th>
-            <th id="thActions" class="py-3 px-6 text-center">Acciones</th>
+          <tr class="text-gray-400 uppercase text-xs leading-normal font-bold tracking-wider border-b border-white/10 text-left">
+            <th id="thTournament" class="py-3 px-4">Torneo</th>
+            <th id="thTier" class="py-3 px-4">Tier</th>
+            <th id="thDates" class="py-3 px-4 cursor-pointer hover:text-white">Fechas ↕</th>
+            <th id="thTeams" class="py-3 px-4">Equipos</th>
+            <th id="thLocation" class="py-3 px-4">Ubicación</th>
+            <th id="thModality" class="py-3 px-4">Mod</th>
+            <th id="thColor" class="py-3 px-4">Color</th>
+            <th id="thVRS" class="py-3 px-4 cursor-pointer hover:text-white">VRS ↕</th>
+            <th id="thActions" class="py-3 px-4 text-center">Acciones</th>
           </tr>
         </thead>
-        <tbody id="tournamentBody" class="text-gray-300 text-sm font-light">
-          <!-- Los torneos se agregarán aquí dinámicamente -->
-        </tbody>
+        <tbody id="tournamentBody" class="text-gray-300 text-sm font-medium">
+          </tbody>
       </table>
     </div>
 
-    <!-- Modal de ayuda -->
-    <div id="helpModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden flex items-center justify-center">
-      <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
-        <h3 id="helpTitle" class="text-xl font-semibold mb-4 text-white">Ayuda</h3>
-        <p id="helpIntro" class="text-gray-300 mb-4">Bienvenido al Calendario de Esports (CS2). Aquí tienes las instrucciones básicas:</p>
-        <ul id="helpList" class="list-disc list-inside text-gray-300 mb-4">
-          <li><strong id="helpAdd">Agregar Torneo:</strong> Completa el formulario y haz clic en "Agregar Torneo".</li>
-          <li><strong id="helpEdit">Editar Torneo:</strong> Haz clic en "Editar" en la tabla o en un evento del calendario.</li>
-          <li><strong id="helpDelete">Eliminar Torneo:</strong> Haz clic en "Eliminar" y confirma.</li>
-          <li><strong id="helpExport">Exportar:</strong> Descarga un archivo JSON con tus torneos para respaldarlo o compartirlo.</li>
-          <li><strong id="helpImport">Importar:</strong> Selecciona un archivo JSON para cargar torneos previos.</li>
-          <li><strong id="helpClear">Borrar todo:</strong> Usa "Borrar todo" para eliminar todos los torneos (con confirmación).</li>
-          <li><strong id="helpNote">Nota:</strong> Los datos se guardan localmente. No compartas el JSON si contiene información sensible.</li>
+    <div id="helpModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center z-50">
+      <div class="glass-panel p-8 rounded-xl max-w-lg w-full shadow-2xl border border-white/10">
+        <h3 id="helpTitle" class="text-2xl font-bold mb-6 text-white brand-font border-b border-white/10 pb-2">Ayuda</h3>
+        <p id="helpIntro" class="text-gray-300 mb-4">Bienvenido al Calendario de Esports (CS2).</p>
+        <ul id="helpList" class="space-y-2 text-gray-400 text-sm mb-8">
+          <li><strong class="text-brand-500">Agregar:</strong> Click en el título superior.</li>
+          <li><strong class="text-brand-500">Editar/Borrar:</strong> Usa los botones en las tarjetas.</li>
+          <li><strong class="text-brand-500">Exportar:</strong> Guarda tu backup JSON.</li>
         </ul>
-        <button id="closeHelp" onclick="hideHelp()" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Cerrar</button>
+        <div class="flex justify-end">
+            <button id="closeHelp" class="bg-brand-600 hover:bg-brand-500 text-white px-6 py-2 rounded-lg font-bold transition-all">Entendido</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <footer class="bg-gray-800 text-gray-300 p-4 text-center w-full">
-    <p>
-      ¿Tienes alguna pregunta? Contáctame en:
-      <a href="mailto:joacobruses@gmail.com" class="text-blue-400 hover:underline">joacobruses@gmail.com</a>
-      | Sigue mis actualizaciones en
-      <a href="https://x.com/jbruses_" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">X</a>
+  <footer class="mt-12 py-8 border-t border-white/5 text-center w-full bg-dark-900/50 backdrop-blur-md">
+    <p class="text-gray-500 text-sm">
+      Contacto: <a href="mailto:joacobruses@gmail.com" class="text-brand-500 hover:text-brand-400 hover:underline transition-colors">joacobruses@gmail.com</a>
     </p>
   </footer>
 
-  <!-- Tu JS -->
   <script type="module" src="js/main.js"></script>
-  <script>
-    import {
-      setLanguage,
-      toggleTheme,
-      showHelp,
-      hideHelp,
-      setView,
-      toggleAddForm
-    } from './js/ui.js';
-    import {
-      saveTournament,
-      cancelEdit,
-      exportTournaments,
-      importTournaments,
-      confirmClearAll,
-      sortByDate,
-      sortByVRS,
-      editTournament,
-      confirmDelete,
-      toggleFavorite,
-      exportICS
-    } from './js/tournaments.js';
-    import {
-      filterByTeam,
-      selectAutocompleteTeam,
-      selectFormAutocompleteTeam,
-      removeTeamTag
-    } from './js/utils.js';
-
-    window.setLanguage = setLanguage;
-    window.toggleTheme = toggleTheme;
-    window.saveTournament = saveTournament;
-    window.cancelEdit = cancelEdit;
-    window.exportTournaments = exportTournaments;
-    window.importTournaments = importTournaments;
-    window.showHelp = showHelp;
-    window.hideHelp = hideHelp;
-    window.confirmClearAll = confirmClearAll;
-    window.sortByDate = sortByDate;
-    window.sortByVRS = sortByVRS;
-    window.editTournament = editTournament;
-    window.confirmDelete = confirmDelete;
-    window.filterByTeam = filterByTeam;
-    window.setView = setView;
-    window.toggleFavorite = toggleFavorite;
-    window.selectAutocompleteTeam = selectAutocompleteTeam;
-    window.selectFormAutocompleteTeam = selectFormAutocompleteTeam;
-    window.removeTeamTag = removeTeamTag;
-    window.toggleAddForm = toggleAddForm;
-    window.exportICS = exportICS;
-  </script>
 </body>
 </html>

@@ -1,1012 +1,274 @@
-/* =================== Base =================== */
-:root {
-  --bg-dark-start:#0f172a; --bg-dark-end:#1e293b;
-  --bg-light-start:#e0e7ff; --bg-light-end:#f3f4f6;
-  --text-dark:#d1d5db; --text-light:#1f2937;
-  --brand-500:#3b82f6; --brand-700:#1e40af; --brand-600:#2563eb;
-}
-
-* { box-sizing: border-box; }
-
+/* =================== BASE (Modo Oscuro Default) =================== */
 body {
-  font-family: 'Open Sans', sans-serif;
-  background: linear-gradient(135deg, var(--bg-dark-start) 0%, var(--bg-dark-end) 100%);
-  color: var(--text-dark);
-  min-height: 100vh;
-  transition: background 0.3s ease, color 0.3s ease;
+  /* Fondo con "Spotlight" sutil arriba al centro */
+  background-color: #0a0a0a;
+  background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0a0a0a 60%);
+  background-attachment: fixed;
+  color: #e5e5e5;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-/* Modo claro aplicado al body */
+/* =================== MODO CLARO (Overrides) =================== */
 body.light-mode {
-  color: var(--text-light);
-  background: linear-gradient(135deg, var(--bg-light-start) 0%, var(--bg-light-end) 100%);
+  background-color: #f3f4f6;
+  background-image: radial-gradient(circle at 50% 0%, #e5e7eb 0%, #f3f4f6 60%);
+  color: #1f2937;
 }
 
-.container { max-width: 1200px; }
-
-/* =================== Header =================== */
-.header {
-  background: linear-gradient(90deg, #1e40af, #3b82f6);
-  padding: 1.5rem;
-  border-radius: 0 0 1rem 1rem;
-  box-shadow: 0 4px 6px rgba(0,0,0,.1);
-  margin-bottom: 2rem;
-}
-.header h1 {
-  font-family: 'Poppins', sans-serif;
-  font-size: 2.5rem;
-  color: #fff;
-  text-align: center;
-  text-shadow: 1px 1px 4px rgba(0,0,0,.2);
+/* Títulos con fuente "Gamer/Tech" */
+h1, h2, h3, .brand-font {
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-.card {
-  background: rgba(255,255,255,0.12);
+/* =================== SCROLLBAR MODERNO =================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0a; 
+}
+body.light-mode ::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333; 
+  border-radius: 4px;
+}
+body.light-mode ::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+body.light-mode ::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* =================== EFECTO GLASS (Cristal) =================== */
+.glass-panel {
+  background: rgba(23, 23, 23, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Glass en Modo Claro */
+body.light-mode .glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Hover effect para cards */
+.glass-panel.interactive:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+/* =================== CALENDARIO FULLCUSTOM =================== */
+#calendar {
+  background: rgba(23, 23, 23, 0.4);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 1rem;
   padding: 1.5rem;
-  box-shadow: 0 8px 32px rgba(0,0,0,.2);
-  margin-bottom: 1.5rem;
-  border: 1px solid rgba(255,255,255,0.15);
 }
-.card:hover {
-  box-shadow: 0 12px 40px rgba(0,0,0,.3);
+body.light-mode #calendar {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(0,0,0,0.05);
 }
 
-/* Form styles */
-input, select, button {
-  padding: 0.5rem;
-  border: 1px solid #4b5563;
-  border-radius: 0.375rem;
-  background: #374151;
-  color: #f3f4f6;
-  font-size: 1rem;
+/* Título del mes */
+.fc-toolbar-title {
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 700;
+  font-size: 1.8rem !important;
+  text-transform: uppercase;
+  color: #ffffff !important; /* Blanco sólido en modo oscuro */
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.1); /* Brillo sutil */
 }
+
+body.light-mode .fc-toolbar-title {
+  color: #1f2937 !important; /* Gris oscuro en modo claro */
+  text-shadow: none;
+}
+
+/* Botones del calendario */
+.fc-button-primary {
+  background-color: rgba(255, 255, 255, 0.05) !important; /* Fondo sutil */
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+/* Hover de los botones */
+.fc-button-primary:hover, .fc-button-active {
+  background-color: #3b82f6 !important; /* Azul al pasar el mouse */
+  border-color: #3b82f6 !important;
+  color: white !important;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+
+body.light-mode .fc-button-primary {
+  background-color: white !important;
+  border-color: #d1d5db !important;
+  color: #374151 !important;
+}
+
+body.light-mode .fc-button-primary:hover, 
+body.light-mode .fc-button-active {
+  background-color: #2563eb !important; /* Azul más oscuro */
+  color: white !important;
+}
+
+.fc-icon {
+  color: inherit !important; /* Heredar color del botón */
+  vertical-align: middle;
+}
+
+/* La grilla */
+.fc-theme-standard td, .fc-theme-standard th {
+  border-color: rgba(255,255,255,0.05) !important;
+}
+body.light-mode .fc-theme-standard td, 
+body.light-mode .fc-theme-standard th {
+  border-color: rgba(0,0,0,0.05) !important;
+}
+
+.fc-daygrid-day-number {
+  color: #737373;
+  font-size: 0.9rem;
+  text-decoration: none !important;
+}
+
+/* Día actual */
+.fc-day-today {
+  background: rgba(59, 130, 246, 0.05) !important;
+}
+
+/* =================== TAGS & INPUTS =================== */
+input, select {
+  background: #0a0a0a;
+  border: 1px solid #333;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: border 0.2s;
+}
+
+/* Ajuste importante: Icono de calendario blanco en dark mode */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+/* Inputs en Modo Claro */
+body.light-mode input, body.light-mode select {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #1f2937;
+}
+body.light-mode input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: none;
+}
+
 input:focus, select:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
-button {
-  cursor: pointer;
-  transition: background 0.2s;
-  background: #3b82f6;
-  color: white;
-  border: none;
-}
-button:hover { background: #2563eb; }
-
-/* Grid layouts */
-.grid { display: grid; gap: 1rem; }
-.grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
-@media (min-width: 768px) {
-  .md\\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-  .md\\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
-}
-
-/* Flex utilities */
-.flex { display: flex; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.justify-center { justify-content: center; }
-.gap-2 { gap: 0.5rem; }
-.gap-3 { gap: 0.75rem; }
-.gap-4 { gap: 1rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mb-6 { margin-bottom: 1.5rem; }
-.mt-3 { margin-top: 0.75rem; }
-.mt-4 { margin-top: 1rem; }
-.p-2 { padding: 0.5rem; }
-.p-4 { padding: 1rem; }
-.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
-.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
-.py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
-.py-8 { padding-top: 2rem; padding-bottom: 2rem; }
-
-/* Text utilities */
-.text-center { text-align: center; }
-.text-sm { font-size: 0.875rem; }
-.text-xl { font-size: 1.25rem; }
-.font-semibold { font-weight: 600; }
-.text-white { color: white; }
-.text-gray-300 { color: #d1d5db; }
-.text-gray-400 { color: #9ca3af; }
-
-/* Table styles */
-table { width: 100%; border-collapse: collapse; }
-th, td { padding: 0.75rem 1.5rem; text-align: left; border-bottom: 1px solid #374151; }
-th { background: #111827; font-weight: 600; }
-tbody tr:hover { background: #374151; }
-
-/* Hidden utility */
-.hidden { display: none !important; }
-
-/* =================== Tabla =================== */
-#tournamentTable { width: 100%; table-layout: fixed; }
-#tournamentTable th, #tournamentTable td { word-break: break-word; }
-#tournamentTable th { position: sticky; top: 0; z-index: 5; }
-
-/* Hacer la tabla scrolleable en pantallas chicas */
-@media (max-width: 640px) {
-  .card > table { display: block; overflow-x: auto; }
-}
-
-/* =================== FullCalendar (dark) =================== */
-.fc {
-  color: #d1d5db;
-  --fc-button-bg-color: var(--brand-600);
-  --fc-button-border-color: var(--brand-700);
-  --fc-button-hover-bg-color: var(--brand-700);
-  --fc-button-active-bg-color: #1e3a8a;
-  font-size: 0.85rem;
-}
-
-.fc .fc-toolbar {
-  margin-bottom: 0.75rem !important;
-  padding: 0 0.5rem;
-}
-
-.fc .fc-toolbar-title {
-  font-size: 1.25rem !important;
-  font-weight: 600;
-}
-
-.fc .fc-button {
-  border-radius: 0.5rem;
-  padding: 0.375rem 0.75rem;
-  font-size: 0.75rem !important;
-  transition: transform 0.2s ease;
-}
-
-.fc .fc-button:hover {
-  transform: translateY(-2px);
-}
-
-.fc .fc-daygrid-day {
-  background: #1f2937;
-  border-color: #4b5563;
-  transition: background 0.2s ease;
-  cursor: pointer;
-  min-height: 3rem;
-  position: relative;
-}
-
-.fc .fc-daygrid-day:hover {
-  background: #374151;
-}
-
-.fc .fc-daygrid-day.fc-day-today {
-  background: #1e3a8a;
-  font-weight: 600;
-  border-color: #3b82f6;
-}
-
-.fc .fc-col-header-cell {
-  background: #374151;
-  color: #d1d5db;
-  border-color: #4b5563;
-  font-weight: 500;
-  font-size: 0.75rem;
-  padding: 0.5rem;
-}
-
-.fc .fc-daygrid-day-number {
-  font-size: 0.875rem;
-  font-weight: 500;
-  padding: 0.25rem 0.5rem;
-  color: #9ca3af;
-}
-
-.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
-  color: #fff;
-}
-
-.fc .fc-daygrid-day:hover .fc-daygrid-day-number {
-  color: #fff;
-}
-
-.fc .fc-event {
-  color: #fff;
-  font-size: 0.7em;
-  border-radius: 0.25rem;
-  padding: 1px 3px;
-  transition: transform 0.2s ease, filter 0.2s ease;
-  margin: 1px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.fc .fc-event:hover {
-  transform: scale(1.05);
-  filter: brightness(0.9);
-}
-
-.fc .fc-more-link {
-  color: #9ca3af;
-  font-size: 0.7em;
-  margin-top: 2px;
-}
-
-.fc .fc-more-link:hover {
-  color: #fff;
-}
-
-/* =================== Colores de eventos =================== */
-.event-blue   { background: #2563eb; border-color: #1e40af; }
-.event-orange { background: #f97316; border-color: #ea580c; }
-.event-green  { background: #16a34a; border-color: #15803d; }
-.event-red    { background: #dc2626; border-color: #b91c1c; }
-.event-purple { background: #9333ea; border-color: #7e22ce; }
-.event-yellow { background: #eab308; border-color: #ca8a04; }
-
-/* Leyenda de colores */
-#legend { gap: .75rem; align-items: center; }
-#legend .inline-flex { background: rgba(255,255,255,.06); padding: .35rem .6rem; border-radius: .5rem; }
-body.light-mode #legend .inline-flex { background: rgba(0,0,0,.05); }
-
-/* =================== Team Tags =================== */
-.team-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-}
 
 .team-tag {
-  background: rgba(59, 130, 246, 0.3);
-  border: 1px solid rgba(59, 130, 246, 0.5);
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: inline-flex;
-  align-items: center;
-  user-select: none;
-  position: relative;
-}
-
-.team-tag:hover {
-  background: rgba(59, 130, 246, 0.5);
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-}
-
-.team-tag.more {
-  background: rgba(156, 163, 175, 0.3);
-  border-color: rgba(156, 163, 175, 0.5);
-  color: #9ca3af;
-}
-
-.team-tag.more:hover {
-  background: rgba(156, 163, 175, 0.5);
-  color: #d1d5db;
-}
-
-/* Input Tags (New) */
-.input-tag {
-  background: rgba(59, 130, 246, 0.2);
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  color: #d1d5db;
-  padding: 0.125rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.input-tag .remove-tag {
-  cursor: pointer;
-  color: #9ca3af;
-  font-weight: bold;
-  font-size: 1rem;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-}
-
-.input-tag .remove-tag:hover {
-  color: #fff;
-}
-
-/* Custom Tooltip */
-.team-tag[data-tooltip]:hover::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.95);
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
-  white-space: nowrap;
-  max-width: 300px;
-  white-space: normal;
-  z-index: 1000;
-  pointer-events: none;
-  margin-bottom: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-body.light-mode .team-tag[data-tooltip]:hover::after {
-  background: rgba(31, 41, 55, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-/* Light mode team tags */
-body.light-mode .team-tag {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: rgba(59, 130, 246, 0.3);
-  color: #1e40af;
-}
-
-body.light-mode .team-tag:hover {
-  background: rgba(59, 130, 246, 0.2);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
-}
-
-body.light-mode .input-tag {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: rgba(59, 130, 246, 0.3);
-  color: #1e40af;
-}
-
-body.light-mode .input-tag .remove-tag {
-  color: #6b7280;
-}
-
-body.light-mode .input-tag .remove-tag:hover {
-  color: #ef4444;
-}
-
-/* =================== Status Badges =================== */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
+  font-family: 'Rajdhani', sans-serif;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-}
-
-.status-badge.live {
-  background: rgba(239, 68, 68, 0.2);
-  border: 1px solid rgba(239, 68, 68, 0.5);
-  color: #ef4444;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-.status-badge.upcoming {
-  background: rgba(34, 197, 94, 0.2);
-  border: 1px solid rgba(34, 197, 94, 0.5);
-  color: #22c55e;
-}
-
-.status-badge.completed {
-  background: rgba(156, 163, 175, 0.2);
-  border: 1px solid rgba(156, 163, 175, 0.5);
-  color: #9ca3af;
-}
-
-/* Light mode status badges */
-body.light-mode .status-badge.live {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.3);
-  color: #dc2626;
-}
-
-body.light-mode .status-badge.upcoming {
-  background: rgba(34, 197, 94, 0.1);
-  border-color: rgba(34, 197, 94, 0.3);
-  color: #16a34a;
-}
-
-body.light-mode .status-badge.completed {
-  background: rgba(156, 163, 175, 0.1);
-  border-color: rgba(156, 163, 175, 0.3);
-  color: #6b7280;
-}
-
-/* =================== Tournament Cards =================== */
-.tournament-cards-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-}
-
-.tournament-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(5px);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.tournament-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-}
-
-.tournament-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-.tournament-card-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #fff;
-  flex: 1;
-  line-height: 1.4;
-}
-
-.tournament-card-badges {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.tier-badge {
-  background: rgba(245, 158, 11, 0.2);
-  border: 1px solid rgba(245, 158, 11, 0.5);
-  color: #f59e0b;
-  padding: 0.25rem 0.6rem;
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.tournament-card-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  color: #9ca3af;
-  font-size: 0.875rem;
-}
-
-.tournament-card-info-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.tournament-card-teams {
-  margin-top: 0.5rem;
-}
-
-.tournament-card-teams-label {
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-}
-
-/* Light mode tournament cards */
-body.light-mode .tournament-card {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-body.light-mode .tournament-card-title {
-  color: #1f2937;
-}
-
-body.light-mode .tournament-card-info {
-  color: #6b7280;
-}
-
-body.light-mode .tournament-card-teams-label {
-  color: #9ca3af;
-}
-
-body.light-mode .tier-badge {
-  background: rgba(245, 158, 11, 0.1);
-  border-color: rgba(245, 158, 11, 0.3);
-  color: #d97706;
-}
-
-/* View toggle buttons */
-.view-toggle {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.view-toggle-btn {
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #d4d4d4;
   transition: all 0.2s;
 }
-
-.view-toggle-btn.active {
-  background: var(--brand-600);
-  color: #fff;
-}
-
-.view-toggle-btn:not(.active) {
-  background: rgba(255, 255, 255, 0.1);
-  color: #9ca3af;
-}
-
-.view-toggle-btn:not(.active):hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-body.light-mode .view-toggle-btn:not(.active) {
-  background: rgba(0, 0, 0, 0.05);
-  color: #6b7280;
-}
-
-body.light-mode .view-toggle-btn:not(.active):hover {
-  background: rgba(0, 0, 0, 0.1);
-}
-
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  .tournament-cards-container {
-    grid-template-columns: 1fr;
-  }
-
-  .tournament-card-header {
-    flex-direction: column;
-  }
-
-  .tournament-card-badges {
-    width: 100%;
-    justify-content: flex-start;
-  }
-}
-
-/* Hidden table when in card view */
-.table-view-hidden {
-  display: none !important;
-}
-
-/* =================== Highlights =================== */
-.highlight-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(5px);
-  border-radius: 1rem;
-  padding: 1.25rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-}
-
-.highlight-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-}
-
-.highlight-card.live {
-  border: 1px solid rgba(239, 68, 68, 0.5);
-  background: rgba(239, 68, 68, 0.05);
-}
-
-.highlight-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.highlight-title {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #fff;
-  line-height: 1.3;
-  flex: 1;
-}
-
-.highlight-badges {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.highlight-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  color: #9ca3af;
-  font-size: 0.8125rem;
-}
-
-.favorite-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #9ca3af;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 1.125rem;
-}
-
-.favorite-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fbbf24;
-}
-
-.favorite-btn.active {
-  color: #fbbf24;
-}
-
-/* Light mode highlights */
-body.light-mode .highlight-card {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-body.light-mode .highlight-card.live {
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  background: rgba(239, 68, 68, 0.05);
-}
-
-body.light-mode .highlight-title {
-  color: #1f2937;
-}
-
-body.light-mode .highlight-info {
-  color: #6b7280;
-}
-
-body.light-mode .favorite-btn {
-  background: rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.1);
-}
-
-body.light-mode .favorite-btn:hover {
-  background: rgba(0, 0, 0, 0.1);
-}
-
-/* =================== Autocomplete Dropdown =================== */
-.autocomplete-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: rgba(31, 41, 55, 0.98);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(75, 85, 99, 0.5);
-  border-radius: 0.5rem;
-  margin-top: 0.25rem;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1000;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-}
-
-.autocomplete-item {
-  padding: 0.5rem 0.75rem;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  color: #d1d5db;
-  font-size: 0.875rem;
-}
-
-.autocomplete-item:hover,
-.autocomplete-item.active {
-  background: rgba(59, 130, 246, 0.3);
-  color: #fff;
-}
-
-.autocomplete-item:empty {
-  padding: 1rem 0.75rem;
-  color: #9ca3af;
-  text-align: center;
-}
-
-body.light-mode .autocomplete-dropdown {
-  background: rgba(255, 255, 255, 0.98);
-  border-color: rgba(0, 0, 0, 0.1);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-body.light-mode .autocomplete-item {
+body.light-mode .team-tag {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.1);
   color: #4b5563;
 }
 
-body.light-mode .autocomplete-item:hover,
-body.light-mode .autocomplete-item.active {
-  background: rgba(59, 130, 246, 0.1);
-  color: #1f2937;
-}
-
-body.light-mode .autocomplete-item:empty {
-  color: #9ca3af;
-}
-
-/* =================== Team Tags Input =================== */
-.team-tag-input {
-  background: rgba(59, 130, 246, 0.3);
-  border: 1px solid rgba(59, 130, 246, 0.5);
-  padding: 0.25rem 0.6rem;
-  border-radius: 1rem;
-  font-size: 0.875rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  animation: fadeIn 0.2s ease;
-  color: #f3f4f6;
-}
-
-.team-tag-input .remove-tag {
-  cursor: pointer;
-  color: #d1d5db;
-  transition: color 0.2s ease;
-  line-height: 1;
-  font-weight: 700;
-}
-
-.team-tag-input .remove-tag:hover {
-  color: #fff;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-/* =================== Modal de ayuda =================== */
-#helpModal { z-index: 1000; overflow-y: auto; padding: 1rem; }
-#helpModal .bg-gray-800 {
-  max-height: 80vh;
-  overflow-y: auto;
-  border-radius: 1rem;
-}
-
-/* =================== Modo claro (componentes) =================== */
-body.light-mode .fc {
-  color: #374151;
-  --fc-button-bg-color: #3b82f6;
-  --fc-button-border-color: #1d4ed8;
-  --fc-button-hover-bg-color: #1d4ed8;
-  --fc-button-active-bg-color: #1e40af;
-}
-
-body.light-mode .fc .fc-daygrid-day {
-  background: #f3f4f6;
-  border-color: #d1d5db;
-}
-
-body.light-mode .fc .fc-daygrid-day:hover {
-  background: #e5e7eb;
-}
-
-body.light-mode .fc .fc-daygrid-day.fc-day-today {
-  background: #bfdbfe;
+.team-tag:hover {
+  background: #3b82f6;
   border-color: #3b82f6;
+  color: white;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
 }
 
-body.light-mode .fc .fc-col-header-cell {
-  background: #e5e7eb;
-  color: #374151;
-  border-color: #d1d5db;
+/* Animación de entrada suave */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-body.light-mode .fc .fc-event {
-  color: #1f2937;
+.glass-panel {
+  animation: fadeInUp 0.4s ease-out forwards;
 }
 
-body.light-mode .fc .fc-more-link {
-  color: #6b7280;
+/* Ajustes Autocomplete (Dropdown) */
+.autocomplete-dropdown {
+    scrollbar-width: thin;
+    scrollbar-color: #4b5563 #1f2937;
+}
+body.light-mode .autocomplete-dropdown {
+    background-color: #ffffff;
+    border-color: #e5e7eb;
+}
+body.light-mode .autocomplete-item {
+    color: #374151;
+    border-color: #f3f4f6;
+}
+body.light-mode .autocomplete-item:hover {
+    background-color: #3b82f6;
+    color: white;
 }
 
-body.light-mode .fc .fc-more-link:hover {
-  color: #1f2937;
+/* =================== DÍAS DE LA SEMANA (Lun, Mar...) =================== */
+
+/* 1. Quitamos el fondo a la celda del encabezado */
+#calendar th {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-body.light-mode .fc .fc-daygrid-day-number {
-  color: #6b7280;
+/* 2. Estilo del texto (El nombre del día) */
+.fc-col-header-cell-cushion {
+  color: #94a3b8 !important; /* Gris suave (Slate-400) en vez de blanco puro */
+  text-decoration: none !important; /* Quitar subrayado */
+  text-transform: uppercase;        /* Mayúsculas "Premium" */
+  font-family: 'Rajdhani', sans-serif; /* Tu fuente gamer */
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 8px 0 !important; /* Un poco más de aire */
 }
 
-body.light-mode .fc .fc-daygrid-day:hover .fc-daygrid-day-number {
-  color: #1f2937;
-}
-body.light-mode .card { background: rgba(255,255,255,0.9); border: 1px solid #e5e7eb; }
-body.light-mode .bg-gray-800 { background-color: #fff; }
-body.light-mode .bg-gray-700 { background-color: #e5e7eb; }
-body.light-mode .text-gray-300 { color: #4b5563; } /* contraste mejorado */
-body.light-mode .border-gray-600 { border-color: #d1d5db; }
-body.light-mode .hover\:bg-gray-700 { background-color: #d1d5db; }
-body.light-mode input,
-body.light-mode select {
-  background-color: #fff;
-  color: #1f2937;
-  border-color: #d1d5db;
-}
-body.light-mode input:focus,
-body.light-mode select:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59,130,246,.2);
-}
-body.light-mode table { background-color: #fff; }
-body.light-mode thead { background-color: #e5e7eb; }
-body.light-mode .hover\:bg-gray-700:hover { background-color: #d1d5db; }
-body.light-mode footer {
-  background-color: #f3f4f6;
-  color: #1f2937;
-  border-top: 1px solid #e5e7eb;
-}
-body.light-mode footer a { color: #3b82f6; }
-body.light-mode footer a:hover { color: #1d4ed8; }
-
-/* =================== Inputs y selects =================== */
-input, select {
-  border-radius: .5rem;
-  transition: border-color .2s ease, box-shadow .2s ease;
-}
-input:focus, select:focus {
-  border-color: var(--brand-600);
-  box-shadow: 0 0 0 3px rgba(37,99,235,.2);
+/* 3. Hover sutil (opcional) */
+.fc-col-header-cell-cushion:hover {
+  color: #3b82f6 !important; /* Azul al pasar el mouse */
 }
 
-/* =================== Botones =================== */
-button {
-  border-radius: .75rem;
-  transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
-}
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,.1);
-}
-button:focus-visible, a:focus-visible, .language-btn:focus-visible,
-input:focus-visible, select:focus-visible {
-  outline: 2px solid var(--brand-500);
-  outline-offset: 2px;
+/* =================== CORRECCIÓN MODO CLARO =================== */
+body.light-mode #calendar th {
+  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
 }
 
-/* =================== Footer =================== */
-footer {
-  background-color: #1f2937;
-  color: #d1d5db;
-  padding: 1.5rem;
-  border-top: 1px solid #4b5563;
-  text-align: center;
-  margin-top: 2rem;
-}
-footer a {
-  color: #60a5fa;
-  text-decoration: none;
-  transition: color .2s ease;
-}
-footer a:hover {
-  color: #3b82f6;
-  text-decoration: underline;
-}
-
-/* =================== Selector de idioma =================== */
-.language-switch { display: flex; gap: .5rem; align-items: center; }
-.language-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem; height: 2.5rem;
-  border-radius: 50%;
-  background-color: var(--brand-600);
-  color: #fff;
-  font-size: 1.2rem;
-  transition: transform .2s ease, background-color .2s ease;
-  cursor: pointer;
-  user-select: none;
-}
-.language-btn:hover { background-color: #1e40af; transform: scale(1.1); }
-.language-btn.active { background-color: #1e3a8a; transform: scale(1.1); }
-
-/* =================== Accesibilidad / motion =================== */
-@media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; animation: none !important; }
-  .card:hover, .fc .fc-button:hover { transform: none !important; }
-}
-
-/* =================== Print =================== */
-@media print {
-  body { background: #fff !important; color: #000 !important; }
-  .autocomplete-dropdown { display: none !important; }
-
-  .header, .language-switch, #toggleTheme,
-  #saveButton, #cancelEditButton, #exportButton, #importButton, #exportICS,
-  #helpButton, #clearAllButton, #importFile,
-  .card input, .card select, .card button,
-  #helpModal { display: none !important; }
-  #calendar, #tournamentTable { display: block; }
-  a { color: #000 !important; text-decoration: none; }
-}
-
-/* =================== Utilities / Polyfill =================== */
-.w-full { width: 100%; }
-.h-full { height: 100%; }
-.mx-auto { margin-left: auto; margin-right: auto; }
-.rounded { border-radius: 0.25rem; }
-.rounded-lg { border-radius: 0.5rem; }
-.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
-.font-bold { font-weight: 700; }
-.cursor-pointer { cursor: pointer; }
-.transition-colors { transition-property: background-color, border-color, color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
-.duration-200 { transition-duration: 200ms; }
-
-/* Colors */
-.bg-gray-600 { background-color: #4b5563; }
-.bg-gray-700 { background-color: #374151; }
-.bg-gray-800 { background-color: #1f2937; }
-.bg-gray-900 { background-color: #111827; }
-.hover\:bg-gray-700:hover { background-color: #374151; }
-
-.bg-blue-600 { background-color: #2563eb; }
-.hover\:bg-blue-700:hover { background-color: #1d4ed8; }
-
-.bg-red-600 { background-color: #dc2626; }
-.hover\:bg-red-700:hover { background-color: #b91c1c; }
-
-.bg-yellow-600 { background-color: #ca8a04; }
-.hover\:bg-yellow-700:hover { background-color: #a16207; }
-
-.bg-green-600 { background-color: #16a34a; }
-.hover\:bg-green-700:hover { background-color: #15803d; }
-
-.bg-purple-600 { background-color: #9333ea; }
-.hover\:bg-purple-700:hover { background-color: #7e22ce; }
-
-.bg-teal-600 { background-color: #0d9488; }
-.hover\:bg-teal-700:hover { background-color: #0f766e; }
-
-.text-gray-100 { color: #f3f4f6; }
-.text-gray-300 { color: #d1d5db; }
-.text-gray-400 { color: #9ca3af; }
-.text-blue-400 { color: #60a5fa; }
-
-/* Form Helpers */
-.form-label { display: block; margin-bottom: 0.5rem; color: #9ca3af; font-size: 0.875rem; font-weight: 500; }
-.tags-input-container {
-  min-height: 42px;
-  padding: 0.5rem;
-  border: 1px solid #4b5563;
-  border-radius: 0.375rem;
-  background: #374151;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  cursor: text;
-}
-.tags-input-container:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
-.col-span-2 { grid-column: span 2; }
-@media (max-width: 768px) { .col-span-2 { grid-column: span 1; } }
-
-.hidden {
-  display: none !important;
-}
-
-.rotate-180 {
-  transform: rotate(180deg);
+body.light-mode .fc-col-header-cell-cushion {
+  color: #4b5563 !important; /* Gris oscuro para que se lea */
 }
