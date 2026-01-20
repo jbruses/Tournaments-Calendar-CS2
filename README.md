@@ -1,104 +1,92 @@
----
+# 🎮 Esports Tournament Calendar (CS2)
 
-# 🗓️ Esports Tournament Calendar (CS2)
+[![GitHub stars](https://img.shields.io/github/stars/jbruses/Tournaments-Calendar-CS2?style=for-the-badge)](https://github.com/jbruses/Tournaments-Calendar-CS2/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/jbruses/Tournaments-Calendar-CS2?style=for-the-badge)](https://github.com/jbruses/Tournaments-Calendar-CS2/network/members)
+[![GitHub issues](https://img.shields.io/github/issues/jbruses/Tournaments-Calendar-CS2?style=for-the-badge)](https://github.com/jbruses/Tournaments-Calendar-CS2/issues)
+[![GitHub license](https://img.shields.io/github/license/jbruses/Tournaments-Calendar-CS2?style=for-the-badge)](./LICENSE)
+[![Deploy](https://img.shields.io/badge/Deploy-GitHub%20Pages-blue?style=for-the-badge&logo=github)](https://jbruses.github.io/Tournaments-Calendar-CS2/)
 
-An interactive and modern calendar to organize **Counter-Strike 2 (CS2)** tournaments.
-Designed for teams, coaches, and players to easily manage events with a responsive interface, multi-language support, and export to standard formats.
+A customizable esports calendar for Counter-Strike 2.  
+Easily add, edit, and export tournaments with support for JSON and ICS formats.  
+Includes dark mode, team-themed customization, multilingual support, and a responsive design for both desktop and mobile.  
+Perfect for players, coaches, and esports communities to organize and share events.
 
----
-
-## 🚀 Main Features
-
-* 🎮 **Full Tournament Management**
-  Add, edit, and delete tournaments with key details: name, date, teams, location, and more.
-
-* 🌍 **Multi-language Support**
-  Switch between **English (🇺🇸)** and **Spanish (🇪🇸)** with one click.
-
-* 🌗 **Light/Dark Mode**
-  Toggle between a sleek **dark mode** for gamers and a **light mode** for minimalists.
-
-* 📤 **Export Options**
-
-  * JSON → Backup and restore your tournaments.
-  * ICS → Compatible with **Google Calendar, Outlook, Apple Calendar**, and others.
-
-* 📥 **Easy Import**
-  Load your tournaments from JSON files in seconds.
-
-* 📱 **Mobile-Friendly**
-  100% responsive, optimized for **phones, tablets, and desktops**.
-
-* 🆘 **Help Modal**
-  In-app guide explaining how to use all main features.
-
-* 🎨 **Modern UI & Animations**
-  Powered by **TailwindCSS** with smooth animations and a gamer-style palette.
+👉 **[Live Demo](https://jbruses.github.io/Tournaments-Calendar-CS2/)**  
 
 ---
 
-## 📦 Installation & Setup
+## ✨ Features
 
-1. Clone the repository:
+- 🏆 **Tournament Management**: Add, edit, and delete tournaments with details like name, date, teams, and location.  
+- 🌍 **Multilingual Support**: Switch between English 🇺🇸 and Spanish 🇪🇸 with flag selectors.  
+- 🌓 **Light/Dark Mode**: Toggle between modes for a personalized experience.  
+- 💾 **Import/Export**: Save or load data in JSON format.  
+- 📅 **Export to `.ics`**: Compatible with Google Calendar and Outlook.  
+- 📱 **Responsive Design**: Optimized for desktop and mobile.  
+- ⚡ **Local Data Storage**: All data is saved in your browser (`localStorage`).  
+- 🚀 **GitHub Pages Deployment**: No installation required.  
 
+---
+
+## 🚀 Roadmap
+
+Check the full [Roadmap](./ROADMAP.md) for upcoming features.  
+Some highlights:  
+- Recurring events (weekly scrims, practices).  
+- Reminders & notifications.  
+- CSV import/export.  
+- Shared team calendars.  
+- Google Calendar / Discord bot integrations.  
+
+---
+
+## 🛠 Installation
+
+1. Clone the repository:  
    ```bash
    git clone https://github.com/jbruses/Tournaments-Calendar-CS2
    ```
-2. Open the `esports_calendar.html` file in your favorite browser (Chrome, Firefox, Edge, etc).
-3. Done! No server required — all data is stored locally in your browser via **localStorage**.
+2. Open the `esports_calendar.html` file in your browser (Chrome, Firefox, etc.).  
+3. Done! 🎉 Data will be stored locally in your browser.  
 
 ---
 
-## 🖱️ Usage Guide
+## 📖 Usage
 
-* **Add Tournament** → Fill out the form and click **Add Tournament**.
-* **Edit/Delete** → From the table or directly by clicking on a calendar event.
-* **Export/Import** → Save or load data with the JSON buttons.
-* **Export to ICS** → Download your events and sync them with Google Calendar/Outlook.
-* **Change Language** → Use the 🇺🇸 / 🇪🇸 flag buttons.
-* **Toggle Theme** → Switch between **Light** and **Dark** mode.
-* **Help** → Open the help modal for quick tips.
+- ➕ **Add Tournament**: Fill out the form and click *Add Tournament*.  
+- ✏️ **Edit/Delete**: Use the buttons in the table or click directly on the calendar.  
+- 🌍 **Switch Language**: Click the 🇺🇸 / 🇪🇸 flags.  
+- 🌓 **Toggle Mode**: Switch between light and dark themes.  
+- 💾 **Import/Export**: Save or restore tournaments in JSON.  
+- 📅 **Export ICS**: Add your events to external calendars.  
 
 ---
 
-## 🤝 Contributing
+## 🤝 Contributions
 
-We welcome contributions 🚀
-
-1. Fork the repo.
-2. Create a feature branch:
-
+Contributions are welcome!  
+1. Fork this repo.  
+2. Create a branch:  
    ```bash
-   git checkout -b feature-new
+   git checkout -b your-feature
    ```
-3. Commit your changes:
-
+3. Commit your changes:  
    ```bash
-   git commit -m "Added new feature"
+   git commit -m "Add new feature"
    ```
-4. Push and open a **Pull Request**.
+4. Open a Pull Request 🚀  
 
 ---
 
 ## 📬 Contact
 
-* **Email** → [joacobruses@gmail.com](mailto:joacobruses@gmail.com)
-* **X (Twitter)** → [@jbruses\_](https://x.com/jbruses_)
+- 📧 **Email**: [joacobruses@gmail.com](mailto:joacobruses@gmail.com)  
+- 🐦 **X (Twitter)**: [@jbruses_](https://x.com/jbruses_)  
 
 ---
 
-## 📄 License
+## 📜 License
 
-Distributed under the [MIT License](LICENSE).
-
----
-
-## 🔎 Technical Notes
-
-* All tournament data is stored in **localStorage** → make sure to export it before clearing your cache.
-* Built with:
-
-  * [FullCalendar](https://fullcalendar.io/) → interactive calendar.
-  * [Tailwind CSS](https://tailwindcss.com/) → modern and responsive styles.
+This project is licensed under the [MIT License](LICENSE).  
 
 ---
