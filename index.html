@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Esports Calendar (CS2)</title>
 
-  <!-- Tailwind y FullCalendar -->
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 
   <!-- Fuentes -->
@@ -34,7 +32,24 @@
       Los datos se guardan localmente en tu navegador. Exporta tu calendario para respaldarlo o compartirlo. No compartas el archivo JSON si contiene información sensible.
     </p>
 
-    <!-- Calendario -->
+    <!-- Today's Highlights -->
+    <div id="highlightsSection" class="card mb-6">
+      <h2 id="highlightsTitle" class="text-xl font-semibold mb-4 text-white flex items-center gap-2">
+        🔥 <span>Today's Highlights</span>
+      </h2>
+      <div class="flex items-center gap-3 mb-2">
+        <label for="highlightsFavOnly" class="text-sm text-gray-300">Favorites only</label>
+        <input id="highlightsFavOnly" type="checkbox" />
+      </div>
+      <div id="highlightsContent" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Highlights will be dynamically added here -->
+      </div>
+      <div id="noHighlights" class="text-gray-400 text-center py-8 hidden">
+        No tournaments today or tomorrow
+      </div>
+    </div>
+
+    <!-- Calendar -->
     <div id="calendar" class="card mb-6"></div>
 
     <!-- Leyenda de colores -->
@@ -45,81 +60,145 @@
     </div>
 
     <!-- Formulario para agregar/editar torneos -->
-    <div class="card mb-6">
-      <h2 id="formTitle" class="text-xl font-semibold mb-4 text-white">Agregar Nuevo Torneo</h2>
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <input id="tournamentName" type="text" placeholder="Nombre del Torneo" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        <select id="tournamentTier" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
-        <div class="flex flex-col">
-          <label id="startDateLabel" for="startDate" class="text-sm text-gray-300">Fecha de Inicio</label>
-          <input id="startDate" type="date" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+    <div class="card mb-6" style="border-top: 4px solid #3b82f6;">
+      <div class="flex justify-between items-center cursor-pointer" onclick="toggleAddForm()">
+        <h2 id="formTitle" class="text-xl font-semibold text-white m-0">Agregar Nuevo Torneo</h2>
+        <span id="toggleFormIcon" class="text-xl text-gray-400 transition-transform duration-200">▼</span>
+      </div>
+      <div id="addTournamentFormBody" class="hidden mt-6 grid md:grid-cols-2 gap-4">
+        <!-- Name -->
+        <div class="col-span-2">
+          <label class="form-label">Tournament Name</label>
+          <input id="tournamentName" type="text" placeholder="Nombre del Torneo" class="w-full" />
         </div>
-        <div class="flex flex-col">
-          <label id="endDateLabel" for="endDate" class="text-sm text-gray-300">Fecha de Fin</label>
-          <input id="endDate" type="date" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        
+        <!-- Tier & Color -->
+        <div>
+          <label class="form-label">Tier</label>
+          <select id="tournamentTier" class="w-full">
+            <option value="S">S - Maximum Relevance</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
         </div>
-        <input id="tournamentTeams" type="text" placeholder="Equipos (separados por coma)" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        <input id="tournamentLocation" type="text" placeholder="Ubicación (ej. Londres, Online)" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        <select id="tournamentModality" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="Online">Online</option>
-          <option value="Offline">Offline</option>
-          <option value="Online/Offline">Online/Offline</option>
-        </select>
-        <select id="tournamentColor" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
-        <div class="flex items-center">
-          <input id="tournamentVRS" type="checkbox" class="mr-2 text-blue-500 focus:ring-blue-500" />
-          <label id="vrsLabel" for="tournamentVRS" class="text-gray-300">Cuenta para el VRS</label>
+        <div>
+          <label class="form-label">Color</label>
+          <select id="tournamentColor" class="w-full">
+            <option value="blue">Blue</option>
+            <option value="orange">Orange</option>
+            <option value="green">Green</option>
+            <option value="red">Red</option>
+            <option value="purple">Purple</option>
+            <option value="yellow">Yellow</option>
+          </select>
+        </div>
+
+        <!-- Dates -->
+        <div>
+          <label id="startDateLabel" for="startDate" class="form-label">Start Date</label>
+          <input id="startDate" type="date" class="w-full" />
+        </div>
+        <div>
+          <label id="endDateLabel" for="endDate" class="form-label">End Date</label>
+          <input id="endDate" type="date" class="w-full" />
+        </div>
+
+        <!-- Teams -->
+        <div class="col-span-2">
+          <label class="form-label">Teams (comma separated)</label>
+          <div class="relative group">
+            <div id="teamTagsInput" class="tags-input-container" onclick="document.getElementById('tournamentTeams').focus()">
+              <!-- tags will be inserted here by renderInputTags -->
+              <input id="tournamentTeams" type="text" placeholder="Equipos (separados por coma)" style="background: transparent; color: #f3f4f6; border: none; outline: none; flex: 1; min-width: 100px;" autocomplete="off" />
+            </div>
+            <div id="teamsAutocompleteDropdown" class="autocomplete-dropdown hidden"></div>
+          </div>
+        </div>
+
+        <!-- Location & Modality -->
+        <div>
+          <label class="form-label">Location</label>
+          <input id="tournamentLocation" type="text" placeholder="Ubicación (ej. Londres, Online)" class="w-full" />
+        </div>
+        <div>
+          <label class="form-label">Modality</label>
+          <select id="tournamentModality" class="w-full">
+            <option value="Online">Online</option>
+            <option value="Offline">Offline</option>
+            <option value="Online/Offline">Online/Offline</option>
+          </select>
+        </div>
+
+        <!-- VRS -->
+        <div class="col-span-2 flex items-center gap-2 mt-2">
+          <input id="tournamentVRS" type="checkbox" class="w-4 h-4" />
+          <label id="vrsLabel" for="tournamentVRS" class="text-gray-300 cursor-pointer select-none">
+            VRS (Valorant Ranking System)
+          </label>
         </div>
       </div>
-      <div class="mt-4 flex gap-4 justify-center">
-        <button id="saveButton" onclick="saveTournament()" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Agregar Torneo</button>
-        <button id="cancelEditButton" onclick="cancelEdit()" class="hidden bg-gray-600 text-white p-2 rounded hover:bg-gray-700">Cancelar</button>
-        <button id="exportButton" onclick="exportTournaments()" class="bg-green-600 text-white p-2 rounded hover:bg-green-700">Exportar</button>
-        <input type="file" id="importFile" accept=".json" class="hidden" onchange="importTournaments(event)" />
-        <button id="importButton" onclick="document.getElementById('importFile').click()" class="bg-purple-600 text-white p-2 rounded hover:bg-purple-700">Importar</button>
-        <button id="exportICS" class="bg-teal-600 text-white p-2 rounded hover:bg-teal-700">Exportar ICS</button>
-        <button id="helpButton" onclick="showHelp()" class="bg-yellow-600 text-white p-2 rounded hover:bg-yellow-700">Ayuda</button>
-        <button id="clearAllButton" onclick="confirmClearAll()" class="bg-red-600 text-white p-2 rounded hover:bg-red-700">Borrar todo</button>
+      
+      <!-- Buttons -->
+      <div id="addTournamentButtons" class="hidden mt-6 flex flex-wrap gap-2 justify-end">
+        <button id="saveButton" onclick="saveTournament()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold transition-colors">Agregar Torneo</button>
+        <button id="cancelEditButton" onclick="cancelEdit()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded font-bold transition-colors hidden">Cancelar</button>
+        
+        <div class="flex-grow"></div> <!-- Spacer -->
+        
+        <button id="exportButton" onclick="exportTournaments()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-bold transition-colors">Exportar</button>
+        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importTournaments(event)" />
+        <button id="importButton" onclick="document.getElementById('importFile').click()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded font-bold transition-colors">Importar</button>
+        <button id="exportICS" onclick="exportICS()" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded font-bold transition-colors">Exportar ICS</button>
+        <button id="helpButton" onclick="showHelp()" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded font-bold transition-colors">Ayuda</button>
+        <button id="clearAllButton" onclick="confirmClearAll()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-bold transition-colors">Borrar todo</button>
       </div>
     </div>
 
-    <!-- Filtros -->
-    <div class="card mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-6 gap-3">
-        <input id="fText" type="text" placeholder="" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-
-        <select id="fTier" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600">
-          <option value=""></option>
-          <option value="S">S</option><option value="A">A</option>
-          <option value="B">B</option><option value="C">C</option>
-        </select>
-
-        <select id="fModality" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600">
-          <option value=""></option>
-          <option value="Online">Online</option>
-          <option value="Offline">Offline</option>
-          <option value="Online/Offline">Online/Offline</option>
-        </select>
-
-        <input id="fLocation" type="text" placeholder="" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600" />
-
-        <input id="fFrom" type="date" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600" />
-        <input id="fTo" type="date" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600" />
-      </div>
-
-      <div class="mt-3 flex gap-3">
-        <select id="fVRS" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600">
-          <option value=""></option>
-          <option value="1"></option>
-          <option value="0"></option>
-        </select>
-
-        <button id="btnClearFilters" class="bg-gray-600 text-white px-3 py-2 rounded hover:bg-gray-700"></button>
-      </div>
-    </div>
 
     <!-- Tabla de torneos -->
     <div class="card">
+      <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
+        <h3 class="text-xl font-semibold text-white">Tournaments List</h3>
+        <div class="view-toggle">
+          <button id="viewCards" onclick="setView('cards')" class="view-toggle-btn active">🎴 Cards</button>
+          <button id="viewTable" onclick="setView('table')" class="view-toggle-btn">📊 Table</button>
+        </div>
+      </div>
+
+      <!-- Filtros integrados -->
+      <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-3">
+          <input id="fText" type="text" placeholder="" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 w-full" />
+          <select id="fTier" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 w-full">
+            <option value=""></option>
+            <option value="S">S</option><option value="A">A</option>
+            <option value="B">B</option><option value="C">C</option>
+          </select>
+          <select id="fModality" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 w-full">
+            <option value=""></option>
+            <option value="Online">Online</option>
+            <option value="Offline">Offline</option>
+            <option value="Online/Offline">Online/Offline</option>
+          </select>
+          <input id="fLocation" type="text" placeholder="" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600 w-full" />
+          <input id="fFrom" type="date" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600" />
+          <input id="fTo" type="date" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600" />
+        </div>
+        <div class="mt-3 flex gap-3 items-center">
+          <select id="fVRS" class="p-2 border rounded bg-gray-700 text-gray-100 border-gray-600">
+            <option value=""></option>
+            <option value="1"></option>
+            <option value="0"></option>
+          </select>
+          <input id="fFav" type="checkbox" class="w-4 h-4" />
+          <label id="fFavLabel" for="fFav" class="text-gray-300 cursor-pointer select-none">
+            Favorites
+          </label>
+          <button id="btnClearFilters" class="bg-gray-600 text-white px-3 py-2 rounded hover:bg-gray-700"></button>
+        </div>
+      </div>
+
       <table id="tournamentTable" class="min-w-full bg-gray-800 rounded-lg">
         <thead>
           <tr class="bg-gray-700 text-gray-300 uppercase text-sm leading-normal">
@@ -169,6 +248,57 @@
   </footer>
 
   <!-- Tu JS -->
-  <script src="script.js"></script>
+  <script type="module" src="js/main.js"></script>
+  <script>
+    import {
+      setLanguage,
+      toggleTheme,
+      showHelp,
+      hideHelp,
+      setView,
+      toggleAddForm
+    } from './js/ui.js';
+    import {
+      saveTournament,
+      cancelEdit,
+      exportTournaments,
+      importTournaments,
+      confirmClearAll,
+      sortByDate,
+      sortByVRS,
+      editTournament,
+      confirmDelete,
+      toggleFavorite,
+      exportICS
+    } from './js/tournaments.js';
+    import {
+      filterByTeam,
+      selectAutocompleteTeam,
+      selectFormAutocompleteTeam,
+      removeTeamTag
+    } from './js/utils.js';
+
+    window.setLanguage = setLanguage;
+    window.toggleTheme = toggleTheme;
+    window.saveTournament = saveTournament;
+    window.cancelEdit = cancelEdit;
+    window.exportTournaments = exportTournaments;
+    window.importTournaments = importTournaments;
+    window.showHelp = showHelp;
+    window.hideHelp = hideHelp;
+    window.confirmClearAll = confirmClearAll;
+    window.sortByDate = sortByDate;
+    window.sortByVRS = sortByVRS;
+    window.editTournament = editTournament;
+    window.confirmDelete = confirmDelete;
+    window.filterByTeam = filterByTeam;
+    window.setView = setView;
+    window.toggleFavorite = toggleFavorite;
+    window.selectAutocompleteTeam = selectAutocompleteTeam;
+    window.selectFormAutocompleteTeam = selectFormAutocompleteTeam;
+    window.removeTeamTag = removeTeamTag;
+    window.toggleAddForm = toggleAddForm;
+    window.exportICS = exportICS;
+  </script>
 </body>
 </html>
