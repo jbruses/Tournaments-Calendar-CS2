@@ -386,28 +386,6 @@ function renderTournamentCards() {
     return container;
 }
 
-// Render Tags (Reutilizable para tabla y cards)
-function renderTeamTags(teamsString, limit = false) {
-    if (!teamsString) return '';
-    const teams = teamsString.split(',').map(t => t.trim()).filter(t => t);
-    const visibleCount = limit ? 3 : 100; // En cards mostramos pocos
-    const hiddenTeams = teams.length - visibleCount;
-
-    return `
-      <div class="flex flex-wrap gap-1.5">
-        ${teams.slice(0, visibleCount).map(team =>
-        `<span class="team-tag text-[10px] px-2 py-0.5 rounded cursor-pointer select-none" 
-               data-team="${escapeHtml(team)}" 
-               title="Filtrar por ${escapeHtml(team)}">
-            ${escapeHtml(team)}
-         </span>`
-    ).join('')}
-        ${limit && hiddenTeams > 0 ?
-            `<span class="text-[10px] text-gray-500 self-center font-mono">+${hiddenTeams}</span>` : ''}
-      </div>
-    `;
-}
-
 // ==========================================
 // HELPERS
 // ==========================================
@@ -541,6 +519,146 @@ function exportICS() {
     URL.revokeObjectURL(url);
 }
 
+// ==========================================
+// RENDER TAGS (A PRUEBA DE ERRORES)
+// ==========================================
+
+const teamLogos = {
+    "navi": "https://upload.wikimedia.org/wikipedia/en/thumb/a/ac/NaVi_logo.svg/1200px-NaVi_logo.svg.png",
+    "faze": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/FaZe_Clan.svg/1200px-FaZe_Clan.svg.png",
+    "g2": "https://upload.wikimedia.org/wikipedia/en/thumb/1/12/G2_Esports_logo.svg/1200px-G2_Esports_logo.svg.png",
+    "vitality": "https://upload.wikimedia.org/wikipedia/en/thumb/8/8b/Team_Vitality_logo.svg/1200px-Team_Vitality_logo.svg.png",
+    "spirit": "https://upload.wikimedia.org/wikipedia/en/thumb/c/ce/Team_Spirit_logo.svg/1200px-Team_Spirit_logo.svg.png",
+    "mouz": "https://upload.wikimedia.org/wikipedia/en/thumb/1/1f/Mousesports_logo.svg/1200px-Mousesports_logo.svg.png",
+    "liquid": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f1/Team_Liquid_logo.svg/1200px-Team_Liquid_logo.svg.png",
+    "astralis": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Astralis_logo.svg/1200px-Astralis_logo.svg.png",
+    "9z team": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/9z_Team_logo.png/600px-9z_Team_logo.png",
+    "bestia": "https://img-cdn.hltv.org/teamlogo/0x8d5c41e8c4f2e5a6a6f1d8c4f2e5a6a6/11918/bestia.png" 
+};
+
+function renderTeamTags(teamsString, limit = false) {
+    if (!teamsString) return '';
+    const teams = teamsString.split(',').map(t => t.trim()).filter(t => t);
+    const visibleCount = limit ? 5 : 100;
+    const hiddenTeams = teams.length - visibleCount;
+
+    return `
+      <div class="flex flex-wrap gap-2">
+        ${teams.slice(0, visibleCount).map(team => {
+            const lowerName = team.toLowerCase();
+            
+            // 1. Generamos SIEMPRE la URL del avatar de respaldo
+            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(team)}&background=random&color=fff&size=64&font-size=0.33&bold=true`;
+            
+            // 2. Intentamos usar el logo VIP, si no existe, usamos el avatar directo
+            let currentSrc = teamLogos[lowerName] || avatarUrl;
+            
+            return `
+            <div class="team-tag flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-full cursor-pointer select-none border border-white/5 bg-dark-900/50 hover:bg-dark-800 transition-all group/tag"
+                 data-team="${escapeHtml(team)}" 
+                 title="Filtrar por ${escapeHtml(team)}">
+                
+                <img src="${currentSrc}" 
+                     onerror="this.onerror=null; this.src='${avatarUrl}';"
+                     alt="${escapeHtml(team)}" 
+                     class="w-5 h-5 rounded-full object-cover shadow-sm bg-dark-800 group-hover/tag:scale-110 transition-transform">
+                
+                <span class="text-[10px] font-bold tracking-wide text-gray-300 group-hover/tag:text-white">
+                    ${escapeHtml(team)}
+                </span>
+            </div>`;
+        }).join('')}
+        
+        ${limit && hiddenTeams > 0 ?
+            `<span class="text-[10px] text-gray-500 self-center font-mono ml-1">+${hiddenTeams}</span>` : ''}
+      </div>
+    `;
+}
+
+function loadDemoData() {
+    if (!confirm("Esto borrará tus torneos actuales y cargará datos de prueba. ¿Continuar?")) return;
+
+    const today = new Date();
+    const oneDay = 86400000; // Milisegundos en un día
+
+    // Función auxiliar para calcular fechas relativas a hoy
+    const relativeDate = (days) => {
+        return new Date(today.getTime() + (days * oneDay)).toISOString().slice(0, 10);
+    };
+
+    tournaments = [
+        {
+            id: Date.now(),
+            name: "IEM Katowice 2026 (Demo)",
+            tier: "S",
+            // Empieza hace 2 días, termina en 3 días (ESTADO: LIVE)
+            startDate: relativeDate(-2), 
+            endDate: relativeDate(3),
+            teams: "Navi, FaZe, G2, Vitality, Spirit, Mouz, Liquid, Astralis",
+            location: "Katowice, Poland",
+            modality: "Offline",
+            color: "orange",
+            vrs: true
+        },
+        {
+            id: Date.now() + 1,
+            name: "PGL Major Copenhagen",
+            tier: "S",
+            // Empieza en 10 días (ESTADO: UPCOMING)
+            startDate: relativeDate(10),
+            endDate: relativeDate(24),
+            teams: "TBD",
+            location: "Copenhagen, Denmark",
+            modality: "Offline",
+            color: "yellow",
+            vrs: true
+        },
+        {
+            id: Date.now() + 2,
+            name: "Blast Premier Spring",
+            tier: "A",
+            // Terminó hace 5 días (ESTADO: COMPLETED)
+            startDate: relativeDate(-10),
+            endDate: relativeDate(-5),
+            teams: "Cloud9, Virtus.pro, Heroic, FURIA",
+            location: "London, UK",
+            modality: "Offline",
+            color: "blue",
+            vrs: false
+        },
+        {
+            id: Date.now() + 3,
+            name: "ESL Pro League S21",
+            tier: "A",
+            startDate: relativeDate(30),
+            endDate: relativeDate(60),
+            teams: "Complexity, BIG, MIBR, 9z Team, Fnatic",
+            location: "Malta",
+            modality: "Offline",
+            color: "purple",
+            vrs: true
+        },
+        {
+            id: Date.now() + 4,
+            name: "CCT Online Series #5",
+            tier: "B",
+            startDate: relativeDate(-1),
+            endDate: relativeDate(5), // LIVE
+            teams: "Monte, Aurora, 9 Pandas, SAW",
+            location: "Europe",
+            modality: "Online",
+            color: "green",
+            vrs: false
+        }
+    ];
+
+    saveTournaments();
+    renderTournaments();
+    renderCalendar();
+    renderHighlights();
+    alert("¡Datos de prueba cargados!"); // Opcional
+}
+
 export {
     tournaments,
     editingTournamentId,
@@ -565,5 +683,6 @@ export {
     sortByVRS,
     exportICS,
     getStatus,
-    getStatusBadge
+    getStatusBadge,
+    loadDemoData
 };

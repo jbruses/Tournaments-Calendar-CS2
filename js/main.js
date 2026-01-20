@@ -10,9 +10,10 @@ import {
     renderTournaments,
     sortByDate, 
     sortByVRS,
-    editTournament,   // <--- Importamos directo
-    confirmDelete,    // <--- Importamos directo
-    toggleFavorite    // <--- Importamos directo
+    editTournament,
+    confirmDelete,
+    toggleFavorite,
+    loadDemoData,
 } from './tournaments.js';
 import { 
     loadTheme, 
@@ -94,6 +95,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Solo existen en la tabla, validamos que existan
     document.getElementById('thDates')?.addEventListener('click', sortByDate);
     document.getElementById('thVRS')?.addEventListener('click', sortByVRS);
+
+    // Cargar Datos Demo
+    document.getElementById('btnDemo')?.addEventListener('click', loadDemoData);
 
     // 9. Filtros (Reactivdad)
     ["fText","fTier","fModality","fLocation","fFrom","fTo","fVRS", "fFav"].forEach(id => {

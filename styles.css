@@ -272,3 +272,16 @@ body.light-mode #calendar th {
 body.light-mode .fc-col-header-cell-cushion {
   color: #4b5563 !important; /* Gris oscuro para que se lea */
 }
+
+/* =================== TEAM LOGOS & AVATARS =================== */
+.team-tag img {
+  border-radius: 9999px; 
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  filter: brightness(0.9);
+  transition: all 0.3s ease;
+}
+
+.team-tag:hover img {
+  filter: brightness(1.1);
+  border-color: rgba(59, 130, 246, 0.5);
+}
