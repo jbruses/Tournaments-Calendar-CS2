@@ -6,7 +6,9 @@ body {
   background-attachment: fixed;
   color: #e5e5e5;
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.3s, color 0.3s;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 
 /* =================== MODO CLARO (Overrides) =================== */
@@ -17,8 +19,11 @@ body.light-mode {
 }
 
 /* Títulos con fuente "Gamer/Tech" */
-h1, h2, h3, .brand-font {
-  font-family: 'Rajdhani', sans-serif;
+h1,
+h2,
+h3,
+.brand-font {
+  font-family: "Rajdhani", sans-serif;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -29,14 +34,14 @@ h1, h2, h3, .brand-font {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a0a; 
+  background: #0a0a0a;
 }
 body.light-mode ::-webkit-scrollbar-track {
   background: #f3f4f6;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333; 
+  background: #333;
   border-radius: 4px;
 }
 body.light-mode ::-webkit-scrollbar-thumb {
@@ -44,7 +49,7 @@ body.light-mode ::-webkit-scrollbar-thumb {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; 
+  background: #555;
 }
 body.light-mode ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
@@ -55,7 +60,9 @@ body.light-mode ::-webkit-scrollbar-thumb:hover {
   background: rgba(23, 23, 23, 0.6);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 /* Glass en Modo Claro */
@@ -82,12 +89,12 @@ body.light-mode .glass-panel {
 }
 body.light-mode #calendar {
   background: rgba(255, 255, 255, 0.5);
-  border-color: rgba(0,0,0,0.05);
+  border-color: rgba(0, 0, 0, 0.05);
 }
 
 /* Título del mes */
 .fc-toolbar-title {
-  font-family: 'Rajdhani', sans-serif !important;
+  font-family: "Rajdhani", sans-serif !important;
   font-weight: 700;
   font-size: 1.8rem !important;
   text-transform: uppercase;
@@ -105,7 +112,7 @@ body.light-mode .fc-toolbar-title {
   background-color: rgba(255, 255, 255, 0.05) !important; /* Fondo sutil */
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: #ffffff !important;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
   font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -113,7 +120,8 @@ body.light-mode .fc-toolbar-title {
 }
 
 /* Hover de los botones */
-.fc-button-primary:hover, .fc-button-active {
+.fc-button-primary:hover,
+.fc-button-active {
   background-color: #3b82f6 !important; /* Azul al pasar el mouse */
   border-color: #3b82f6 !important;
   color: white !important;
@@ -126,7 +134,7 @@ body.light-mode .fc-button-primary {
   color: #374151 !important;
 }
 
-body.light-mode .fc-button-primary:hover, 
+body.light-mode .fc-button-primary:hover,
 body.light-mode .fc-button-active {
   background-color: #2563eb !important; /* Azul más oscuro */
   color: white !important;
@@ -138,12 +146,13 @@ body.light-mode .fc-button-active {
 }
 
 /* La grilla */
-.fc-theme-standard td, .fc-theme-standard th {
-  border-color: rgba(255,255,255,0.05) !important;
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: rgba(255, 255, 255, 0.05) !important;
 }
-body.light-mode .fc-theme-standard td, 
+body.light-mode .fc-theme-standard td,
 body.light-mode .fc-theme-standard th {
-  border-color: rgba(0,0,0,0.05) !important;
+  border-color: rgba(0, 0, 0, 0.05) !important;
 }
 
 .fc-daygrid-day-number {
@@ -158,7 +167,10 @@ body.light-mode .fc-theme-standard th {
 }
 
 /* =================== TAGS & INPUTS =================== */
-input, select {
+
+/* IMPORTANTE: Excluimos .input-premium y .bg-transparent para no romper el nuevo form */
+input:not(.input-premium):not(.bg-transparent),
+select:not(.input-premium) {
   background: #0a0a0a;
   border: 1px solid #333;
   color: white;
@@ -169,38 +181,40 @@ input, select {
 
 /* Ajuste importante: Icono de calendario blanco en dark mode */
 input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-    cursor: pointer;
+  filter: invert(1);
+  cursor: pointer;
 }
 
 /* Inputs en Modo Claro */
-body.light-mode input, body.light-mode select {
+body.light-mode input:not(.input-premium),
+body.light-mode select:not(.input-premium) {
   background: #ffffff;
   border: 1px solid #d1d5db;
   color: #1f2937;
 }
 body.light-mode input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: none;
+  filter: none;
 }
 
-input:focus, select:focus {
+input:focus,
+select:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .team-tag {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
   font-weight: 600;
   letter-spacing: 0.5px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: #d4d4d4;
   transition: all 0.2s;
 }
 body.light-mode .team-tag {
-  background: rgba(0,0,0,0.05);
-  border-color: rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
   color: #4b5563;
 }
 
@@ -213,8 +227,14 @@ body.light-mode .team-tag {
 
 /* Animación de entrada suave */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .glass-panel {
@@ -223,59 +243,70 @@ body.light-mode .team-tag {
 
 /* Ajustes Autocomplete (Dropdown) */
 .autocomplete-dropdown {
-    scrollbar-width: thin;
-    scrollbar-color: #4b5563 #1f2937;
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 #1f2937;
+  /* Aseguramos que quede encima de todo */
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 0 0 0.5rem 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
 }
 body.light-mode .autocomplete-dropdown {
-    background-color: #ffffff;
-    border-color: #e5e7eb;
+  background-color: #ffffff;
+  border-color: #e5e7eb;
+}
+.autocomplete-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s;
 }
 body.light-mode .autocomplete-item {
-    color: #374151;
-    border-color: #f3f4f6;
+  color: #374151;
+  border-color: #f3f4f6;
+}
+.autocomplete-item:hover {
+  background-color: rgba(59, 130, 246, 0.2);
 }
 body.light-mode .autocomplete-item:hover {
-    background-color: #3b82f6;
-    color: white;
+  background-color: #3b82f6;
+  color: white;
 }
 
 /* =================== DÍAS DE LA SEMANA (Lun, Mar...) =================== */
 
-/* 1. Quitamos el fondo a la celda del encabezado */
 #calendar th {
   background: transparent !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-/* 2. Estilo del texto (El nombre del día) */
 .fc-col-header-cell-cushion {
-  color: #94a3b8 !important; /* Gris suave (Slate-400) en vez de blanco puro */
-  text-decoration: none !important; /* Quitar subrayado */
-  text-transform: uppercase;        /* Mayúsculas "Premium" */
-  font-family: 'Rajdhani', sans-serif; /* Tu fuente gamer */
+  color: #94a3b8 !important;
+  text-decoration: none !important;
+  text-transform: uppercase;
+  font-family: "Rajdhani", sans-serif;
   font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 1px;
-  padding: 8px 0 !important; /* Un poco más de aire */
+  padding: 8px 0 !important;
 }
 
-/* 3. Hover sutil (opcional) */
 .fc-col-header-cell-cushion:hover {
-  color: #3b82f6 !important; /* Azul al pasar el mouse */
+  color: #3b82f6 !important;
 }
 
-/* =================== CORRECCIÓN MODO CLARO =================== */
 body.light-mode #calendar th {
   border-bottom-color: rgba(0, 0, 0, 0.1) !important;
 }
 
 body.light-mode .fc-col-header-cell-cushion {
-  color: #4b5563 !important; /* Gris oscuro para que se lea */
+  color: #4b5563 !important;
 }
 
 /* =================== TEAM LOGOS & AVATARS =================== */
 .team-tag img {
-  border-radius: 9999px; 
+  border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   filter: brightness(0.9);
   transition: all 0.3s ease;
@@ -284,4 +315,106 @@ body.light-mode .fc-col-header-cell-cushion {
 .team-tag:hover img {
   filter: brightness(1.1);
   border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* =================== FORM UI MEJORADO (Alineación Perfecta) =================== */
+
+/* Contenedor del Input con Icono */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* El Icono dentro del Input - Centrado Matemático */
+.input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%; /* Centrado */
+  transform: translateY(-50%); /* Corrección de posición */
+  color: #9ca3af; /* Gray-400 */
+  pointer-events: none;
+  transition: color 0.3s;
+}
+
+/* El Input en sí (Premium) - Altura Fija */
+.input-premium {
+  width: 100%;
+  background-color: rgba(23, 23, 23, 0.6); /* bg-dark-900 con opacidad */
+  border: 1px solid rgba(75, 85, 99, 0.4); /* border-gray-600 suave */
+  color: white;
+  
+  /* PROPIEDADES DE ALINEACIÓN CLAVE */
+  height: 42px;             /* Altura fija igual para todos */
+  line-height: 42px;        /* Texto centrado verticalmente */
+  padding: 0 1rem 0 2.5rem; /* Padding solo lateral (izquierda para icono) */
+  
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  transition: all 0.2s ease-in-out;
+  
+  /* Crucial para que el Select no muestre flecha doble */
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.input-premium:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); /* Glow azul */
+  outline: none;
+  background-color: rgba(23, 23, 23, 0.9);
+}
+
+/* Al hacer foco, el icono también se ilumina */
+.input-premium:focus + .input-icon,
+.input-wrapper:focus-within .input-icon {
+  color: #3b82f6;
+}
+
+/* Modo Claro overrides */
+body.light-mode .input-premium {
+  background-color: #ffffff;
+  border-color: #d1d5db;
+  color: #1f2937;
+}
+
+/* =================== TOGGLE SWITCH (VRS) =================== */
+.toggle-checkbox {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.toggle-label {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 24px;
+  background-color: #374151; /* Gray-700 inactive */
+  border-radius: 9999px;
+  transition: background-color 0.3s;
+  cursor: pointer;
+}
+
+.toggle-label:after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-checkbox:checked + .toggle-label {
+  background-color: #3b82f6; /* Brand Blue active */
+}
+
+.toggle-checkbox:checked + .toggle-label:after {
+  transform: translateX(100%);
 }
