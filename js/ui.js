@@ -1,148 +1,15 @@
-import {
-  renderTournaments,
-  tournaments,
-  editingTournamentId,
-} from "./tournaments.js";
+import { renderTournaments, editingTournamentId } from "./tournaments.js";
 import { renderCalendar } from "./calendar.js";
 import { renderHighlights } from "./highlights.js";
-// renderInputTags no se usa aquí directamente, pero lo dejamos por si acaso
-import { renderInputTags } from "./utils.js";
-
-const translations = {
-  es: {
-    pageTitle: "Calendario de Esports (CS2)",
-    storageNote:
-      "Los datos se guardan localmente. Exporta tu calendario para respaldarlo.",
-    formTitles: { add: "Agregar Nuevo Torneo", edit: "Editar Torneo" },
-    startDateLabel: "Fecha de Inicio",
-    endDateLabel: "Fecha de Fin",
-    vrsLabel: "Cuenta para el VRS",
-    saveButtons: { add: "Agregar Torneo", edit: "Guardar Cambios" },
-    cancelEditButton: "Cancelar",
-    exportButton: "Exportar",
-    importButton: "Importar",
-    helpButton: "Ayuda",
-    clearAllButton: "Borrar todo",
-
-    // Tabla Headers
-    thTournament: "Torneo",
-    thTier: "Tier",
-    thDates: "Fechas",
-    thTeams: "Equipos",
-    thLocation: "Ubicación",
-    thModality: "Modalidad",
-    thColor: "Color",
-    thVRS: "VRS",
-    thActions: "Acciones",
-
-    // Highlights
-    highlightsTitle: "Destacados Hoy/Mañana",
-    noHighlights: "No hay torneos destacados hoy o mañana",
-    favOnly: "Solo favoritos",
-
-    // Ayuda
-    helpTitle: "Ayuda",
-    helpIntro: "Bienvenido al Calendario de Esports (CS2).",
-    helpAdd: "Agregar Torneo:",
-    helpEdit: "Editar Torneo:",
-    helpDelete: "Eliminar Torneo:",
-    helpExport: "Exportar:",
-    helpImport: "Importar:",
-    helpClear: "Borrar todo:",
-    helpNote: "Nota:",
-
-    // Mensajes JS
-    invalidDate: "La fecha de fin no puede ser anterior a la de inicio.",
-    incompleteFields: "Por favor completa todos los campos requeridos.",
-    confirmDelete: "¿Estás seguro de que quieres eliminar este torneo?",
-    noTournaments: "No hay torneos para exportar.",
-    importSuccess: "Torneos importados correctamente.",
-    importError: "Error al importar el archivo JSON.",
-    confirmClear:
-      "¿Estás seguro de que quieres borrar TODOS los torneos? Esta acción no se puede deshacer.",
-    clearSuccess: "Todos los torneos han sido eliminados.",
-
-    bool: { yes: "Sí", no: "No" },
-    actions: { delete: "Borrar", edit: "Editar" },
-    calendarButtons: {
-      today: "Hoy",
-      month: "Mes",
-      list: "Lista",
-      edit: "Editar",
-      delete: "Borrar",
-    },
-    toggleLight: "Modo Claro",
-    toggleDark: "Modo Oscuro",
-  },
-  en: {
-    pageTitle: "Esports Calendar (CS2)",
-    storageNote: "Data is stored locally. Export your calendar to backup.",
-    formTitles: { add: "Add New Tournament", edit: "Edit Tournament" },
-    startDateLabel: "Start Date",
-    endDateLabel: "End Date",
-    vrsLabel: "Counts for VRS",
-    saveButtons: { add: "Add Tournament", edit: "Save Changes" },
-    cancelEditButton: "Cancel",
-    exportButton: "Export",
-    importButton: "Import",
-    helpButton: "Help",
-    clearAllButton: "Clear All",
-
-    thTournament: "Tournament",
-    thTier: "Tier",
-    thDates: "Dates",
-    thTeams: "Teams",
-    thLocation: "Location",
-    thModality: "Modality",
-    thColor: "Color",
-    thVRS: "VRS",
-    thActions: "Actions",
-
-    highlightsTitle: "Highlights Today/Tomorrow",
-    noHighlights: "No highlights for today or tomorrow",
-    favOnly: "Favorites only",
-
-    helpTitle: "Help",
-    helpIntro: "Welcome to the Esports Calendar (CS2).",
-    helpAdd: "Add Tournament:",
-    helpEdit: "Edit Tournament:",
-    helpDelete: "Delete Tournament:",
-    helpExport: "Export:",
-    helpImport: "Import:",
-    helpClear: "Clear All:",
-    helpNote: "Note:",
-
-    invalidDate: "End date cannot be earlier than start date.",
-    incompleteFields: "Please complete all required fields.",
-    confirmDelete: "Are you sure you want to delete this tournament?",
-    noTournaments: "No tournaments to export.",
-    importSuccess: "Tournaments imported successfully.",
-    importError: "Error importing JSON file.",
-    confirmClear:
-      "Are you sure you want to clear ALL tournaments? This action cannot be undone.",
-    clearSuccess: "All tournaments have been cleared.",
-
-    bool: { yes: "Yes", no: "No" },
-    actions: { delete: "Delete", edit: "Edit" },
-    calendarButtons: {
-      today: "Today",
-      month: "Month",
-      list: "List",
-      edit: "Edit",
-      delete: "Delete",
-    },
-    toggleLight: "Light Mode",
-    toggleDark: "Dark Mode",
-  },
-};
+import { translations } from "./utils.js";
 
 let currentLang = localStorage.getItem("lang") || "es";
-let isDarkMode = localStorage.getItem("theme") !== "light"; // Default dark
+let isDarkMode = localStorage.getItem("theme") !== "light";
 let currentView = localStorage.getItem("view") || "cards";
 
 function loadTheme() {
   if (isDarkMode) {
-    document.documentElement.classList.add("dark"); // Para Tailwind
+    document.documentElement.classList.add("dark");
     document.body.classList.remove("light-mode");
   } else {
     document.documentElement.classList.remove("dark");
@@ -159,11 +26,10 @@ function toggleTheme() {
 
 function updateThemeButton() {
   const btn = document.getElementById("toggleTheme");
-  if (btn) {
+  if (btn)
     btn.textContent = isDarkMode
       ? translations[currentLang].toggleLight
       : translations[currentLang].toggleDark;
-  }
 }
 
 function setLanguage(lang) {
@@ -171,13 +37,28 @@ function setLanguage(lang) {
   localStorage.setItem("lang", lang);
   const t = translations[lang];
 
-  // Static Texts
   safeSetText("pageTitle", t.pageTitle);
   safeSetText("storageNote", t.storageNote);
-
-  // Form Labels
+  safeSetText("signInText", t.signInText);
+  safeSetText("listTitle", t.listTitle);
   safeSetText("startDateLabel", t.startDateLabel);
   safeSetText("endDateLabel", t.endDateLabel);
+  safeSetText("vrsLabel", t.vrsLabel);
+  safeSetText("lblName", t.lbl_name);
+  safeSetText("lblTier", t.lbl_tier);
+  safeSetText("lblColor", t.lbl_color);
+  safeSetText("lblTeams", t.lbl_teams);
+  safeSetText("lblLoc", t.lbl_loc);
+  safeSetText("lblMod", t.lbl_mod);
+
+  // Descripción VRS (span pequeño debajo del título)
+  const vrsContainer = document
+    .getElementById("tournamentVRS")
+    ?.closest(".col-span-2");
+  if (vrsContainer) {
+    const descSpan = vrsContainer.querySelector("span.text-xs");
+    if (descSpan) descSpan.textContent = t.vrsDesc;
+  }
 
   const formTitle = editingTournamentId ? t.formTitles.edit : t.formTitles.add;
   const saveBtnText = editingTournamentId
@@ -186,14 +67,22 @@ function setLanguage(lang) {
 
   safeSetText("formTitle", formTitle);
   safeSetText("saveButton", saveBtnText);
-
   safeSetText("btnCancel", t.cancelEditButton);
   safeSetText("btnExport", t.exportButton);
   safeSetText("importButton", t.importButton);
   safeSetText("btnHelp", t.helpButton);
   safeSetText("btnClearAll", t.clearAllButton);
+  safeSetText("btnInstallApp", t.btnInstall);
+  safeSetText("exportICS", t.btnICS);
+  safeSetText("closeHelp", t.btnCloseHelp);
+  safeSetText("viewCards", t.btnCards);
+  safeSetText("viewTable", t.btnTable);
 
-  // Table Headers
+  const fDev = document.getElementById("footerDev");
+  if (fDev)
+    fDev.innerHTML = `${t.footerDev} <span class="text-brand-400 font-semibold tracking-wide">Joaco Bruses</span>`;
+  safeSetText("footerCopy", t.footerCopy);
+
   safeSetText("thTournament", t.thTournament);
   safeSetText("thTier", t.thTier);
   safeSetText("thDates", t.thDates);
@@ -202,17 +91,82 @@ function setLanguage(lang) {
   safeSetText("thModality", t.thModality);
   safeSetText("thColor", t.thColor);
   safeSetText("thVRS", t.thVRS);
-  safeSetText("thActions", t.thActions);
 
-  const vrsLabel = document.getElementById("vrsLabel");
-  if (vrsLabel) {
-    vrsLabel.textContent = t.vrsLabel;
-  }
+  // --- HIGHLIGHTS ---
+  const hlTitle = document.getElementById("highlightsTitle");
+  if (hlTitle) hlTitle.querySelector("span").textContent = t.highlightsTitle;
 
-  // Help Modal
+  const hlNoData = document.getElementById("noHighlights");
+  if (hlNoData) hlNoData.textContent = t.noHighlights;
+
+  // Label Checkbox Highlights
+  const lblHlFav = document.querySelector("label[for='highlightsFavOnly']");
+  if (lblHlFav) lblHlFav.textContent = t.favOnly;
+
+  // --- AYUDA ---
   safeSetText("helpTitle", t.helpTitle);
   safeSetText("helpIntro", t.helpIntro);
-  // ... actualizar lista de ayuda si es necesario ...
+
+  setOptionText("fTier", "", t.filters.tier);
+  setOptionText("fModality", "", t.filters.mod);
+  setOptionText("fVRS", "", t.filters.vrs);
+  setOptionText("fVRS", "1", t.filters.vrsYes);
+  setOptionText("fVRS", "0", t.filters.vrsNo);
+
+  setOptionText("tournamentTier", "S", t.tierOptions.s);
+  setOptionText("tournamentTier", "A", t.tierOptions.a);
+  setOptionText("tournamentTier", "B", t.tierOptions.b);
+  setOptionText("tournamentTier", "C", t.tierOptions.c);
+
+  setOptionText("tournamentColor", "blue", t.colorOptions.blue);
+  setOptionText("tournamentColor", "orange", t.colorOptions.orange);
+  setOptionText("tournamentColor", "green", t.colorOptions.green);
+  setOptionText("tournamentColor", "red", t.colorOptions.red);
+  setOptionText("tournamentColor", "purple", t.colorOptions.purple);
+  setOptionText("tournamentColor", "yellow", t.colorOptions.yellow);
+
+  setOptionText("tournamentModality", "Online", t.modalityOptions.online);
+  setOptionText("tournamentModality", "Offline", t.modalityOptions.offline);
+  setOptionText(
+    "tournamentModality",
+    "Online/Offline",
+    t.modalityOptions.hybrid,
+  );
+
+  setOptionText("fTier", "", t.filters.tier); // "Tier (Todos)"
+  setOptionText("fTier", "S", t.tierOptions.s_short);
+  setOptionText("fTier", "A", t.tierOptions.a_short);
+  setOptionText("fTier", "B", t.tierOptions.b_short);
+  setOptionText("fTier", "C", t.tierOptions.c_short);
+
+  setOptionText("fModality", "", t.filters.mod); // "Modalidad"
+  setOptionText("fModality", "Online", t.modalityOptions.online);
+  setOptionText("fModality", "Offline", t.modalityOptions.offline);
+  setOptionText("fModality", "Online/Offline", t.modalityOptions.hybrid);
+
+  setOptionText("fVRS", "", t.filters.vrs);
+  setOptionText("fVRS", "1", t.filters.vrsYes);
+  setOptionText("fVRS", "0", t.filters.vrsNo);
+
+  // Label Checkbox Filtro Favoritos (Buscamos el span hermano del input)
+  const lblFavFilter = document.querySelector("label:has(#fFav) span");
+  if (lblFavFilter) lblFavFilter.textContent = t.filters.fav;
+
+  // Botón Limpiar
+  const btnClear = document.getElementById("btnClearFilters");
+  if (btnClear) {
+    // Mantenemos el icono SVG, solo cambiamos el texto
+    const svg = btnClear.querySelector("svg");
+    btnClear.textContent = " " + t.filters.clear; // Espacio para separar
+    if (svg) btnClear.prepend(svg);
+  }
+
+  // --- PLACEHOLDERS ---
+  safeSetPlaceholder("tournamentName", t.phName);
+  safeSetPlaceholder("tournamentLocation", t.phLocation);
+  safeSetPlaceholder("fText", t.phSearch);
+  safeSetPlaceholder("tournamentTeams", t.phTeams);
+  safeSetPlaceholder("fLocation", t.filters.location);
 
   updateThemeButton();
   renderTournaments();
@@ -225,49 +179,32 @@ function safeSetText(id, text) {
   if (el) el.textContent = text;
 }
 
-function toggleAddForm() {
-  const formBody = document.getElementById("addTournamentFormBody");
-  const formBtns = document.getElementById("addTournamentButtons");
-  const icon = document.getElementById("toggleFormIcon");
-
-  if (!formBody) return;
-
-  const isHidden = formBody.classList.contains("hidden");
-
-  if (isHidden) {
-    formBody.classList.remove("hidden");
-    if (formBtns) formBtns.classList.remove("hidden");
-    if (icon) icon.style.transform = "rotate(180deg)";
-  } else {
-    formBody.classList.add("hidden");
-    if (formBtns) formBtns.classList.add("hidden");
-    if (icon) icon.style.transform = "rotate(0deg)";
-  }
+function safeSetPlaceholder(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.placeholder = text;
 }
 
-// CORRECCIÓN: Estilos Tailwind para los botones de vista
+function setOptionText(selectId, value, text) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  const opt = sel.querySelector(`option[value="${value}"]`);
+  if (opt) opt.textContent = text;
+}
+
 function setView(view) {
   currentView = view;
   localStorage.setItem("view", view);
   renderTournaments();
-
   const btnCards = document.getElementById("viewCards");
   const btnTable = document.getElementById("viewTable");
-
-  // Clases para estado ACTIVO e INACTIVO
   const activeClass = "bg-brand-600 text-white shadow-lg";
   const inactiveClass = "text-gray-400 hover:text-white";
 
-  // Resetear clases base (asumiendo que tienen clases comunes en el HTML)
-  // Lo más fácil es quitar y poner clases específicas
-
   if (btnCards && btnTable) {
     if (view === "cards") {
-      // Activar Cards
       btnCards.className = `view-toggle-btn px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${activeClass}`;
       btnTable.className = `view-toggle-btn px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${inactiveClass}`;
     } else {
-      // Activar Table
       btnCards.className = `view-toggle-btn px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${inactiveClass}`;
       btnTable.className = `view-toggle-btn px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${activeClass}`;
     }
@@ -277,20 +214,17 @@ function setView(view) {
 function showHelp() {
   document.getElementById("helpModal")?.classList.remove("hidden");
 }
-
 function hideHelp() {
   document.getElementById("helpModal")?.classList.add("hidden");
 }
 
 export {
-  translations,
   currentLang,
   isDarkMode,
   currentView,
   toggleTheme,
   loadTheme,
   setLanguage,
-  toggleAddForm,
   setView,
   showHelp,
   hideHelp,

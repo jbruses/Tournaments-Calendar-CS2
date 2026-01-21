@@ -1,26 +1,40 @@
-import { translations, currentLang, toggleAddForm } from "./ui.js";
+import { db, auth } from "./firebase-config.js";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  where,
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { renderCalendar } from "./calendar.js";
 import { renderHighlights } from "./highlights.js";
-// Importamos setCurrentTeams para arreglar la carga de tags al editar
+
+// ⬇️ IMPORTACIONES CRÍTICAS (Aquí estaba el error)
 import {
   escapeHtml,
-  renderInputTags,
+  formatDate, // Ahora viene de utils
   addTeamTag,
   currentTeams,
   setCurrentTeams,
+  translations,
+  getLang,
+  toggleAddForm,
 } from "./utils.js";
 
+// Estado Global
 let tournaments = [];
 let editingTournamentId = null;
 let sortDirectionDate = 1;
 let sortDirectionVRS = 1;
-// Estado de favoritos
 let favoriteTournamentIds = JSON.parse(
   localStorage.getItem("favorites") || "[]",
 );
 
 // ==========================================
-// LOGOS (Movido arriba para que esté disponible globalmente)
+// LOGOS (Local para renderAvatars)
 // ==========================================
 const teamLogos = {
   navi: "https://upload.wikimedia.org/wikipedia/en/thumb/a/ac/NaVi_logo.svg/1200px-NaVi_logo.svg.png",
@@ -42,34 +56,51 @@ const teamLogos = {
 };
 
 // ==========================================
-// LÓGICA DE DATOS (LocalStorage)
+// CRUD FIREBASE
 // ==========================================
 
-function saveTournaments() {
-  localStorage.setItem("tournaments", JSON.stringify(tournaments));
-}
+// 1. CARGAR
+async function loadTournaments() {
+  const user = auth.currentUser;
+  if (!user) {
+    tournaments = [];
+    renderAll();
+    return;
+  }
 
-function loadTournaments() {
-  const savedTournaments = localStorage.getItem("tournaments");
-  if (savedTournaments) {
-    tournaments = JSON.parse(savedTournaments);
-    renderTournaments();
-    renderCalendar();
-    renderHighlights();
+  try {
+    const q = query(
+      collection(db, "tournaments"),
+      where("uid", "==", user.uid),
+    );
+    const querySnapshot = await getDocs(q);
+
+    tournaments = [];
+    querySnapshot.forEach((doc) => {
+      tournaments.push({ id: doc.id, ...doc.data() });
+    });
+    tournaments.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+    renderAll();
+  } catch (e) {
+    console.error("Error cargando torneos:", e);
   }
 }
 
-function saveTournament() {
+// 2. GUARDAR
+async function saveTournament() {
+  const user = auth.currentUser;
+  if (!user) {
+    alert("Inicia sesión para guardar.");
+    return;
+  }
+
   const name = document.getElementById("tournamentName").value.trim();
   const tier = document.getElementById("tournamentTier").value;
   const startDate = document.getElementById("startDate").value;
   const endDate = document.getElementById("endDate").value;
 
-  // Agregar tag pendiente si quedó texto en el input
   const pendingTeam = document.getElementById("tournamentTeams").value.trim();
   if (pendingTeam) addTeamTag(pendingTeam);
-
-  // Usamos la variable exportada de utils.js que tiene los tags actuales
   const teams = currentTeams.join(", ");
 
   const location = document.getElementById("tournamentLocation").value.trim();
@@ -77,132 +108,104 @@ function saveTournament() {
   const color = document.getElementById("tournamentColor").value;
   const vrs = document.getElementById("tournamentVRS").checked;
 
-  if (
-    name &&
-    tier &&
-    startDate &&
-    endDate &&
-    teams &&
-    location &&
-    modality &&
-    color
-  ) {
-    if (new Date(endDate) < new Date(startDate)) {
-      alert(translations[currentLang].invalidDate);
-      return;
-    }
+  if (!name || !tier || !startDate || !endDate) {
+    alert(translations[getLang()].incompleteFields);
+    return;
+  }
 
+  if (new Date(endDate) < new Date(startDate)) {
+    alert(translations[getLang()].invalidDate);
+    return;
+  }
+
+  const tournamentData = {
+    name,
+    tier,
+    startDate,
+    endDate,
+    teams,
+    location,
+    modality,
+    color,
+    vrs,
+    uid: user.uid,
+    updatedAt: new Date(),
+  };
+
+  try {
     if (editingTournamentId) {
-      // EDITAR
-      tournaments = tournaments.map((t) =>
-        t.id === editingTournamentId
-          ? {
-              ...t,
-              name,
-              tier,
-              startDate,
-              endDate,
-              teams,
-              location,
-              modality,
-              color,
-              vrs,
-            }
-          : t,
-      );
+      const docRef = doc(db, "tournaments", editingTournamentId);
+      await updateDoc(docRef, tournamentData);
     } else {
-      // CREAR
-      const tournament = {
-        id: Date.now(),
-        name,
-        tier,
-        startDate,
-        endDate,
-        teams,
-        location,
-        modality,
-        color,
-        vrs,
-      };
-      tournaments.push(tournament);
+      tournamentData.createdAt = new Date();
+      await addDoc(collection(db, "tournaments"), tournamentData);
     }
-
-    saveTournaments();
-    renderTournaments();
-    renderCalendar();
-    renderHighlights();
+    await loadTournaments();
     cancelEdit();
-
-    // Cerrar el formulario tras guardar para limpiar la vista
-    const formBody = document.getElementById("addTournamentFormBody");
-    if (!formBody.classList.contains("hidden")) {
-      toggleAddForm();
-    }
-  } else {
-    alert(translations[currentLang].incompleteFields);
+    // toggleAddForm ya es seguro llamarlo aquí porque viene de utils
+    toggleAddForm();
+  } catch (e) {
+    console.error("Error saving:", e);
+    alert("Error al guardar en la nube.");
   }
 }
 
+// 3. BORRAR
+async function deleteTournament(id) {
+  if (!confirm(translations[getLang()].confirmDelete)) return;
+  try {
+    await deleteDoc(doc(db, "tournaments", id));
+    tournaments = tournaments.filter((t) => t.id !== id);
+    renderAll();
+  } catch (e) {
+    console.error("Error deleting:", e);
+  }
+}
+
+// ==========================================
+// GESTIÓN DEL FORMULARIO
+// ==========================================
+
 function editTournament(id) {
-  const numericId = parseInt(id);
-  const t = tournaments.find((x) => x.id === numericId);
+  const t = tournaments.find((x) => x.id === id);
   if (!t) return;
+
+  editingTournamentId = id;
 
   document.getElementById("tournamentName").value = t.name;
   document.getElementById("tournamentTier").value = t.tier;
-  document.getElementById("tournamentLocation").value = t.location;
-  document.getElementById("tournamentModality").value = t.modality;
   document.getElementById("startDate").value = t.startDate;
   document.getElementById("endDate").value = t.endDate;
+  document.getElementById("tournamentLocation").value = t.location || "";
+  document.getElementById("tournamentModality").value = t.modality || "Online";
+  document.getElementById("tournamentColor").value = t.color || "blue";
+  document.getElementById("tournamentVRS").checked = t.vrs || false;
 
   const teamsArray = t.teams
-    .split(",")
-    .map((s) => s.trim())
-    .filter((s) => s);
+    ? t.teams
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s)
+    : [];
   setCurrentTeams(teamsArray);
 
-  document.getElementById("tournamentColor").value = t.color;
-  document.getElementById("tournamentVRS").checked = t.vrs;
-
-  // Textos UI
-  document.getElementById("formTitle").textContent =
-    translations[currentLang].formTitles.edit;
-  document.getElementById("saveButton").textContent =
-    translations[currentLang].saveButtons.edit;
+  const tText = translations[getLang()];
+  document.getElementById("formTitle").textContent = tText.formTitles.edit;
+  document.getElementById("saveButton").textContent = tText.saveButtons.edit;
   document.getElementById("btnCancel").classList.remove("hidden");
 
-  editingTournamentId = numericId;
-
-  // Abrir form si está cerrado
   const formBody = document.getElementById("addTournamentFormBody");
-  if (formBody.classList.contains("hidden")) {
-    toggleAddForm();
-  }
+  if (formBody.classList.contains("hidden")) toggleAddForm();
   document.getElementById("formTitle").scrollIntoView({ behavior: "smooth" });
 }
 
 function cancelEdit() {
   editingTournamentId = null;
-  const t = translations[currentLang];
-  document.getElementById("formTitle").textContent = t.formTitles.add;
-  document.getElementById("saveButton").textContent = t.saveButtons.add;
-  document.getElementById("btnCancel").classList.add("hidden");
   clearForm();
-}
-
-function confirmDelete(id) {
-  const msg = translations[currentLang].confirmDelete || "¿Eliminar torneo?";
-  if (window.confirm(msg)) {
-    deleteTournament(parseInt(id));
-  }
-}
-
-function deleteTournament(id) {
-  tournaments = tournaments.filter((t) => t.id !== id);
-  saveTournaments();
-  renderTournaments();
-  renderCalendar();
-  renderHighlights();
+  const tText = translations[getLang()];
+  document.getElementById("formTitle").textContent = tText.formTitles.add;
+  document.getElementById("saveButton").textContent = tText.saveButtons.add;
+  document.getElementById("btnCancel").classList.add("hidden");
 }
 
 function clearForm() {
@@ -210,92 +213,21 @@ function clearForm() {
   document.getElementById("tournamentTier").value = "S";
   document.getElementById("startDate").value = "";
   document.getElementById("endDate").value = "";
-
-  // Limpiar tags usando la función importada
-  setCurrentTeams([]);
-
   document.getElementById("tournamentTeams").value = "";
   document.getElementById("tournamentLocation").value = "";
-  document.getElementById("tournamentModality").value = "Online";
-  document.getElementById("tournamentColor").value = "blue";
   document.getElementById("tournamentVRS").checked = false;
+  setCurrentTeams([]);
 }
 
 // ==========================================
-// IMPORT / EXPORT / UTILS
+// RENDERING
 // ==========================================
 
-function exportTournaments() {
-  const data = localStorage.getItem("tournaments");
-  if (data) {
-    const blob = new Blob([data], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "tournaments_backup.json";
-    a.click();
-    URL.revokeObjectURL(url);
-  } else {
-    alert(translations[currentLang].noTournaments);
-  }
-}
-
-function importTournaments(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    try {
-      const importedData = e.target.result;
-      tournaments = JSON.parse(importedData);
-      localStorage.setItem("tournaments", JSON.stringify(tournaments));
-      renderTournaments();
-      renderCalendar();
-      renderHighlights();
-      alert(translations[currentLang].importSuccess || "Importado con éxito");
-    } catch (error) {
-      alert(translations[currentLang].importError || "Error al importar");
-    }
-  };
-  reader.readAsText(file);
-  event.target.value = "";
-}
-
-function confirmClearAll() {
-  if (confirm(translations[currentLang].confirmClear || "¿Borrar todo?")) {
-    clearAllTournaments();
-  }
-}
-
-function clearAllTournaments() {
-  tournaments = [];
-  localStorage.removeItem("tournaments");
+function renderAll() {
   renderTournaments();
   renderCalendar();
   renderHighlights();
-  alert(translations[currentLang].clearSuccess || "Calendario borrado");
 }
-
-function toggleFavorite(id) {
-  const numericId = parseInt(id);
-  const index = favoriteTournamentIds.indexOf(numericId);
-  if (index === -1) {
-    favoriteTournamentIds.push(numericId);
-  } else {
-    favoriteTournamentIds.splice(index, 1);
-  }
-  localStorage.setItem("favorites", JSON.stringify(favoriteTournamentIds));
-  renderTournaments();
-  renderHighlights();
-}
-
-function isFavorite(id) {
-  return favoriteTournamentIds.includes(parseInt(id));
-}
-
-// ==========================================
-// RENDERING (VISUALES PREMIUM)
-// ==========================================
 
 function renderTournaments() {
   const tbody = document.getElementById("tournamentBody");
@@ -304,59 +236,36 @@ function renderTournaments() {
 
   if (!tbody || !tableElement) return;
 
-  // Modo Cards
   if (localStorage.getItem("view") === "cards") {
     tableElement.classList.add("hidden");
     if (cardContainer) cardContainer.remove();
-
     const newCardContainer = renderTournamentCards();
     newCardContainer.id = "tournamentCardContainer";
     tableElement.parentNode.insertBefore(newCardContainer, tableElement);
-  }
-  // Modo Tabla
-  else {
+  } else {
     if (cardContainer) cardContainer.remove();
     tableElement.classList.remove("hidden");
     tbody.innerHTML = "";
 
     filteredTournaments().forEach((t) => {
       const row = document.createElement("tr");
-      // Estilo de fila Glass hover
       row.className =
-        "border-b border-gray-700/50 hover:bg-white/5 transition-colors duration-200";
-
+        "border-b border-gray-700/50 hover:bg-white/5 transition-colors";
       row.innerHTML = `
-          <td class="py-4 px-4 text-left font-medium text-white">${escapeHtml(t.name)}</td>
-          <td class="py-4 px-4 text-left">
-            <span class="bg-dark-900 border border-gray-700 text-gray-300 px-2 py-1 rounded text-xs font-bold font-display">${t.tier}</span>
-          </td>
-          <td class="py-4 px-4 text-left text-xs text-gray-400 font-mono">
-            ${formatDate(t.startDate)} - ${formatDate(t.endDate)}
-          </td>
-          <td class="py-4 px-4 text-left">${renderTeamTags(t.teams)}</td>
-          <td class="py-4 px-4 text-left text-sm text-gray-400">${escapeHtml(t.location)}</td>
-          <td class="py-4 px-4 text-left text-sm text-gray-400">${t.modality}</td>
-          <td class="py-4 px-4 text-left">
-             <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-${t.color}-500 shadow-[0_0_8px] shadow-${t.color}-500/50"></span>
-                <span class="capitalize text-sm text-gray-400">${t.color}</span>
-             </div>
-          </td>
-          <td class="py-4 px-4 text-left">
-            ${t.vrs ? '<span class="text-green-500 font-bold">✓</span>' : '<span class="text-gray-600">-</span>'}
-          </td>
-          <td class="py-4 px-4 text-center">
-            <div class="flex item-center justify-center gap-3">
-                <button class="btn-fav hover:scale-110 transition-transform ${isFavorite(t.id) ? "text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]" : "text-gray-600 hover:text-yellow-200"}" 
-                        data-id="${t.id}" title="Favorito">
-                    ${isFavorite(t.id) ? "⭐" : "☆"}
-                </button>
-                <button class="btn-edit hover:scale-110 transition-transform text-blue-400 hover:text-white" 
-                        data-id="${t.id}" title="Editar">✏️</button>
-                <button class="btn-delete hover:scale-110 transition-transform text-red-400 hover:text-white" 
-                        data-id="${t.id}" title="Borrar">🗑️</button>
-            </div>
-          </td>`;
+                <td class="py-4 px-4 text-white">${escapeHtml(t.name)}</td>
+                <td class="py-4 px-4"><span class="bg-dark-900 border border-gray-700 px-2 py-1 rounded text-xs font-bold">${t.tier}</span></td>
+                <td class="py-4 px-4 text-xs text-gray-400 font-mono">${formatDate(t.startDate)} - ${formatDate(t.endDate)}</td>
+                <td class="py-4 px-4">${renderAvatars(t.teams, true)}</td>
+                <td class="py-4 px-4 text-sm text-gray-400">${escapeHtml(t.location)}</td>
+                <td class="py-4 px-4 text-sm">${t.modality}</td>
+                <td class="py-4 px-4"><span class="w-3 h-3 rounded-full block bg-${t.color}-500 shadow-[0_0_8px] shadow-${t.color}-500/50"></span></td>
+                <td class="py-4 px-4">${t.vrs ? "✅" : "-"}</td>
+                <td class="py-4 px-4 text-center">
+                    <div class="flex justify-center gap-2">
+                        <button class="btn-edit text-blue-400 hover:text-white" data-id="${t.id}">✏️</button>
+                        <button class="btn-delete text-red-400 hover:text-white" data-id="${t.id}">🗑️</button>
+                    </div>
+                </td>`;
       tbody.appendChild(row);
     });
   }
@@ -370,125 +279,76 @@ function renderTournamentCards() {
   filteredTournaments().forEach((t) => {
     const status = getStatus(t.startDate, t.endDate);
     const card = document.createElement("div");
+    card.className =
+      "glass-panel relative flex flex-col h-full rounded-xl overflow-hidden border border-white/5 transition-all duration-300 group hover:border-brand-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] hover:-translate-y-1";
 
-    // Estilo Glass Card Premium
-    card.className = `
-            glass-panel relative flex flex-col h-full rounded-xl overflow-hidden
-            border border-white/5 transition-all duration-300 group
-            hover:border-brand-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] hover:-translate-y-1
-        `;
-
+    // AQUÍ ES DONDE SE USA escapeHtml (Ahora funciona porque está importado)
     card.innerHTML = `
-        <div class="absolute top-0 left-0 w-full h-1 bg-${t.color}-500 shadow-[0_0_10px] shadow-${t.color}-500/50"></div>
-
-        <div class="p-6 flex flex-col flex-grow">
-            <div class="flex justify-between items-start mb-4">
-                <h3 class="font-display font-bold text-xl text-white leading-tight pr-16 break-words" title="${escapeHtml(t.name)}">
-                    ${escapeHtml(t.name)}
-                </h3>
-                <div class="flex flex-col items-end gap-2">
-                     ${getStatusBadge(status)}
+            <div class="absolute top-0 left-0 w-full h-1 bg-${t.color}-500 shadow-[0_0_10px] shadow-${t.color}-500/50"></div>
+            <div class="p-6 flex flex-col flex-grow">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="font-display font-bold text-xl text-white leading-tight pr-16 break-words">${escapeHtml(t.name)}</h3>
+                    <div class="flex flex-col items-end gap-2">${getStatusBadge(status)}</div>
                 </div>
-            </div>
-            
-            <div class="space-y-2 text-sm text-gray-400 mb-6">
-                 <div class="flex items-center gap-3 group/item">
-                    <span class="text-brand-500 group-hover/item:text-brand-400 transition-colors">📅</span>
-                    <span class="font-medium text-gray-300 font-mono text-xs">${formatDate(t.startDate)} - ${formatDate(t.endDate)}</span>
-                 </div>
-                 <div class="flex items-center gap-3 group/item">
-                    <span class="text-brand-500 group-hover/item:text-brand-400 transition-colors">📍</span>
-                    <span class="truncate">${escapeHtml(t.location)} (${t.modality})</span>
-                 </div>
-                 <div class="flex items-center gap-3">
-                    <span class="text-brand-500">🏆</span>
-                    <span class="text-xs font-bold uppercase tracking-wider bg-white/5 px-2 py-0.5 rounded text-gray-300">
-                        Tier ${t.tier}
-                    </span>
-                 </div>
-            </div>
-
-            <div class="mb-6 flex-grow">
-                 <div class="text-[10px] text-gray-500 uppercase font-bold mb-2 tracking-widest">Equipos</div>
-                 
-                 <div class="flex -space-x-2 overflow-hidden items-center p-1">
-                    ${(() => {
-                      const teams = t.teams
-                        ? t.teams
-                            .split(",")
-                            .map((s) => s.trim())
-                            .filter((s) => s)
-                        : [];
-                      const maxVisible = 5;
-
-                      let html = teams
-                        .slice(0, maxVisible)
-                        .map((team) => {
-                          const lowerName = team.toLowerCase();
-                          // Generamos URL de respaldo
-                          const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(team)}&background=random&color=fff&size=64&font-size=0.33&bold=true`;
-                          // Buscamos logo o usamos fallback
-                          const currentSrc = teamLogos[lowerName] || avatarUrl;
-
-                          return `
-                            <div class="relative group z-10 hover:z-20 transition-all duration-300 hover:scale-110">
-                                <div class="w-8 h-8 rounded-full bg-dark-800 border border-white/10 ring-2 ring-dark-900 overflow-hidden" title="${escapeHtml(team)}">
-                                     <img src="${currentSrc}" 
-                                          alt="${escapeHtml(team)}" 
-                                          class="w-full h-full object-cover"
-                                          onerror="this.onerror=null; this.src='${avatarUrl}';"
-                                     />
-                                </div>
-                            </div>`;
-                        })
-                        .join("");
-
-                      if (teams.length > maxVisible) {
-                        const hiddenCount = teams.length - maxVisible;
-                        const hiddenNames = teams.slice(maxVisible).join(", ");
-                        html += `
-                            <div class="relative z-0 hover:z-20 transition-all duration-300 hover:scale-110">
-                                <div class="flex items-center justify-center w-8 h-8 rounded-full bg-dark-700 border border-white/10 ring-2 ring-dark-900 text-xs font-bold text-gray-300 cursor-help" 
-                                     title="${escapeHtml(hiddenNames)}">
-                                    +${hiddenCount}
-                                </div>
-                            </div>`;
-                      }
-                      return html;
-                    })()}
-                 </div>
-                 </div>
-
-            <div class="flex items-center justify-between pt-4 border-t border-white/5 mt-auto">
-                 <button class="btn-fav p-2 rounded-lg hover:bg-white/10 transition-colors" 
-                         data-id="${t.id}" title="Favorito">
-                    <span class="text-lg block ${isFavorite(t.id) ? "text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.8)]" : "text-gray-600"}">
-                        ${isFavorite(t.id) ? "⭐" : "☆"}
-                    </span>
-                 </button>
-                 
-                 <div class="flex gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                     <button class="btn-edit text-xs bg-dark-800 hover:bg-brand-600 text-white px-3 py-1.5 rounded border border-white/10 hover:border-brand-500 transition-all font-bold uppercase tracking-wide"
-                             data-id="${t.id}">
-                        Editar
-                     </button>
-                     
-                     <button class="btn-delete text-xs bg-dark-800 hover:bg-red-600 text-white px-3 py-1.5 rounded border border-white/10 hover:border-red-500 transition-all font-bold uppercase tracking-wide" 
-                             data-id="${t.id}">
-                        Borrar
-                     </button>
-                 </div>
-            </div>
-        </div>
-      `;
+                <div class="space-y-2 text-sm text-gray-400 mb-6">
+                     <div class="flex items-center gap-3"><span class="text-brand-500">📅</span><span class="font-mono text-xs">${formatDate(t.startDate)} - ${formatDate(t.endDate)}</span></div>
+                     <div class="flex items-center gap-3"><span class="text-brand-500">📍</span><span class="truncate">${escapeHtml(t.location)} (${t.modality})</span></div>
+                     <div class="flex items-center gap-3"><span class="text-brand-500">🏆</span><span class="text-xs font-bold uppercase bg-white/5 px-2 py-0.5 rounded">Tier ${t.tier}</span></div>
+                </div>
+                <div class="mb-6 flex-grow">
+                     <div class="text-[10px] text-gray-500 uppercase font-bold mb-2 tracking-widest">Equipos</div>
+                     <div class="flex -space-x-2 overflow-hidden items-center p-1">${renderAvatars(t.teams)}</div>
+                </div>
+                <div class="flex items-center justify-between pt-4 border-t border-white/5 mt-auto">
+                     <button class="btn-fav p-2 hover:bg-white/10 rounded-lg" data-id="${t.id}">${isFavorite(t.id) ? "⭐" : "☆"}</button>
+                     <div class="flex gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                         <button class="btn-edit text-xs bg-dark-800 hover:bg-brand-600 text-white px-3 py-1.5 rounded border border-white/10 font-bold uppercase" data-id="${t.id}">Editar</button>
+                         <button class="btn-delete text-xs bg-dark-800 hover:bg-red-600 text-white px-3 py-1.5 rounded border border-white/10 font-bold uppercase" data-id="${t.id}">Borrar</button>
+                     </div>
+                </div>
+            </div>`;
     container.appendChild(card);
   });
-
   return container;
 }
 
+function renderAvatars(teamsString, isTable = false) {
+  if (!teamsString) return "";
+  const teams = teamsString
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s);
+  const maxVisible = 5;
+
+  let html = teams
+    .slice(0, maxVisible)
+    .map((team) => {
+      const lower = team.toLowerCase();
+      const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(team)}&background=random&color=fff&size=64&bold=true`;
+      const src = teamLogos[lower] || avatarUrl;
+      const sizeClass = isTable ? "w-6 h-6" : "w-8 h-8";
+
+      return `<div class="relative group z-10 hover:z-20 transition-all hover:scale-110">
+            <div class="${sizeClass} rounded-full bg-dark-800 border border-white/10 ring-2 ring-dark-900 overflow-hidden" title="${escapeHtml(team)}">
+                 <img src="${src}" class="w-full h-full object-cover" onerror="this.src='${avatarUrl}'"/>
+            </div>
+        </div>`;
+    })
+    .join("");
+
+  if (teams.length > maxVisible) {
+    const hidden = teams.slice(maxVisible).join(", ");
+    html += `<div class="relative z-0 hover:z-20 transition-all hover:scale-110">
+            <div class="flex items-center justify-center w-8 h-8 rounded-full bg-dark-700 border border-white/10 ring-2 ring-dark-900 text-xs font-bold text-gray-300 cursor-help" title="${escapeHtml(hidden)}">
+                +${teams.length - maxVisible}
+            </div>
+        </div>`;
+  }
+  return html;
+}
+
 // ==========================================
-// HELPERS
+// FILTROS & HELPERS
 // ==========================================
 
 function getFilters() {
@@ -507,29 +367,19 @@ function getFilters() {
 function filteredTournaments() {
   const f = getFilters();
   let filtered = tournaments;
-
-  if (f.fav) {
-    filtered = filtered.filter((t) => isFavorite(t.id));
-  }
+  if (f.fav) filtered = filtered.filter((t) => isFavorite(t.id));
 
   return filtered.filter((t) => {
     const textOK =
       !f.text ||
       t.name.toLowerCase().includes(f.text) ||
       t.teams.toLowerCase().includes(f.text);
-
     const tierOK = !f.tier || t.tier === f.tier;
     const modalityOK = !f.modality || t.modality === f.modality;
     const locationOK =
       !f.location || t.location.toLowerCase().includes(f.location);
-
-    // Fechas: convertimos todo a string ISO YYYY-MM-DD para comparar fácil
-    const tStart = t.startDate;
-    const tEnd = t.endDate;
-
-    let rangeOK = true;
-    if (f.from) rangeOK = rangeOK && tEnd >= f.from;
-    if (f.to) rangeOK = rangeOK && tStart <= f.to;
+    const rangeOK =
+      (!f.from || t.endDate >= f.from) && (!f.to || t.startDate <= f.to);
 
     let vrsOK = true;
     if (f.vrs === "1") vrsOK = t.vrs === true;
@@ -540,41 +390,33 @@ function filteredTournaments() {
 }
 
 function getStatus(startDate, endDate) {
-  const today = new Date();
-  const offset = today.getTimezoneOffset() * 60000;
-  const localToday = new Date(today.getTime() - offset)
-    .toISOString()
-    .slice(0, 10);
-
-  if (localToday >= startDate && localToday <= endDate) {
-    return "live";
-  } else if (localToday < startDate) {
-    return "upcoming";
-  } else {
-    return "completed";
-  }
+  const today = new Date().toISOString().slice(0, 10);
+  if (today >= startDate && today <= endDate) return "live";
+  else if (today < startDate) return "upcoming";
+  else return "completed";
 }
 
 function getStatusBadge(status) {
-  const labels = {
-    live: "🔴 LIVE",
-    upcoming: "🔜 PROX",
-    completed: "🏁 FIN",
-  };
-  const styles = {
-    live: "bg-red-500/20 text-red-400 border-red-500/50 animate-pulse",
-    upcoming: "bg-blue-500/20 text-blue-400 border-blue-500/50",
-    completed: "bg-gray-700/50 text-gray-500 border-gray-600/50",
-  };
-  return `<span class="px-2 py-0.5 rounded text-[10px] font-bold border ${styles[status]} tracking-wider">${labels[status]}</span>`;
-}
+  const lang = getLang();
+  // Usamos las traducciones de utils.js
+  const t = translations[lang].status;
 
-function formatDate(dateString) {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  const day = String(date.getUTCDate()).padStart(2, "0");
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-  return `${day}/${month}`;
+  const map = {
+    live: {
+      text: t.live,
+      class: "bg-red-500/20 text-red-400 border-red-500/50 animate-pulse",
+    },
+    upcoming: {
+      text: t.upcoming,
+      class: "bg-blue-500/20 text-blue-400 border-blue-500/50",
+    },
+    completed: {
+      text: t.completed,
+      class: "bg-gray-700/50 text-gray-500 border-gray-600/50",
+    },
+  };
+  const s = map[status];
+  return `<span class="px-2 py-0.5 rounded text-[10px] font-bold border ${s.class} tracking-wider">${s.text}</span>`;
 }
 
 function sortByDate() {
@@ -592,202 +434,105 @@ function sortByVRS() {
   renderTournaments();
 }
 
-function icsEscape(s = "") {
-  return String(s)
-    .replace(/\\/g, "\\\\")
-    .replace(/;/g, "\\;")
-    .replace(/,/g, "\\,")
-    .replace(/\n/g, "\\n");
+function toggleFavorite(id) {
+  const index = favoriteTournamentIds.indexOf(id);
+  if (index === -1) favoriteTournamentIds.push(id);
+  else favoriteTournamentIds.splice(index, 1);
+  localStorage.setItem("favorites", JSON.stringify(favoriteTournamentIds));
+  renderAll();
+}
+
+function isFavorite(id) {
+  return favoriteTournamentIds.includes(id);
+}
+
+// ==========================================
+// UTILS EXPORT (Backup)
+// ==========================================
+function exportTournaments() {
+  if (!tournaments.length) {
+    alert(translations[getLang()].noTournaments);
+    return;
+  }
+  const cleanData = tournaments.map(({ id, uid, ...rest }) => rest);
+  const blob = new Blob([JSON.stringify(cleanData, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "cs2_calendar_backup.json";
+  a.click();
+}
+
+function importTournaments(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async function (e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      const user = auth.currentUser;
+      if (!user) return alert("Inicia sesión para importar.");
+
+      const batchPromises = imported.map((t) => {
+        return addDoc(collection(db, "tournaments"), {
+          ...t,
+          uid: user.uid,
+          createdAt: new Date(),
+        });
+      });
+
+      await Promise.all(batchPromises);
+      await loadTournaments();
+      alert("Importación completada.");
+    } catch (err) {
+      console.error(err);
+      alert("Error al importar JSON.");
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = "";
 }
 
 function exportICS() {
   const list = filteredTournaments();
-  if (!list.length) {
-    alert(translations[currentLang].noTournaments);
-    return;
-  }
-  let ics =
-    "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//CS2 Calendar//EN\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\n";
+  if (!list.length) return alert(translations[getLang()].noTournaments);
+
+  let ics = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//CS2 Calendar//EN\r\n";
   list.forEach((t) => {
-    const dtStart = t.startDate.replace(/-/g, "");
-    const endPlus1 = new Date(t.endDate);
-    endPlus1.setDate(endPlus1.getDate() + 1);
-    const dtEnd = endPlus1.toISOString().slice(0, 10).replace(/-/g, "");
-    const uid = `${t.id}@cs2-calendar`;
-    const summary = icsEscape(`${t.name} [${t.tier}]`);
-    const description = icsEscape(
-      `Equipos: ${t.teams}\nModalidad: ${t.modality}\nVRS: ${t.vrs ? "Si" : "No"}`,
-    );
-    const location = icsEscape(t.location || "");
-    ics += `BEGIN:VEVENT\r\nUID:${uid}\r\nDTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").split(".")[0]}Z\r\nDTSTART;VALUE=DATE:${dtStart}\r\nDTEND;VALUE=DATE:${dtEnd}\r\nSUMMARY:${summary}\r\nLOCATION:${location}\r\nDESCRIPTION:${description}\r\nEND:VEVENT\r\n`;
+    const start = t.startDate.replace(/-/g, "");
+    const end = t.endDate.replace(/-/g, "");
+    ics += `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${start}\r\nDTEND;VALUE=DATE:${end}\r\nSUMMARY:${t.name}\r\nDESCRIPTION:Tier ${t.tier} - ${t.teams}\r\nEND:VEVENT\r\n`;
   });
   ics += "END:VCALENDAR\r\n";
-  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+
+  const blob = new Blob([ics], { type: "text/calendar" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "esports_calendar.ics";
+  a.download = "calendar.ics";
   a.click();
-  URL.revokeObjectURL(url);
-}
-
-// ==========================================
-// RENDER TAGS (Para vista Tabla)
-// ==========================================
-
-function renderTeamTags(teamsString, limit = false) {
-  if (!teamsString) return "";
-  const teams = teamsString
-    .split(",")
-    .map((t) => t.trim())
-    .filter((t) => t);
-  const visibleCount = limit ? 5 : 100;
-  const hiddenTeams = teams.length - visibleCount;
-
-  return `
-      <div class="flex flex-wrap gap-2">
-        ${teams
-          .slice(0, visibleCount)
-          .map((team) => {
-            const lowerName = team.toLowerCase();
-            const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(team)}&background=random&color=fff&size=64&font-size=0.33&bold=true`;
-            let currentSrc = teamLogos[lowerName] || avatarUrl;
-
-            return `
-            <div class="team-tag flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-full cursor-pointer select-none border border-white/5 bg-dark-900/50 hover:bg-dark-800 transition-all group/tag"
-                 data-team="${escapeHtml(team)}" 
-                 title="Filtrar por ${escapeHtml(team)}">
-                
-                <img src="${currentSrc}" 
-                     onerror="this.onerror=null; this.src='${avatarUrl}';"
-                     alt="${escapeHtml(team)}" 
-                     class="w-5 h-5 rounded-full object-cover shadow-sm bg-dark-800 group-hover/tag:scale-110 transition-transform">
-                
-                <span class="text-[10px] font-bold tracking-wide text-gray-300 group-hover/tag:text-white">
-                    ${escapeHtml(team)}
-                </span>
-            </div>`;
-          })
-          .join("")}
-        
-        ${
-          limit && hiddenTeams > 0
-            ? `<span class="text-[10px] text-gray-500 self-center font-mono ml-1">+${hiddenTeams}</span>`
-            : ""
-        }
-      </div>
-    `;
-}
-
-function loadDemoData() {
-  if (
-    !confirm(
-      "Esto borrará tus torneos actuales y cargará datos de prueba. ¿Continuar?",
-    )
-  )
-    return;
-
-  const today = new Date();
-  const oneDay = 86400000;
-
-  const relativeDate = (days) => {
-    return new Date(today.getTime() + days * oneDay).toISOString().slice(0, 10);
-  };
-
-  tournaments = [
-    {
-      id: Date.now(),
-      name: "IEM Katowice 2026 (Demo)",
-      tier: "S",
-      startDate: relativeDate(-2),
-      endDate: relativeDate(3),
-      teams: "Navi, FaZe, G2, Vitality, Spirit, Mouz, Liquid, Astralis",
-      location: "Katowice, Poland",
-      modality: "Offline",
-      color: "orange",
-      vrs: true,
-    },
-    {
-      id: Date.now() + 1,
-      name: "PGL Major Copenhagen",
-      tier: "S",
-      startDate: relativeDate(10),
-      endDate: relativeDate(24),
-      teams: "TBD",
-      location: "Copenhagen, Denmark",
-      modality: "Offline",
-      color: "yellow",
-      vrs: true,
-    },
-    {
-      id: Date.now() + 2,
-      name: "Blast Premier Spring",
-      tier: "A",
-      startDate: relativeDate(-10),
-      endDate: relativeDate(-5),
-      teams: "Cloud9, Virtus.pro, Heroic, FURIA",
-      location: "London, UK",
-      modality: "Offline",
-      color: "blue",
-      vrs: false,
-    },
-    {
-      id: Date.now() + 3,
-      name: "ESL Pro League S21",
-      tier: "A",
-      startDate: relativeDate(30),
-      endDate: relativeDate(60),
-      teams: "Complexity, BIG, MIBR, 9z Team, Fnatic",
-      location: "Malta",
-      modality: "Offline",
-      color: "purple",
-      vrs: true,
-    },
-    {
-      id: Date.now() + 4,
-      name: "CCT Online Series #5",
-      tier: "B",
-      startDate: relativeDate(-1),
-      endDate: relativeDate(5),
-      teams: "Monte, Aurora, 9 Pandas, SAW",
-      location: "Europe",
-      modality: "Online",
-      color: "green",
-      vrs: false,
-    },
-  ];
-
-  saveTournaments();
-  renderTournaments();
-  renderCalendar();
-  renderHighlights();
-  alert("¡Datos de prueba cargados!");
 }
 
 export {
   tournaments,
   editingTournamentId,
-  saveTournaments,
   loadTournaments,
   saveTournament,
   editTournament,
-  cancelEdit,
-  confirmDelete,
   deleteTournament,
-  clearForm,
-  exportTournaments,
-  importTournaments,
-  confirmClearAll,
-  clearAllTournaments,
+  cancelEdit,
   renderTournaments,
   filteredTournaments,
-  getFilters,
   toggleFavorite,
   isFavorite,
   sortByDate,
   sortByVRS,
-  exportICS,
   getStatus,
   getStatusBadge,
-  loadDemoData,
+  exportTournaments,
+  importTournaments,
+  exportICS,
 };

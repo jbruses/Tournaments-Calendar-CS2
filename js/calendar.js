@@ -1,4 +1,5 @@
-import { translations, currentLang } from "./ui.js";
+// 1. CORRECCIÓN: Importamos desde utils.js para evitar el error y los ciclos
+import { translations, getLang } from "./utils.js";
 import { filteredTournaments, editTournament } from "./tournaments.js";
 
 let calendar;
@@ -13,6 +14,9 @@ function initCalendar() {
     return;
   }
 
+  // 2. CORRECCIÓN: Usamos getLang() en lugar de la variable importada
+  const lang = getLang();
+
   calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
     headerToolbar: {
@@ -26,8 +30,9 @@ function initCalendar() {
     events: [],
 
     // Al hacer click, editamos
+    // 3. CORRECCIÓN: Quitamos parseInt porque los IDs de Firebase son strings
     eventClick: function (info) {
-      editTournament(parseInt(info.event.id));
+      editTournament(info.event.id);
     },
 
     eventDisplay: "block",
@@ -37,9 +42,9 @@ function initCalendar() {
       hour12: false,
     },
     firstDay: 1, // Lunes
-    locale: currentLang === "es" ? "es" : "en",
+    locale: lang, // Usamos la variable local obtenida de getLang()
     buttonText: {
-      today: translations[currentLang]?.calendarButtons?.today || "Hoy",
+      today: translations[lang]?.calendarButtons?.today || "Hoy",
     },
     dayMaxEvents: 3,
     dayMaxEventRows: 2,
@@ -49,11 +54,9 @@ function initCalendar() {
       return `+${num}`;
     },
 
-    // Estilos al montar el evento (Limpieza: Delegamos estilos a CSS/Tailwind)
     eventDidMount: function (info) {
       // Solo dejamos el tooltip nativo
       info.el.title = info.event.title;
-      // Los estilos visuales ahora van por clases en renderCalendar
     },
   });
 
@@ -72,13 +75,15 @@ function renderCalendar() {
   const list = filteredTournaments();
 
   list.forEach((tournament) => {
+    // Asegurar fechas válidas
+    if (!tournament.startDate || !tournament.endDate) return;
+
     const start = new Date(tournament.startDate);
     const end = new Date(tournament.endDate);
+
     // FullCalendar es exclusivo con la fecha final, sumamos 1 día
     end.setUTCDate(end.getUTCDate() + 1);
 
-    // Corrección de color: Usamos clases de Tailwind directamente
-    // Si tournament.color es "blue", generará "bg-blue-600"
     const colorBase = tournament.color || "blue";
 
     calendar.addEvent({
@@ -87,17 +92,17 @@ function renderCalendar() {
       start: start.toISOString().split("T")[0],
       end: end.toISOString().split("T")[0],
 
-      // AQUI ESTÁ LA CLAVE: Clases de Tailwind para el evento
+      // Clases de Tailwind
       classNames: [
-        `bg-${colorBase}-600`, // Fondo dinámico según color
-        "border-none", // Sin borde default
-        "text-white", // Texto blanco
-        "shadow-sm", // Sombra suave
-        "hover:brightness-110", // Efecto hover
-        "cursor-pointer", // Manito
-        "text-xs", // Texto pequeño
-        "font-medium", // Fuente semi-negrita
-        "px-1", // Padding lateral
+        `bg-${colorBase}-600`,
+        "border-none",
+        "text-white",
+        "shadow-sm",
+        "hover:brightness-110",
+        "cursor-pointer",
+        "text-xs",
+        "font-medium",
+        "px-1",
       ],
 
       extendedProps: {

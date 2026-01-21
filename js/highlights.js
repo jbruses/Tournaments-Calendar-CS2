@@ -1,126 +1,96 @@
 import {
-  tournaments,
+  filteredTournaments,
+  toggleFavorite,
   isFavorite,
-  getStatus,
-  getStatusBadge,
 } from "./tournaments.js";
-import { translations, currentLang } from "./ui.js";
-import { escapeHtml, formatDate } from "./utils.js";
 
-function getHighlights() {
-  const today = new Date();
-  // Ajuste: Usamos ISO string local para evitar problemas de zona horaria simples
-  const offset = today.getTimezoneOffset() * 60000;
-  const localToday = new Date(today.getTime() - offset)
-    .toISOString()
-    .slice(0, 10);
-
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const localTomorrow = new Date(tomorrow.getTime() - offset)
-    .toISOString()
-    .slice(0, 10);
-
-  return tournaments.filter((t) => {
-    // Live (Si hoy está entre inicio y fin)
-    const isLive = localToday >= t.startDate && localToday <= t.endDate;
-    // Empieza hoy o mañana
-    const isToday = t.startDate === localToday;
-    const isTomorrow = t.startDate === localTomorrow;
-
-    return isLive || isToday || isTomorrow;
-  });
-}
+import { translations, getLang, formatDate } from "./utils.js";
 
 function renderHighlights() {
-  const highlights = getHighlights();
   const container = document.getElementById("highlightsContent");
-  const noHighlights = document.getElementById("noHighlights");
+  const noDataMsg = document.getElementById("noHighlights");
   const favOnlyCheckbox = document.getElementById("highlightsFavOnly");
-  const t = translations[currentLang];
 
-  // Actualizar títulos dinámicos
-  const titleEl = document.getElementById("highlightsTitle");
-  if (titleEl)
-    titleEl.innerHTML = `🔥 <span>${t.highlightsTitle || "Highlights"}</span>`;
+  if (!container) return;
 
-  if (noHighlights)
-    noHighlights.textContent = t.noHighlights || "No hay torneos destacados";
+  let list = filteredTournaments();
+  if (favOnlyCheckbox && favOnlyCheckbox.checked)
+    list = list.filter((t) => isFavorite(t.id));
 
-  const favLabel = document.querySelector("label[for='highlightsFavOnly']");
-  if (favLabel) favLabel.textContent = t.favOnly || "Solo favoritos";
+  const today = new Date().toISOString().slice(0, 10);
+  const tmr = new Date();
+  tmr.setDate(tmr.getDate() + 1);
+  const tomorrow = tmr.toISOString().slice(0, 10);
 
-  // Filtrar favoritos si el checkbox está activo
-  let filteredHighlights = highlights;
-  if (favOnlyCheckbox && favOnlyCheckbox.checked) {
-    filteredHighlights = highlights.filter((t) => isFavorite(t.id));
+  const highlights = list.filter(
+    (t) =>
+      t.startDate === today ||
+      t.startDate === tomorrow ||
+      t.endDate === today ||
+      t.endDate === tomorrow ||
+      (t.startDate <= today && t.endDate >= today),
+  );
+
+  // Traducciones de estados
+  const lang = getLang();
+  const tStatus = translations[lang].status;
+
+  container.innerHTML = "";
+
+  if (highlights.length === 0) {
+    noDataMsg.classList.remove("hidden");
+  } else {
+    noDataMsg.classList.add("hidden");
+
+    highlights.forEach((t) => {
+      const isLive = t.startDate <= today && t.endDate >= today;
+      const statusColor = isLive ? "red" : "blue";
+
+      // Texto del badge traducido
+      const statusText = isLive
+        ? tStatus.liveNow
+        : t.startDate === tomorrow
+          ? tStatus.tomorrow
+          : tStatus.today;
+
+      const card = document.createElement("div");
+      card.className =
+        "glass-panel p-4 rounded-lg border border-white/10 hover:border-brand-500/50 transition-all group relative overflow-hidden";
+
+      card.innerHTML = `
+                <div class="absolute top-0 right-0 p-2 opacity-50 group-hover:opacity-100 transition-opacity">
+                    <span class="text-xs font-bold px-2 py-1 rounded bg-${statusColor}-500/20 text-${statusColor}-400 border border-${statusColor}-500/50 animate-pulse">
+                        ${statusText}
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="text-2xl">${t.tier === "S" ? "🏆" : "🎮"}</span>
+                    <div>
+                        <h4 class="font-bold text-white leading-tight text-lg">${t.name}</h4>
+                        <span class="text-xs text-gray-400 font-mono">${formatDate(t.startDate)} - ${formatDate(t.endDate)}</span>
+                    </div>
+                </div>
+                
+                <div class="mt-3 flex items-center justify-between">
+                    <div class="text-xs text-gray-500 truncate max-w-[70%]">
+                        ${t.teams || "TBD"}
+                    </div>
+                    <button class="btn-fav-highlight hover:scale-110 transition-transform text-lg" data-id="${t.id}">
+                        ${isFavorite(t.id) ? "⭐" : "☆"}
+                    </button>
+                </div>
+            `;
+
+      const btnFav = card.querySelector(".btn-fav-highlight");
+      btnFav.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleFavorite(t.id);
+      });
+
+      container.appendChild(card);
+    });
   }
-
-  // Mostrar mensaje si no hay nada
-  if (filteredHighlights.length === 0) {
-    container.innerHTML = "";
-    if (noHighlights) noHighlights.classList.remove("hidden");
-    return;
-  }
-
-  if (noHighlights) noHighlights.classList.add("hidden");
-
-  // Generar HTML de las tarjetas
-  container.innerHTML = filteredHighlights
-    .slice(0, 6)
-    .map((t) => {
-      const status = getStatus(t.startDate, t.endDate);
-      const isFav = isFavorite(t.id);
-      const isLive = status === "live";
-
-      // Estilos condicionales
-      const borderClass = isLive
-        ? "border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]"
-        : "border-white/10 hover:border-brand-500/50";
-      const bgClass = isLive
-        ? "bg-gradient-to-br from-dark-800 to-red-900/10"
-        : "bg-dark-800/50";
-
-      return `
-        <div class="highlight-card cursor-pointer group relative p-5 rounded-xl border transition-all duration-300 hover:-translate-y-1 ${borderClass} ${bgClass}" 
-             data-id="${t.id}">
-          
-          <div class="flex justify-between items-start mb-3 gap-2">
-            <h3 class="font-bold text-lg text-white leading-tight brand-font truncate w-3/4 group-hover:text-brand-400 transition-colors">
-                ${escapeHtml(t.name)}
-            </h3>
-            <div class="flex flex-col items-end gap-1">
-               ${getStatusBadge(status)}
-               <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-dark-900 text-gray-400 border border-white/5">
-                 ${t.tier}
-               </span>
-            </div>
-          </div>
-          
-          <div class="text-sm text-gray-400 space-y-1">
-            <div class="flex items-center gap-2">
-               <span class="text-brand-500">📅</span>
-               <span class="font-medium text-gray-300">${formatDate(t.startDate)}</span>
-            </div>
-            <div class="flex items-center gap-2">
-               <span class="text-brand-500">📍</span>
-               <span class="truncate">${escapeHtml(t.location)}</span>
-            </div>
-          </div>
-
-          <div class="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <button class="btn-fav p-2 rounded-full bg-dark-900/80 hover:bg-brand-600 hover:text-white transition-all shadow-lg backdrop-blur-sm ${isFav ? "text-yellow-400 opacity-100" : "text-gray-400"}" 
-                      data-id="${t.id}" 
-                      title="${isFav ? "Quitar favorito" : "Agregar favorito"}">
-                ${isFav ? "⭐" : "☆"}
-              </button>
-          </div>
-          
-          ${isFav ? '<div class="absolute top-0 right-0 p-2"><span class="text-xs">⭐</span></div>' : ""}
-        </div>
-      `;
-    })
-    .join("");
 }
 
 export { renderHighlights };
