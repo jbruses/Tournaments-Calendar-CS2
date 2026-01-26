@@ -476,6 +476,30 @@ body.light-mode #addTournamentButtons button.bg-dark-800:hover {
   color: #2563eb !important;
 }
 
+body.light-mode .btn-edit {
+  background-color: #ffffff !important;
+  color: #2563eb !important;        
+  border-color: #93c5fd !important;
+}
+
+body.light-mode .btn-edit:hover {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+}
+
+body.light-mode .btn-delete {
+  background-color: #ffffff !important;
+  color: #dc2626 !important;        /* Rojo fuerte */
+  border-color: #fca5a5 !important; /* Borde rojo suave */
+}
+
+body.light-mode .btn-delete:hover {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+}
+
 body.light-mode .view-toggle {
   background-color: #e5e7eb !important;
   border: 1px solid #d1d5db;
