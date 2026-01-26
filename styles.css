@@ -1,6 +1,4 @@
-/* =================== BASE (Modo Oscuro Default) =================== */
 body {
-  /* Fondo con "Spotlight" sutil arriba al centro */
   background-color: #0a0a0a;
   background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0a0a0a 60%);
   background-attachment: fixed;
@@ -11,14 +9,12 @@ body {
     color 0.3s;
 }
 
-/* =================== MODO CLARO (Overrides) =================== */
 body.light-mode {
   background-color: #f3f4f6;
   background-image: radial-gradient(circle at 50% 0%, #e5e7eb 0%, #f3f4f6 60%);
   color: #1f2937;
 }
 
-/* Títulos con fuente "Gamer/Tech" */
 h1,
 h2,
 h3,
@@ -28,7 +24,6 @@ h3,
   text-transform: uppercase;
 }
 
-/* =================== SCROLLBAR MODERNO =================== */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -55,7 +50,6 @@ body.light-mode ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
 
-/* =================== EFECTO GLASS (Cristal) =================== */
 .glass-panel {
   background: rgba(23, 23, 23, 0.6);
   backdrop-filter: blur(12px);
@@ -63,112 +57,63 @@ body.light-mode ::-webkit-scrollbar-thumb:hover {
   box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  animation: fadeInUp 0.4s ease-out forwards;
 }
 
-/* Glass en Modo Claro */
 body.light-mode .glass-panel {
   background: rgba(255, 255, 255, 0.7);
   border: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-/* Hover effect para cards */
 .glass-panel.interactive:hover {
   border-color: rgba(59, 130, 246, 0.4);
   box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
   transform: translateY(-2px);
 }
 
-/* =================== CALENDARIO FULLCUSTOM =================== */
-#calendar {
-  background: rgba(23, 23, 23, 0.4);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 1rem;
-  padding: 1.5rem;
-}
-body.light-mode #calendar {
-  background: rgba(255, 255, 255, 0.5);
-  border-color: rgba(0, 0, 0, 0.05);
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-/* Título del mes */
-.fc-toolbar-title {
-  font-family: "Rajdhani", sans-serif !important;
-  font-weight: 700;
-  font-size: 1.8rem !important;
-  text-transform: uppercase;
-  color: #ffffff !important; /* Blanco sólido en modo oscuro */
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.1); /* Brillo sutil */
+.input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+  transition: color 0.3s;
 }
 
-body.light-mode .fc-toolbar-title {
-  color: #1f2937 !important; /* Gris oscuro en modo claro */
-  text-shadow: none;
+.input-premium {
+  width: 100%;
+  background-color: rgba(23, 23, 23, 0.6);
+  border: 1px solid rgba(75, 85, 99, 0.4);
+  color: white;
+  height: 42px;
+  line-height: 42px;
+  padding: 0 1rem 0 2.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  transition: all 0.2s ease-in-out;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
-/* Botones del calendario */
-.fc-button-primary {
-  background-color: rgba(255, 255, 255, 0.05) !important; /* Fondo sutil */
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: #ffffff !important;
-  font-family: "Rajdhani", sans-serif;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  transition: all 0.2s ease;
+.input-premium:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  outline: none;
+  background-color: rgba(23, 23, 23, 0.9);
+}
+.input-premium:focus + .input-icon,
+.input-wrapper:focus-within .input-icon {
+  color: #3b82f6;
 }
 
-/* Hover de los botones */
-.fc-button-primary:hover,
-.fc-button-active {
-  background-color: #3b82f6 !important; /* Azul al pasar el mouse */
-  border-color: #3b82f6 !important;
-  color: white !important;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
-}
-
-body.light-mode .fc-button-primary {
-  background-color: white !important;
-  border-color: #d1d5db !important;
-  color: #374151 !important;
-}
-
-body.light-mode .fc-button-primary:hover,
-body.light-mode .fc-button-active {
-  background-color: #2563eb !important; /* Azul más oscuro */
-  color: white !important;
-}
-
-.fc-icon {
-  color: inherit !important; /* Heredar color del botón */
-  vertical-align: middle;
-}
-
-/* La grilla */
-.fc-theme-standard td,
-.fc-theme-standard th {
-  border-color: rgba(255, 255, 255, 0.05) !important;
-}
-body.light-mode .fc-theme-standard td,
-body.light-mode .fc-theme-standard th {
-  border-color: rgba(0, 0, 0, 0.05) !important;
-}
-
-.fc-daygrid-day-number {
-  color: #737373;
-  font-size: 0.9rem;
-  text-decoration: none !important;
-}
-
-/* Día actual */
-.fc-day-today {
-  background: rgba(59, 130, 246, 0.05) !important;
-}
-
-/* =================== TAGS & INPUTS =================== */
-
-/* IMPORTANTE: Excluimos .input-premium y .bg-transparent para no romper el nuevo form */
 input:not(.input-premium):not(.bg-transparent),
 select:not(.input-premium) {
   background: #0a0a0a;
@@ -178,24 +123,6 @@ select:not(.input-premium) {
   border-radius: 0.5rem;
   transition: border 0.2s;
 }
-
-/* Ajuste importante: Icono de calendario blanco en dark mode */
-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-  cursor: pointer;
-}
-
-/* Inputs en Modo Claro */
-body.light-mode input:not(.input-premium),
-body.light-mode select:not(.input-premium) {
-  background: #ffffff;
-  border: 1px solid #d1d5db;
-  color: #1f2937;
-}
-body.light-mode input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: none;
-}
-
 input:focus,
 select:focus {
   outline: none;
@@ -203,182 +130,14 @@ select:focus {
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
-.team-tag {
-  font-family: "Rajdhani", sans-serif;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #d4d4d4;
-  transition: all 0.2s;
+input[type="date"] {
+  color-scheme: dark;
 }
-body.light-mode .team-tag {
-  background: rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.1);
-  color: #4b5563;
-}
-
-.team-tag:hover {
-  background: #3b82f6;
-  border-color: #3b82f6;
-  color: white;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
-}
-
-/* Animación de entrada suave */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.glass-panel {
-  animation: fadeInUp 0.4s ease-out forwards;
-}
-
-/* Ajustes Autocomplete (Dropdown) */
-.autocomplete-dropdown {
-  scrollbar-width: thin;
-  scrollbar-color: #4b5563 #1f2937;
-  /* Aseguramos que quede encima de todo */
-  z-index: 100;
-  max-height: 200px;
-  overflow-y: auto;
-  border-radius: 0 0 0.5rem 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-}
-body.light-mode .autocomplete-dropdown {
-  background-color: #ffffff;
-  border-color: #e5e7eb;
-}
-.autocomplete-item {
-  padding: 0.5rem 1rem;
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
   cursor: pointer;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  transition: background 0.2s;
-}
-body.light-mode .autocomplete-item {
-  color: #374151;
-  border-color: #f3f4f6;
-}
-.autocomplete-item:hover {
-  background-color: rgba(59, 130, 246, 0.2);
-}
-body.light-mode .autocomplete-item:hover {
-  background-color: #3b82f6;
-  color: white;
 }
 
-/* =================== DÍAS DE LA SEMANA (Lun, Mar...) =================== */
-
-#calendar th {
-  background: transparent !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.fc-col-header-cell-cushion {
-  color: #94a3b8 !important;
-  text-decoration: none !important;
-  text-transform: uppercase;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.9rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  padding: 8px 0 !important;
-}
-
-.fc-col-header-cell-cushion:hover {
-  color: #3b82f6 !important;
-}
-
-body.light-mode #calendar th {
-  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
-}
-
-body.light-mode .fc-col-header-cell-cushion {
-  color: #4b5563 !important;
-}
-
-/* =================== TEAM LOGOS & AVATARS =================== */
-.team-tag img {
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  filter: brightness(0.9);
-  transition: all 0.3s ease;
-}
-
-.team-tag:hover img {
-  filter: brightness(1.1);
-  border-color: rgba(59, 130, 246, 0.5);
-}
-
-/* =================== FORM UI MEJORADO (Alineación Perfecta) =================== */
-
-/* Contenedor del Input con Icono */
-.input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-/* El Icono dentro del Input - Centrado Matemático */
-.input-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%; /* Centrado */
-  transform: translateY(-50%); /* Corrección de posición */
-  color: #9ca3af; /* Gray-400 */
-  pointer-events: none;
-  transition: color 0.3s;
-}
-
-/* El Input en sí (Premium) - Altura Fija */
-.input-premium {
-  width: 100%;
-  background-color: rgba(23, 23, 23, 0.6); /* bg-dark-900 con opacidad */
-  border: 1px solid rgba(75, 85, 99, 0.4); /* border-gray-600 suave */
-  color: white;
-  
-  /* PROPIEDADES DE ALINEACIÓN CLAVE */
-  height: 42px;             /* Altura fija igual para todos */
-  line-height: 42px;        /* Texto centrado verticalmente */
-  padding: 0 1rem 0 2.5rem; /* Padding solo lateral (izquierda para icono) */
-  
-  border-radius: 0.5rem;
-  font-size: 0.95rem;
-  transition: all 0.2s ease-in-out;
-  
-  /* Crucial para que el Select no muestre flecha doble */
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-.input-premium:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); /* Glow azul */
-  outline: none;
-  background-color: rgba(23, 23, 23, 0.9);
-}
-
-/* Al hacer foco, el icono también se ilumina */
-.input-premium:focus + .input-icon,
-.input-wrapper:focus-within .input-icon {
-  color: #3b82f6;
-}
-
-/* Modo Claro overrides */
-body.light-mode .input-premium {
-  background-color: #ffffff;
-  border-color: #d1d5db;
-  color: #1f2937;
-}
-
-/* =================== TOGGLE SWITCH (VRS) =================== */
 .toggle-checkbox {
   position: absolute;
   opacity: 0;
@@ -386,18 +145,16 @@ body.light-mode .input-premium {
   height: 0;
   width: 0;
 }
-
 .toggle-label {
   position: relative;
   display: block;
   width: 44px;
   height: 24px;
-  background-color: #374151; /* Gray-700 inactive */
+  background-color: #374151;
   border-radius: 9999px;
   transition: background-color 0.3s;
   cursor: pointer;
 }
-
 .toggle-label:after {
   content: "";
   position: absolute;
@@ -410,13 +167,80 @@ body.light-mode .input-premium {
   transition: transform 0.3s;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
-
 .toggle-checkbox:checked + .toggle-label {
-  background-color: #3b82f6; /* Brand Blue active */
+  background-color: #3b82f6;
 }
-
 .toggle-checkbox:checked + .toggle-label:after {
   transform: translateX(100%);
+}
+
+#calendar {
+  background: rgba(23, 23, 23, 0.4);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.fc-toolbar-title {
+  font-family: "Rajdhani", sans-serif !important;
+  font-weight: 700;
+  font-size: 1.8rem !important;
+  text-transform: uppercase;
+  color: #ffffff !important;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.fc-button-primary {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  font-family: "Rajdhani", sans-serif;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+.fc-button-primary:hover,
+.fc-button-active {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: white !important;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+.fc-icon {
+  color: inherit !important;
+  vertical-align: middle;
+}
+
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+#calendar th {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.fc-col-header-cell-cushion {
+  color: #94a3b8 !important;
+  text-decoration: none !important;
+  text-transform: uppercase;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 8px 0 !important;
+}
+.fc-col-header-cell-cushion:hover {
+  color: #3b82f6 !important;
+}
+.fc-daygrid-day-number {
+  color: #737373;
+  font-size: 0.9rem;
+  text-decoration: none !important;
+}
+.fc-day-today {
+  background: rgba(59, 130, 246, 0.05) !important;
 }
 
 #teamTagsInput {
@@ -426,45 +250,307 @@ body.light-mode .input-premium {
   gap: 0.25rem;
   height: auto !important;
   min-height: 42px;
-  padding-top: 0.3rem;
-  padding-bottom: 0.3rem;
+  padding: 0.3rem 0 0.3rem 0.8rem;
 }
-
 .tag-element {
-  white-space: nowrap; 
+  white-space: nowrap;
   animation: fadeInTag 0.2s ease-out forwards;
 }
-
-@keyframes fadeInTag {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+.team-tag {
+  font-family: "Rajdhani", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #d4d4d4;
+  transition: all 0.2s;
+}
+.team-tag:hover {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+.team-tag img {
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  filter: brightness(0.9);
+  transition: all 0.3s ease;
+}
+.team-tag:hover img {
+  filter: brightness(1.1);
+  border-color: rgba(59, 130, 246, 0.5);
 }
 
-
+.autocomplete-dropdown {
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 #1f2937;
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 0 0 0.5rem 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
 .autocomplete-dropdown::-webkit-scrollbar {
-  width: 4px; /* Más fino que el global de 8px */
+  width: 4px;
 }
 .autocomplete-dropdown::-webkit-scrollbar-thumb {
   background: #4b5563;
   border-radius: 2px;
 }
-
-
-@keyframes livePulse {
-  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-  70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+.autocomplete-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s;
+}
+.autocomplete-item:hover {
+  background-color: rgba(59, 130, 246, 0.2);
 }
 
-
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeInTag {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes livePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
 .animate-pulse {
   animation: livePulse 2s infinite;
 }
 
-
-input[type="date"] {
-  color-scheme: dark;
+body.light-mode .input-premium {
+  background-color: #ffffff;
+  border-color: #d1d5db;
+  color: #1f2937;
+}
+body.light-mode input:not(.input-premium),
+body.light-mode select:not(.input-premium) {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #1f2937;
 }
 body.light-mode input[type="date"] {
   color-scheme: light;
+}
+body.light-mode input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: none;
+}
+
+body.light-mode .input-icon {
+  color: #6b7280;
+}
+body.light-mode .input-wrapper:focus-within .input-icon {
+  color: #2563eb;
+}
+
+body.light-mode .text-white {
+  color: #111827 !important;
+}
+body.light-mode .text-gray-400 {
+  color: #4b5563 !important;
+}
+body.light-mode .text-gray-300 {
+  color: #374151 !important;
+}
+body.light-mode .text-brand-200 {
+  color: #1e40af !important;
+}
+body.light-mode #highlightsTitle span,
+body.light-mode #formTitle,
+body.light-mode #vrsLabel {
+  color: #111827 !important;
+}
+body.light-mode #vrsLabel + span {
+  color: #4b5563 !important;
+}
+
+body.light-mode #pageTitle {
+  background-image: none !important;
+  background-color: transparent !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+body.light-mode #calendar {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(0, 0, 0, 0.05);
+}
+body.light-mode .fc-toolbar-title {
+  color: #1f2937 !important;
+  text-shadow: none;
+}
+body.light-mode .fc-button-primary {
+  background-color: white !important;
+  border-color: #d1d5db !important;
+  color: #374151 !important;
+}
+body.light-mode .fc-button-primary:hover,
+body.light-mode .fc-button-active {
+  background-color: #2563eb !important;
+  color: white !important;
+}
+body.light-mode .fc-theme-standard td,
+body.light-mode .fc-theme-standard th {
+  border-color: rgba(0, 0, 0, 0.05) !important;
+}
+body.light-mode #calendar th {
+  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+}
+body.light-mode .fc-col-header-cell-cushion {
+  color: #4b5563 !important;
+}
+
+body.light-mode .team-tag {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #4b5563;
+}
+body.light-mode .tag-element {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #1d4ed8 !important;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+body.light-mode .tag-element .remove-tag-icon:hover {
+  background-color: #ef4444;
+  color: white !important;
+}
+
+body.light-mode .autocomplete-dropdown {
+  background-color: #ffffff;
+  border-color: #e5e7eb;
+}
+body.light-mode .autocomplete-item {
+  color: #374151;
+  border-color: #f3f4f6;
+}
+body.light-mode .autocomplete-item:hover {
+  background-color: #3b82f6;
+  color: white;
+}
+
+body.light-mode #toggleTheme {
+  background-color: #ffffff;
+  color: #1f2937 !important;
+  border-color: #d1d5db;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+body.light-mode #toggleTheme:hover {
+  background-color: #f3f4f6;
+  color: #111827 !important;
+  border-color: #9ca3af;
+}
+
+body.light-mode #addTournamentButtons button.bg-dark-800 {
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
+  color: #374151 !important;
+}
+body.light-mode #addTournamentButtons button.bg-dark-800:hover {
+  background-color: #f9fafb !important;
+  border-color: #3b82f6 !important;
+  color: #2563eb !important;
+}
+
+body.light-mode .view-toggle {
+  background-color: #e5e7eb !important;
+  border: 1px solid #d1d5db;
+}
+body.light-mode .view-toggle-btn {
+  color: #6b7280 !important;
+}
+body.light-mode .view-toggle-btn:hover {
+  color: #111827 !important;
+}
+body.light-mode .view-toggle-btn.bg-brand-600 {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
+}
+
+body.light-mode #btnSignIn {
+  background-color: #2563eb;
+  color: white;
+}
+body.light-mode #btnSignIn:hover {
+  background-color: #1d4ed8;
+}
+body.light-mode #userProfile {
+  background-color: #ffffff;
+  border-color: #d1d5db;
+  color: #1f2937;
+}
+body.light-mode #userName {
+  color: #1f2937 !important;
+}
+
+body.light-mode tbody tr {
+  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+}
+body.light-mode tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+body.light-mode td span.bg-dark-900 {
+  background-color: #ffffff !important;
+  color: #111827;
+  border-color: #d1d5db;
+}
+
+body.light-mode .bg-red-500\/20 {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  color: #b91c1c !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+body.light-mode .bg-blue-500\/20 {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  color: #1d4ed8 !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+body.light-mode .bg-gray-700\/50 {
+  background-color: #e5e7eb !important;
+  color: #4b5563 !important;
+  border-color: #d1d5db !important;
+}
+
+body.light-mode .col-span-2.flex.items-center.justify-between {
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
+}
+body.light-mode .col-span-2.flex.items-center.justify-between:hover {
+  border-color: #3b82f6 !important;
+  background-color: #f9fafb !important;
+}
+body.light-mode label span.text-gray-400 {
+  color: #4b5563 !important;
+}
+body.light-mode label:hover span.group-hover\:text-white {
+  color: #000000 !important;
+}
+body.light-mode label .bg-dark-900 {
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
 }
