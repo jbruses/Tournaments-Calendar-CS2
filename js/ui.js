@@ -173,6 +173,7 @@ function setLanguage(lang) {
   renderCalendar();
   renderHighlights();
   setCalendarLocale(lang);
+  initDatePickers(lang);
 }
 
 function safeSetText(id, text) {
@@ -210,6 +211,27 @@ function setView(view) {
       btnTable.className = `view-toggle-btn px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${activeClass}`;
     }
   }
+}
+
+export function initDatePickers(currentLang) {
+    const lang = currentLang || localStorage.getItem('lang') || 'es'; 
+    
+    const placeholderText = lang === 'es' ? 'dd/mm/aaaa' : 'dd/mm/yyyy';
+    
+    document.querySelectorAll(".date-picker").forEach(input => {
+        input.placeholder = placeholderText;
+    });
+
+
+    flatpickr(".date-picker", {
+        dateFormat: "d/m/Y",
+        disableMobile: "true",
+        locale: lang === 'es' ? 'es' : 'default',
+        allowInput: true,
+        
+        prevArrow: '<span class="text-white">&lsaquo;</span>',
+        nextArrow: '<span class="text-white">&rsaquo;</span>'
+    });
 }
 
 function showHelp() {

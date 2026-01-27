@@ -13,6 +13,10 @@
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+
   <script>
     tailwind.config = {
       darkMode: "class",
@@ -191,14 +195,14 @@
           <label id="startDateLabel"
             class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Start Date</label>
           <div class="input-wrapper">
-            <input id="startDate" type="date" class="input-premium" />
+            <input id="startDate" type="text" class="input-premium date-picker" placeholder="dd/mm/yyyy" />
           </div>
         </div>
         <div>
           <label id="endDateLabel" class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">End
             Date</label>
           <div class="input-wrapper">
-            <input id="endDate" type="date" class="input-premium" />
+            <input id="endDate" type="text" class="input-premium date-picker" placeholder="dd/mm/yyyy"/>
           </div>
         </div>
 
@@ -362,10 +366,10 @@
             <input id="fLocation" type="text" placeholder="Ubicación" class="input-premium text-sm py-2" />
           </div>
           <div class="input-wrapper">
-            <input id="fFrom" type="date" class="input-premium text-sm py-2" title="Desde" />
+            <input id="fFrom" type="text" class="input-premium text-sm py-2 date-picker" placeholder="dd/mm/yyyy" title="Desde" />
           </div>
           <div class="input-wrapper">
-            <input id="fTo" type="date" class="input-premium text-sm py-2" title="Hasta" />
+            <input id="fTo" type="text" class="input-premium text-sm py-2 date-picker" placeholder="dd/mm/yyyy" title="Hasta" />
           </div>
         </div>
 

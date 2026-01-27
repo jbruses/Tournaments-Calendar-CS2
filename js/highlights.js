@@ -58,29 +58,35 @@ function renderHighlights() {
         "glass-panel p-4 rounded-lg border border-white/10 hover:border-brand-500/50 transition-all group relative overflow-hidden";
 
       card.innerHTML = `
-                <div class="absolute top-0 right-0 p-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                    <span class="text-xs font-bold px-2 py-1 rounded bg-${statusColor}-500/20 text-${statusColor}-400 border border-${statusColor}-500/50 animate-pulse">
-                        ${statusText}
-                    </span>
-                </div>
+        <div class="absolute top-0 right-0 p-3 z-20">
+            <span class="text-[10px] font-bold px-2 py-1 rounded bg-${statusColor}-500/20 text-${statusColor}-400 border border-${statusColor}-500/50 animate-pulse shadow-sm tracking-wider">
+                ${statusText}
+            </span>
+        </div>
 
-                <div class="flex items-center gap-3 mb-2">
-                    <span class="text-2xl">${t.tier === "S" ? "🏆" : "🎮"}</span>
-                    <div>
-                        <h4 class="font-bold text-white leading-tight text-lg">${t.name}</h4>
-                        <span class="text-xs text-gray-400 font-mono">${formatDate(t.startDate)} - ${formatDate(t.endDate)}</span>
-                    </div>
-                </div>
-                
-                <div class="mt-3 flex items-center justify-between">
-                    <div class="text-xs text-gray-500 truncate max-w-[70%]">
-                        ${t.teams || "TBD"}
-                    </div>
-                    <button class="btn-fav-highlight hover:scale-110 transition-transform text-lg" data-id="${t.id}">
-                        ${isFavorite(t.id) ? "⭐" : "☆"}
-                    </button>
-                </div>
-            `;
+        <div class="flex items-start gap-3 mb-2 relative z-10 mt-1">
+            
+            <span class="text-2xl leading-none shrink-0">${t.tier === "S" ? "🏆" : "🎮"}</span>
+            
+            <div class="flex-1 min-w-0 pr-24">
+                <h4 class="font-bold text-white text-lg leading-tight break-words">
+                    ${t.name}
+                </h4>
+                <span class="text-xs text-gray-400 font-mono block mt-1">
+                    ${formatDate(t.startDate)} - ${formatDate(t.endDate)}
+                </span>
+            </div>
+        </div>
+        
+        <div class="mt-4 flex items-center justify-between relative z-10 border-t border-white/5 pt-2">
+            <div class="text-xs text-gray-500 truncate max-w-[75%]">
+                ${t.teams || "TBD"}
+            </div>
+            <button class="btn-fav-highlight hover:scale-125 transition-transform text-lg p-1" data-id="${t.id}">
+                ${isFavorite(t.id) ? "⭐" : "☆"}
+            </button>
+        </div>
+    `;
 
       const btnFav = card.querySelector(".btn-fav-highlight");
       btnFav.addEventListener("click", (e) => {

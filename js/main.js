@@ -28,6 +28,7 @@ import {
   hideHelp,
   currentLang,
   currentView,
+  initDatePickers,
 } from "./ui.js";
 import {
   setupTeamAutocomplete,
@@ -67,6 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
   setView(currentView);
   setupTeamAutocomplete();
   setupFormAutocomplete();
+  initDatePickers();
 
   // Form Actions
   document.getElementById("saveButton")?.addEventListener("click", (e) => {
@@ -156,7 +158,6 @@ document.addEventListener("DOMContentLoaded", function () {
     renderTournaments();
   });
 
-  // ⬇️ 2. CLICK EN CABECERAS DE TABLA (PARA ORDENAR)
   document.getElementById("thDates")?.addEventListener("click", sortByDate);
   document.getElementById("thVRS")?.addEventListener("click", sortByVRS);
 
@@ -184,6 +185,15 @@ document.addEventListener("DOMContentLoaded", function () {
       search.dispatchEvent(new Event("input"));
       search.scrollIntoView({ behavior: "smooth", block: "center" });
     }
+  });
+
+  flatpickr(".date-picker", {
+    dateFormat: "d/m/Y",
+    theme: "dark",
+    allowInput: true,
+    locale: localStorage.getItem("lang") === "es" ? "es" : "default",
+
+    disableMobile: "true",
   });
 });
 
