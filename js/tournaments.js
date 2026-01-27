@@ -236,8 +236,6 @@ function editTournament(id) {
       const fechaInicioObj = crearFechaSegura(t.startDate);
       const fechaFinObj = crearFechaSegura(t.endDate);
 
-      console.log("📅 Pasando Objeto Matemático:", fechaInicioObj);
-
       flatpickr(startInput, { ...fpConfig, defaultDate: fechaInicioObj });
       flatpickr(endInput, { ...fpConfig, defaultDate: fechaFinObj });
 
