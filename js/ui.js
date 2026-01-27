@@ -92,6 +92,7 @@ function setLanguage(lang) {
   safeSetText("thColor", t.thColor);
   safeSetText("thVRS", t.thVRS);
 
+
   // --- HIGHLIGHTS ---
   const hlTitle = document.getElementById("highlightsTitle");
   if (hlTitle) hlTitle.querySelector("span").textContent = t.highlightsTitle;
@@ -147,6 +148,11 @@ function setLanguage(lang) {
   setOptionText("fVRS", "", t.filters.vrs);
   setOptionText("fVRS", "1", t.filters.vrsYes);
   setOptionText("fVRS", "0", t.filters.vrsNo);
+
+  const thActions = document.getElementById("thActions");
+  if (thActions) {
+      thActions.textContent = t.thActions;
+  }
 
   // Label Checkbox Filtro Favoritos (Buscamos el span hermano del input)
   const lblFavFilter = document.querySelector("label:has(#fFav) span");

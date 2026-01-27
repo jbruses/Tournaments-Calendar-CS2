@@ -162,10 +162,6 @@ async function deleteTournament(id) {
   }
 }
 
-// ==========================================
-// GESTIÓN DEL FORMULARIO
-// ==========================================
-
 function editTournament(id) {
   const t = tournaments.find((x) => x.id === id);
   if (!t) return;
@@ -178,14 +174,23 @@ function editTournament(id) {
   const startInput = document.getElementById("startDate");
   const endInput = document.getElementById("endDate");
 
+  const normalizeDate = (dateStr) => {
+    if (!dateStr) return null;
+    if (dateStr.includes('/')) {
+        const [day, month, year] = dateStr.split('/');
+        return `${year}-${month}-${day}`; 
+    }
+    return dateStr;
+  };
+
   if (startInput._flatpickr) {
-    startInput._flatpickr.setDate(t.startDate, true);
+    startInput._flatpickr.setDate(normalizeDate(t.startDate), true);
   } else {
     startInput.value = t.startDate;
   }
 
   if (endInput._flatpickr) {
-    endInput._flatpickr.setDate(t.endDate, true);
+    endInput._flatpickr.setDate(normalizeDate(t.endDate), true);
   } else {
     endInput.value = t.endDate;
   }
