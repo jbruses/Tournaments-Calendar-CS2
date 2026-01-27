@@ -179,61 +179,38 @@ async function deleteTournament(id) {
 function editTournament(id) {
   const t = tournaments.find((x) => x.id === id);
   if (!t) return;
-
   editingTournamentId = id;
 
   const formBody = document.getElementById("addTournamentFormBody");
-  if (formBody.classList.contains("hidden")) {
-      toggleAddForm();
-  }
+  if (formBody.classList.contains("hidden")) toggleAddForm();
   document.getElementById("formTitle").scrollIntoView({ behavior: "smooth" });
 
   document.getElementById("tournamentName").value = t.name;
   document.getElementById("tournamentTier").value = t.tier;
 
-  const startInput = document.getElementById("startDate");
-  const endInput = document.getElementById("endDate");
+  setTimeout(() => {
+      const startInput = document.getElementById("startDate");
+      const endInput = document.getElementById("endDate");
+      
+      const normalizeDate = (dateStr) => {
+        if (!dateStr) return null;
+        if (dateStr.includes('/')) {
+            const [day, month, year] = dateStr.split('/');
+            return `${year}-${month}-${day}`; 
+        }
+        return dateStr;
+      };
 
-  const normalizeDate = (dateStr) => {
-    if (!dateStr) return null;
-    if (dateStr.includes('/')) {
-        const [day, month, year] = dateStr.split('/');
-        return `${year}-${month}-${day}`; 
-    }
-    return dateStr;
-  };
+      if (startInput._flatpickr) startInput._flatpickr.destroy();
+      if (endInput._flatpickr) endInput._flatpickr.destroy();
 
-  if (startInput._flatpickr) startInput._flatpickr.destroy();
-  if (endInput._flatpickr) endInput._flatpickr.destroy();
+      const fpConfig = { dateFormat: "d/m/Y", locale: "es", disableMobile: true };
 
-  const fpConfig = {
-      dateFormat: "d/m/Y",
-      locale: "es",
-      disableMobile: true,
-  };
-
-  flatpickr(startInput, {
-      ...fpConfig,
-      defaultDate: normalizeDate(t.startDate)
-  });
-
-  flatpickr(endInput, {
-      ...fpConfig,
-      defaultDate: normalizeDate(t.endDate)
-  });
-
-  document.getElementById("tournamentLocation").value = t.location || "";
-  document.getElementById("tournamentModality").value = t.modality || "Online";
-  document.getElementById("tournamentColor").value = t.color || "blue";
-  document.getElementById("tournamentVRS").checked = t.vrs || false;
-
-  const teamsArray = t.teams
-    ? t.teams
-        .split(",")
-        .map((s) => s.trim())
-        .filter((s) => s)
-    : [];
-  setCurrentTeams(teamsArray);
+      flatpickr(startInput, { ...fpConfig, defaultDate: normalizeDate(t.startDate) });
+      flatpickr(endInput, { ...fpConfig, defaultDate: normalizeDate(t.endDate) });
+      
+      console.log("⏱️ Fechas aplicadas con retraso:", t.startDate);
+  }, 100);
 
   const tText = translations[getLang()];
   document.getElementById("formTitle").textContent = tText.formTitles.edit;
