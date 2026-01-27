@@ -196,10 +196,12 @@ function editTournament(id) {
     }
     return dateStr;
   };
-  
+
   if (startInput._flatpickr) {
     const fechaFinal = normalizeDate(t.startDate);
     console.log("🔥 Seteando en Flatpickr:", fechaFinal); 
+
+    startInput._flatpickr.set('minDate', null);
 
     startInput._flatpickr.setDate(fechaFinal, true);
   } else {
@@ -207,6 +209,8 @@ function editTournament(id) {
   }
 
   if (endInput._flatpickr) {
+    endInput._flatpickr.set('minDate', null); 
+    
     endInput._flatpickr.setDate(normalizeDate(t.endDate), true);
   } else {
     endInput.value = t.endDate;
