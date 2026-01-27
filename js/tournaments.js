@@ -177,18 +177,17 @@ async function deleteTournament(id) {
 }
 
 function editTournament(id) {
-
   const t = tournaments.find((x) => x.id === id);
   if (!t) {
-      console.error("No se encontró el torneo con ID:", id);
+      console.error("❌ No se encontró el torneo con ID:", id);
       return;
   }
 
-  console.log("Editando Torneo:", t.name);
+  editingTournamentId = id;
+
+  console.log("Editando:", t.name);
   console.log("Fecha Inicio (DB):", t.startDate);
   console.log("Fecha Fin (DB):", t.endDate);
-
-  editingTournamentId = id;
 
   document.getElementById("tournamentName").value = t.name;
   document.getElementById("tournamentTier").value = t.tier;
@@ -206,8 +205,10 @@ function editTournament(id) {
   };
 
   if (startInput._flatpickr) {
+    console.log("Flatpickr detectado en Inicio. Actualizando...");
     startInput._flatpickr.setDate(normalizeDate(t.startDate), true);
   } else {
+    console.warn("Flatpickr NO detectado en input Inicio (Usando value normal)");
     startInput.value = t.startDate;
   }
 
