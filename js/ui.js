@@ -1,5 +1,5 @@
 import { renderTournaments, editingTournamentId } from "./tournaments.js";
-import { renderCalendar } from "./calendar.js";
+import { renderCalendar, setCalendarLocale } from "./calendar.js";
 import { renderHighlights } from "./highlights.js";
 import { translations } from "./utils.js";
 
@@ -172,6 +172,7 @@ function setLanguage(lang) {
   renderTournaments();
   renderCalendar();
   renderHighlights();
+  setCalendarLocale(lang);
 }
 
 function safeSetText(id, text) {

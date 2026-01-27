@@ -198,7 +198,7 @@ export const translations = {
       hybrid: "Hybrid (On/Off)",
     },
     colorOptions: {
-      blue: "🔵 Azul",
+      blue: "🔵 Blue",
       orange: "🟠 Orange",
       green: "🟢 Green",
       red: "🔴 Red",

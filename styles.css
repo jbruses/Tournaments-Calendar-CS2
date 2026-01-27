@@ -421,6 +421,11 @@ body.light-mode .fc-theme-standard th {
 body.light-mode #calendar th {
   border-bottom-color: rgba(0, 0, 0, 0.1) !important;
 }
+.fc-button {
+  text-transform: uppercase !important;
+  font-weight: 700 !important; /* Más negrita para que se vea bien */
+  letter-spacing: 0.05em !important;
+}
 body.light-mode .fc-col-header-cell-cushion {
   color: #4b5563 !important;
 }
@@ -478,7 +483,7 @@ body.light-mode #addTournamentButtons button.bg-dark-800:hover {
 
 body.light-mode .btn-edit {
   background-color: #ffffff !important;
-  color: #2563eb !important;        
+  color: #2563eb !important;
   border-color: #93c5fd !important;
 }
 
@@ -490,7 +495,7 @@ body.light-mode .btn-edit:hover {
 
 body.light-mode .btn-delete {
   background-color: #ffffff !important;
-  color: #dc2626 !important;        /* Rojo fuerte */
+  color: #dc2626 !important; /* Rojo fuerte */
   border-color: #fca5a5 !important; /* Borde rojo suave */
 }
 
@@ -577,4 +582,27 @@ body.light-mode label:hover span.group-hover\:text-white {
 body.light-mode label .bg-dark-900 {
   background-color: #ffffff !important;
   border-color: #d1d5db !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+    
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 20px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    
+    filter: none !important; 
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+body.light-mode input[type="date"]::-webkit-calendar-picker-indicator {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E") !important;
 }
