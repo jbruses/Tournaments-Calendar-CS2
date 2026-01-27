@@ -177,8 +177,16 @@ async function deleteTournament(id) {
 }
 
 function editTournament(id) {
+
   const t = tournaments.find((x) => x.id === id);
-  if (!t) return;
+  if (!t) {
+      console.error("No se encontró el torneo con ID:", id);
+      return;
+  }
+
+  console.log("Editando Torneo:", t.name);
+  console.log("Fecha Inicio (DB):", t.startDate);
+  console.log("Fecha Fin (DB):", t.endDate);
 
   editingTournamentId = id;
 
