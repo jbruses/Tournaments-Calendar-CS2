@@ -86,7 +86,18 @@ async function loadTournaments() {
   }
 }
 
-// 2. GUARDAR
+function formatDateForSave(dateStr) {
+  if (!dateStr) return "";
+  if (dateStr.includes("-")) return dateStr;
+  
+  const parts = dateStr.split("/");
+  if (parts.length === 3) {
+      const [day, month, year] = parts;
+      return `${year}-${month}-${day}`;
+  }
+  return dateStr;
+}
+
 async function saveTournament() {
   const user = auth.currentUser;
   if (!user) {
@@ -96,8 +107,12 @@ async function saveTournament() {
 
   const name = document.getElementById("tournamentName").value.trim();
   const tier = document.getElementById("tournamentTier").value;
-  const startDate = document.getElementById("startDate").value;
-  const endDate = document.getElementById("endDate").value;
+
+  const rawStart = document.getElementById("startDate").value;
+  const rawEnd = document.getElementById("endDate").value;
+
+  const startDate = formatDateForSave(rawStart);
+  const endDate = formatDateForSave(rawEnd);
 
   const pendingTeam = document.getElementById("tournamentTeams").value.trim();
   if (pendingTeam) addTeamTag(pendingTeam);
@@ -142,7 +157,6 @@ async function saveTournament() {
     }
     await loadTournaments();
     cancelEdit();
-    // toggleAddForm ya es seguro llamarlo aquí porque viene de utils
     toggleAddForm();
   } catch (e) {
     console.error("Error saving:", e);
