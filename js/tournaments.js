@@ -182,6 +182,12 @@ function editTournament(id) {
 
   editingTournamentId = id;
 
+  const formBody = document.getElementById("addTournamentFormBody");
+  if (formBody.classList.contains("hidden")) {
+      toggleAddForm();
+  }
+  document.getElementById("formTitle").scrollIntoView({ behavior: "smooth" });
+
   document.getElementById("tournamentName").value = t.name;
   document.getElementById("tournamentTier").value = t.tier;
 
@@ -204,7 +210,6 @@ function editTournament(id) {
       dateFormat: "d/m/Y",
       locale: "es",
       disableMobile: true,
-      allowInput: true
   };
 
   flatpickr(startInput, {
@@ -234,10 +239,6 @@ function editTournament(id) {
   document.getElementById("formTitle").textContent = tText.formTitles.edit;
   document.getElementById("saveButton").textContent = tText.saveButtons.edit;
   document.getElementById("btnCancel").classList.remove("hidden");
-
-  const formBody = document.getElementById("addTournamentFormBody");
-  if (formBody.classList.contains("hidden")) toggleAddForm();
-  document.getElementById("formTitle").scrollIntoView({ behavior: "smooth" });
 }
 
 function cancelEdit() {
