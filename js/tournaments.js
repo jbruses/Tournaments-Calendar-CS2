@@ -201,13 +201,21 @@ function editTournament(id) {
       const startInput = document.getElementById("startDate");
       const endInput = document.getElementById("endDate");
 
-      const normalizeDate = (dateStr) => {
-        if (!dateStr) return null;
-        if (dateStr.includes('/')) {
-            const [day, month, year] = dateStr.split('/');
-            return `${year}-${month}-${day}`; 
+      const crearFechaSegura = (fechaStr) => {
+        if (!fechaStr) return null;
+        
+        let anio, mes, dia;
+
+        if (fechaStr.includes('-')) {
+            [anio, mes, dia] = fechaStr.split('-').map(Number);
+        } 
+        else if (fechaStr.includes('/')) {
+            [dia, mes, anio] = fechaStr.split('/').map(Number);
+        } else {
+            return null;
         }
-        return dateStr;
+
+        return new Date(anio, mes - 1, dia, 12, 0, 0);
       };
 
       if (startInput._flatpickr) startInput._flatpickr.destroy();
@@ -219,22 +227,26 @@ function editTournament(id) {
       endInput.setAttribute("value", "");
 
       const fpConfig = { 
-          dateFormat: "d/m/Y", 
+          dateFormat: "d/m/Y", // Cómo se ve
           locale: "es", 
           disableMobile: true,
           allowInput: true 
       };
 
-      flatpickr(startInput, { ...fpConfig, defaultDate: normalizeDate(t.startDate) });
-      flatpickr(endInput, { ...fpConfig, defaultDate: normalizeDate(t.endDate) });
+      const fechaInicioObj = crearFechaSegura(t.startDate);
+      const fechaFinObj = crearFechaSegura(t.endDate);
 
-      console.log("Fechas restauradas:", t.startDate, "->", t.endDate);
+      console.log("📅 Pasando Objeto Matemático:", fechaInicioObj);
+
+      flatpickr(startInput, { ...fpConfig, defaultDate: fechaInicioObj });
+      flatpickr(endInput, { ...fpConfig, defaultDate: fechaFinObj });
+
   }, 50);
 
   const teamsArray = t.teams ? t.teams.split(",").map(s => s.trim()).filter(s => s) : [];
-  setCurrentTeams(teamsArray); // Asegúrate que esta función exista y limpie los anteriores
+  setCurrentTeams(teamsArray); 
 
-  const tText = translations[getLang()] || translations['es']; // Fallback a español
+  const tText = translations[getLang()] || translations['es']; 
   if(title) title.textContent = tText.formTitles.edit;
   
   const saveBtn = document.getElementById("saveButton");
