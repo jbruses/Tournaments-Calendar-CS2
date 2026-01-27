@@ -174,8 +174,22 @@ function editTournament(id) {
 
   document.getElementById("tournamentName").value = t.name;
   document.getElementById("tournamentTier").value = t.tier;
-  document.getElementById("startDate").value = t.startDate;
-  document.getElementById("endDate").value = t.endDate;
+
+  const startInput = document.getElementById("startDate");
+  const endInput = document.getElementById("endDate");
+
+  if (startInput._flatpickr) {
+    startInput._flatpickr.setDate(t.startDate, true);
+  } else {
+    startInput.value = t.startDate;
+  }
+
+  if (endInput._flatpickr) {
+    endInput._flatpickr.setDate(t.endDate, true);
+  } else {
+    endInput.value = t.endDate;
+  }
+
   document.getElementById("tournamentLocation").value = t.location || "";
   document.getElementById("tournamentModality").value = t.modality || "Online";
   document.getElementById("tournamentColor").value = t.color || "blue";
