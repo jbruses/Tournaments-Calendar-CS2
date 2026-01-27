@@ -22,9 +22,9 @@ import {
   translations,
   getLang,
   toggleAddForm,
+  formatDateForDisplay
 } from "./utils.js";
 
-// Estado Global
 let tournaments = [];
 let editingTournamentId = null;
 let sortDirectionDate = 1;
@@ -287,7 +287,7 @@ function renderTournaments() {
       row.innerHTML = `
                 <td class="py-4 px-4 text-white">${escapeHtml(t.name)}</td>
                 <td class="py-4 px-4"><span class="bg-dark-900 border border-gray-700 px-2 py-1 rounded text-xs font-bold">${t.tier}</span></td>
-                <td class="py-4 px-4 text-xs text-gray-400 font-mono">${formatDate(t.startDate)} - ${formatDate(t.endDate)}</td>
+                <td class="py-4 px-4 text-xs text-gray-400 font-mono">${formatDateForDisplay(t.startDate)} - ${formatDateForDisplay(t.endDate)}</td>
                 <td class="py-4 px-4">${renderAvatars(t.teams, true)}</td>
                 <td class="py-4 px-4 text-sm text-gray-400">${escapeHtml(t.location)}</td>
                 <td class="py-4 px-4 text-sm">${t.modality}</td>

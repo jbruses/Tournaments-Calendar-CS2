@@ -409,6 +409,13 @@ export function setupTeamAutocomplete() {
   );
 }
 
+export function formatDateForDisplay(isoDate) {
+    if (!isoDate) return "";
+    if (isoDate.includes("/")) return isoDate; 
+    const [year, month, day] = isoDate.split('-');
+    return `${day}/${month}/${year}`;
+  };
+
 // --- B. FORMULARIO (AGREGAR EQUIPOS) ---
 export function setupFormAutocomplete() {
   const input = document.getElementById("tournamentTeams");
@@ -425,7 +432,7 @@ export function setupFormAutocomplete() {
     }
   });
 
-  // 1. Enter Key
+
   input.addEventListener("keydown", function (e) {
     if (e.key === "Enter" || e.key === ",") {
       e.preventDefault(); // Stop Submit
