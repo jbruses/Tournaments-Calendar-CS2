@@ -196,9 +196,12 @@ function editTournament(id) {
     }
     return dateStr;
   };
-
+  
   if (startInput._flatpickr) {
-    startInput._flatpickr.setDate(normalizeDate(t.startDate), true);
+    const fechaFinal = normalizeDate(t.startDate);
+    console.log("🔥 Seteando en Flatpickr:", fechaFinal); 
+
+    startInput._flatpickr.setDate(fechaFinal, true);
   } else {
     startInput.value = t.startDate;
   }
