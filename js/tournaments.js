@@ -182,16 +182,25 @@ function editTournament(id) {
   editingTournamentId = id;
 
   const formBody = document.getElementById("addTournamentFormBody");
-  if (formBody.classList.contains("hidden")) toggleAddForm();
-  document.getElementById("formTitle").scrollIntoView({ behavior: "smooth" });
+  if (formBody && formBody.classList.contains("hidden")) {
+      toggleAddForm(); 
+  }
+  
+  const title = document.getElementById("formTitle");
+  if(title) title.scrollIntoView({ behavior: "smooth" });
 
   document.getElementById("tournamentName").value = t.name;
   document.getElementById("tournamentTier").value = t.tier;
+  document.getElementById("tournamentLocation").value = t.location || "";
+  document.getElementById("tournamentModality").value = t.modality || "Online";
+  document.getElementById("tournamentColor").value = t.color || "blue";
+  const vrsCheckbox = document.getElementById("tournamentVRS");
+  if(vrsCheckbox) vrsCheckbox.checked = t.vrs || false;
 
   setTimeout(() => {
       const startInput = document.getElementById("startDate");
       const endInput = document.getElementById("endDate");
-      
+
       const normalizeDate = (dateStr) => {
         if (!dateStr) return null;
         if (dateStr.includes('/')) {
@@ -204,18 +213,35 @@ function editTournament(id) {
       if (startInput._flatpickr) startInput._flatpickr.destroy();
       if (endInput._flatpickr) endInput._flatpickr.destroy();
 
-      const fpConfig = { dateFormat: "d/m/Y", locale: "es", disableMobile: true };
+      startInput.value = "";
+      startInput.setAttribute("value", "");
+      endInput.value = "";
+      endInput.setAttribute("value", "");
+
+      const fpConfig = { 
+          dateFormat: "d/m/Y", 
+          locale: "es", 
+          disableMobile: true,
+          allowInput: true 
+      };
 
       flatpickr(startInput, { ...fpConfig, defaultDate: normalizeDate(t.startDate) });
       flatpickr(endInput, { ...fpConfig, defaultDate: normalizeDate(t.endDate) });
-      
-      console.log("⏱️ Fechas aplicadas con retraso:", t.startDate);
-  }, 100);
 
-  const tText = translations[getLang()];
-  document.getElementById("formTitle").textContent = tText.formTitles.edit;
-  document.getElementById("saveButton").textContent = tText.saveButtons.edit;
-  document.getElementById("btnCancel").classList.remove("hidden");
+      console.log("Fechas restauradas:", t.startDate, "->", t.endDate);
+  }, 50);
+
+  const teamsArray = t.teams ? t.teams.split(",").map(s => s.trim()).filter(s => s) : [];
+  setCurrentTeams(teamsArray); // Asegúrate que esta función exista y limpie los anteriores
+
+  const tText = translations[getLang()] || translations['es']; // Fallback a español
+  if(title) title.textContent = tText.formTitles.edit;
+  
+  const saveBtn = document.getElementById("saveButton");
+  if(saveBtn) saveBtn.textContent = tText.saveButtons.edit;
+  
+  const cancelBtn = document.getElementById("btnCancel");
+  if(cancelBtn) cancelBtn.classList.remove("hidden");
 }
 
 function cancelEdit() {
